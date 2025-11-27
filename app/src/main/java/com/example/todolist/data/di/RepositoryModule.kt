@@ -1,0 +1,38 @@
+package com.example.todolist.data.di
+
+import android.content.Context
+import com.example.todolist.data.local.dao.MissionDao
+import com.example.todolist.data.local.dao.TaskDao
+import com.example.todolist.data.local.di.LocalModule
+import com.example.todolist.data.remote.di.NetworkModule
+import com.example.todolist.data.remote.service.AiApiService
+import com.example.todolist.data.repository.RemoteAiRepositoryImpl
+import com.example.todolist.data.repository.RoomMissionRepositoryImpl
+import com.example.todolist.data.repository.RoomTaskRepositoryImpl
+import com.example.todolist.domain.repository.AiRepository
+import com.example.todolist.domain.repository.MissionRepository
+import com.example.todolist.domain.repository.TaskRepository
+import retrofit2.Retrofit
+
+object RepositoryModule {
+    /** Provide MissionRepository from MissionDao */
+    fun provideMissionRepository(dao: MissionDao): MissionRepository = RoomMissionRepositoryImpl(dao)
+
+    fun provideMissionRepository(context: Context): MissionRepository = provideMissionRepository(LocalModule.provideMissionDao(context))
+
+    /** Provide TaskRepository from TaskDao */
+    fun provideTaskRepository(dao: TaskDao): TaskRepository = RoomTaskRepositoryImpl(dao)
+
+    fun provideTaskRepository(context: Context): TaskRepository = provideTaskRepository(LocalModule.provideTaskDao(context))
+
+    /** Provide AiRepository using AiApiService (remote). If you later add local persistence for AI results, change this to compose local+remote */
+    fun provideAiRepository(apiService: AiApiService): AiRepository = RemoteAiRepositoryImpl(apiService)
+
+    fun provideAiRepository(retrofit: Retrofit): AiRepository = provideAiRepository(NetworkModule.provideAiApiService(retrofit))
+
+    fun provideAiRepository(baseUrl: String, apiKey: String? = null): AiRepository {
+        val retrofit = NetworkModule.provideRetrofit(baseUrl, apiKey)
+        return provideAiRepository(retrofit)
+    }
+}
+
