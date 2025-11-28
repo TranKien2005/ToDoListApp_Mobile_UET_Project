@@ -48,6 +48,8 @@ android {
     }
     buildFeatures {
         compose = true
+        // Enable generation of BuildConfig fields declared in defaultConfig
+        buildConfig = true
     }
 }
 
