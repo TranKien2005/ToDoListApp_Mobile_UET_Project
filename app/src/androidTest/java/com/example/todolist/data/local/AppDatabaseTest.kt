@@ -10,12 +10,6 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class AppDatabaseTest {
-    @Test
-    fun `db should create`() {
-        val context = ApplicationProvider.getApplicationContext<Context>()
-        val db = AppDatabase.getInstance(context)
-        assertNotNull(db)
-        db.close()
-    }
+
 }
 

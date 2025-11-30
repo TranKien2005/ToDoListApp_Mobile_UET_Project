@@ -1,7 +1,8 @@
 package com.example.todolist.data.mapper
 
 import com.example.todolist.data.local.entity.TaskEntity
-import com.example.todolist.domain.model.Task
+import com.example.todolist.core.model.Task
+import com.example.todolist.core.model.RepeatType
 import com.example.todolist.util.extension.DateExt
 
 object TaskEntityMapper {
@@ -11,7 +12,8 @@ object TaskEntityMapper {
             title = entity.title,
             description = entity.description,
             startTime = DateExt.toLocalDateTime(entity.startTimeEpoch),
-            endTime = entity.endTimeEpoch?.let { DateExt.toLocalDateTime(it) },
+            durationMinutes = entity.durationMinutes,
+            repeatType = try { RepeatType.valueOf(entity.repeatType) } catch (_: Exception) { RepeatType.NONE },
             isCompleted = entity.isCompleted
         )
     }
@@ -22,9 +24,9 @@ object TaskEntityMapper {
             title = task.title,
             description = task.description,
             startTimeEpoch = DateExt.toEpochMillis(task.startTime),
-            endTimeEpoch = task.endTime?.let { DateExt.toEpochMillis(it) },
+            durationMinutes = task.durationMinutes,
+            repeatType = task.repeatType.name,
             isCompleted = task.isCompleted
         )
     }
 }
-

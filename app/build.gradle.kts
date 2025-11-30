@@ -28,6 +28,7 @@ android {
         unitTests.isIncludeAndroidResources = true
     }
 
+
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -63,6 +64,10 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
+    // Material extended icons (managed by Compose BOM)
+    implementation("androidx.compose.material:material-icons-extended")
+    // Google Fonts for Jetpack Compose
+    implementation("androidx.compose.ui:ui-text-google-fonts:1.6.0")
     // Navigation for Compose
     implementation("androidx.navigation:navigation-compose:2.7.3")
     // Network: Retrofit + Gson + OkHttp

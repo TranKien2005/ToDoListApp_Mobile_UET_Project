@@ -2,7 +2,7 @@ package com.example.todolist.data.repository
 
 import com.example.todolist.data.remote.dto.AiResultDto
 import com.example.todolist.data.remote.service.AiApiService
-import com.example.todolist.domain.model.AiResult
+import com.example.todolist.core.model.AiResult
 import com.example.todolist.domain.repository.AiRepository
 
 class RemoteAiRepositoryImpl(

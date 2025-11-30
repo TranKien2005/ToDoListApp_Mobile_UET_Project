@@ -7,10 +7,6 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class ApiServiceTest {
-    @Test
-    fun `placeholder api service test`() {
-        // Real tests should use MockWebServer; this is a placeholder.
-        assertTrue(true)
-    }
+
 }
 

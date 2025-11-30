@@ -1,7 +1,7 @@
 package com.example.todolist.data.mapper
 
 import com.example.todolist.data.local.entity.MissionEntity
-import com.example.todolist.domain.model.Mission
+import com.example.todolist.core.model.Mission
 import com.example.todolist.util.extension.DateExt
 
 object MissionEntityMapper {

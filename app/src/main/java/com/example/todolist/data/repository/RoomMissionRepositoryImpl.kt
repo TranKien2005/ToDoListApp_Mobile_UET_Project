@@ -2,7 +2,7 @@ package com.example.todolist.data.repository
 
 import com.example.todolist.data.local.dao.MissionDao
 import com.example.todolist.data.mapper.MissionEntityMapper
-import com.example.todolist.domain.model.Mission
+import com.example.todolist.core.model.Mission
 import com.example.todolist.domain.repository.MissionRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map

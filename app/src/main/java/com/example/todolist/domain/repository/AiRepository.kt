@@ -1,6 +1,6 @@
 package com.example.todolist.domain.repository
 
-import com.example.todolist.domain.model.AiResult
+import com.example.todolist.core.model.AiResult
 
 interface AiRepository {
     // Send text command to AI and get a suggestion/result

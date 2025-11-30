@@ -1,6 +1,6 @@
 package com.example.todolist.domain.repository
 
-import com.example.todolist.domain.model.Mission
+import com.example.todolist.core.model.Mission
 import kotlinx.coroutines.flow.Flow
 
 interface MissionRepository {

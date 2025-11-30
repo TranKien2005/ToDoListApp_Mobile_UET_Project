@@ -1,6 +1,6 @@
-package com.example.todolist.domain.model
+package com.example.todolist.core.model
 
-// Simple wrapper for AI results; extend as needed
+// Shared core model for AI results
 data class AiResult(
     val text: String,
     val metadata: Map<String, String>? = null

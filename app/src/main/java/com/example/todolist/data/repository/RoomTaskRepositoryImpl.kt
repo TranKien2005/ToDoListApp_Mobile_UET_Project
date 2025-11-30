@@ -2,7 +2,7 @@ package com.example.todolist.data.repository
 
 import com.example.todolist.data.local.dao.TaskDao
 import com.example.todolist.data.mapper.TaskEntityMapper
-import com.example.todolist.domain.model.Task
+import com.example.todolist.core.model.Task
 import com.example.todolist.domain.repository.TaskRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -25,4 +25,3 @@ class RoomTaskRepositoryImpl(
         dao.updateCompleted(taskId, completed)
     }
 }
-

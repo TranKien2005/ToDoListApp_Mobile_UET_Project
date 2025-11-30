@@ -8,9 +8,11 @@ data class TaskEntity(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val title: String,
     val description: String?,
-    // store timestamps as epoch millis for compatibility
+    // store start timestamp as epoch millis for compatibility
     val startTimeEpoch: Long,
-    val endTimeEpoch: Long?,
+    // duration in minutes (nullable)
+    val durationMinutes: Long?,
+    // repeat type stored as String name of enum (NONE/DAILY/WEEKLY/MONTHLY)
+    val repeatType: String = "NONE",
     val isCompleted: Boolean = false
 )
-

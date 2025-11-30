@@ -1,6 +1,6 @@
 package com.example.todolist.domain.repository
 
-import com.example.todolist.domain.model.Task
+import com.example.todolist.core.model.Task
 import kotlinx.coroutines.flow.Flow
 
 interface TaskRepository {
@@ -9,4 +9,3 @@ interface TaskRepository {
     suspend fun deleteTask(taskId: Int)
     suspend fun markCompleted(taskId: Int, completed: Boolean)
 }
-
