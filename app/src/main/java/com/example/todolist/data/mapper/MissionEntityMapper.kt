@@ -2,6 +2,7 @@ package com.example.todolist.data.mapper
 
 import com.example.todolist.data.local.entity.MissionEntity
 import com.example.todolist.core.model.Mission
+import com.example.todolist.core.model.MissionStatus
 import com.example.todolist.util.extension.DateExt
 
 object MissionEntityMapper {
@@ -11,7 +12,7 @@ object MissionEntityMapper {
             title = entity.title,
             description = entity.description,
             deadline = DateExt.toLocalDateTime(entity.deadlineEpoch),
-            isCompleted = entity.isCompleted
+            status = try { MissionStatus.valueOf(entity.status) } catch (_: Exception) { MissionStatus.UNSPECIFIED }
         )
     }
 
@@ -21,8 +22,7 @@ object MissionEntityMapper {
             title = mission.title,
             description = mission.description,
             deadlineEpoch = DateExt.toEpochMillis(mission.deadline),
-            isCompleted = mission.isCompleted
+            status = mission.status.name
         )
     }
 }
-

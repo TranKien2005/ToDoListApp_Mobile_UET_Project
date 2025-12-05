@@ -21,7 +21,5 @@ class RoomTaskRepositoryImpl(
         dao.deleteById(taskId)
     }
 
-    override suspend fun markCompleted(taskId: Int, completed: Boolean) {
-        dao.updateCompleted(taskId, completed)
-    }
+    // Tasks do not support completion state
 }

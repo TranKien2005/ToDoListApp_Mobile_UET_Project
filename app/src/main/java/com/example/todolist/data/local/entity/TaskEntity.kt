@@ -13,6 +13,6 @@ data class TaskEntity(
     // duration in minutes (nullable)
     val durationMinutes: Long?,
     // repeat type stored as String name of enum (NONE/DAILY/WEEKLY/MONTHLY)
-    val repeatType: String = "NONE",
-    val isCompleted: Boolean = false
+    val repeatType: String = "NONE"
+    // Note: removed isCompleted field; tasks are schedule-only
 )

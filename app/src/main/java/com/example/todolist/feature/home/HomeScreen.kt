@@ -41,7 +41,8 @@ fun HomeScreen(
 
     // Make the entire Home screen scrollable by using a single LazyColumn. This allows
     // the user to swipe/scroll down the whole screen (calendar + tasks) as requested.
-    val tasksForDay = uiState.tasks.filter { task -> !task.isCompleted }
+    // Tasks are schedules only; show all tasks for the day (filtering by completion removed)
+    val tasksForDay = uiState.tasks
 
     LazyColumn(modifier = modifier.padding(16.dp)) {
         item {
@@ -79,8 +80,7 @@ fun HomeScreen(
             items(tasksForDay) { task ->
                 TaskCardItem(
                     task = task,
-                    onDelete = { id -> homeViewModel.deleteTask(id) },
-                    onMarkCompleted = { id -> homeViewModel.markTaskCompleted(id, true) }
+                    onDelete = { id -> homeViewModel.deleteTask(id) }
                 )
                 Spacer(modifier = Modifier.height(8.dp))
             }

@@ -4,6 +4,8 @@ import android.content.Context
 import com.example.todolist.di.AppModule
 import com.example.todolist.feature.home.HomeViewModel
 import com.example.todolist.feature.mission.MissionViewModel
+import com.example.todolist.feature.common.AddItemViewModel
+import com.example.todolist.feature.analysis.MissionAnalysisViewModel
 
 object ViewModelProvider {
 
@@ -17,6 +19,19 @@ object ViewModelProvider {
         val appModule = AppModule(context)
         val missionUseCases = appModule.domainModule.missionUseCases
         return MissionViewModel(missionUseCases)
+    }
+
+    fun provideAddItemViewModel(context: Context): AddItemViewModel {
+        val appModule = AppModule(context)
+        val taskUseCases = appModule.domainModule.taskUseCases
+        val missionUseCases = appModule.domainModule.missionUseCases
+        return AddItemViewModel(taskUseCases, missionUseCases)
+    }
+
+    fun provideMissionAnalysisViewModel(context: Context): MissionAnalysisViewModel {
+        val appModule = AppModule(context)
+        val missionUseCases = appModule.domainModule.missionUseCases
+        return MissionAnalysisViewModel(missionUseCases.getMissionStats)
     }
 
 }

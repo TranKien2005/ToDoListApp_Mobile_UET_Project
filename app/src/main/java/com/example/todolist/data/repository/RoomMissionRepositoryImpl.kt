@@ -3,6 +3,7 @@ package com.example.todolist.data.repository
 import com.example.todolist.data.local.dao.MissionDao
 import com.example.todolist.data.mapper.MissionEntityMapper
 import com.example.todolist.core.model.Mission
+import com.example.todolist.core.model.MissionStatus
 import com.example.todolist.domain.repository.MissionRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -20,8 +21,7 @@ class RoomMissionRepositoryImpl(
         dao.deleteById(missionId)
     }
 
-    override suspend fun markMissionCompleted(missionId: Int, completed: Boolean) {
-        dao.updateCompleted(missionId, completed)
+    override suspend fun setMissionStatus(missionId: Int, status: MissionStatus) {
+        dao.updateStatus(missionId, status.name)
     }
 }
-

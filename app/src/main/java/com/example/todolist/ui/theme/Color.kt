@@ -102,7 +102,7 @@ val onSurfaceVariantLightHighContrast = Color(0xFF000000)
 val outlineLightHighContrast = Color(0xFF2C2B34)
 val outlineVariantLightHighContrast = Color(0xFF494851)
 val scrimLightHighContrast = Color(0xFF000000)
-val inverseSurfaceLightHighContrast = Color(0xFF303036)
+val inverseSurfaceLightHighContrast = Color(0xFFE4E1E9)
 val inverseOnSurfaceLightHighContrast = Color(0xFFFFFFFF)
 val inversePrimaryLightHighContrast = Color(0xFFC1C1FF)
 val surfaceDimLightHighContrast = Color(0xFFBAB7BF)
@@ -113,6 +113,15 @@ val surfaceContainerLightHighContrast = Color(0xFFE4E1E9)
 val surfaceContainerHighLightHighContrast = Color(0xFFD6D3DB)
 val surfaceContainerHighestLightHighContrast = Color(0xFFC8C5CD)
 
+// Mission-specific containers (light)
+val missionCompletedContainerLight = Color(0xFFC8E6C9) // slightly darker green
+val onMissionCompletedContainerLight = Color(0xFF1B5E20)
+// use a stronger red for missed in light theme so it stands out clearly
+val missionMissedContainerLight = Color(0xFFFF9A9A) // darker pale red
+val onMissionMissedContainerLight = Color(0xFF6B1212)
+// Mission-specific in-progress container (light)
+val missionInProgressContainerLight = Color(0xFFB3E5FC) // slightly darker pale blue
+val onMissionInProgressContainerLight = Color(0xFF0B3F91)
 val primaryDark = Color(0xFFDCCBFF) // lighter purple for dark theme surfaces
 val onPrimaryDark = Color(0xFF241A57) // dark text over the light primary in dark theme
 val primaryContainerDark = Color(0xFF5A4BD6)
@@ -148,6 +157,16 @@ val surfaceContainerLowDark = Color(0xFF1B1B21)
 val surfaceContainerDark = Color(0xFF1F1F25)
 val surfaceContainerHighDark = Color(0xFF2A292F)
 val surfaceContainerHighestDark = Color(0xFF35343A)
+
+// Mission-specific containers (dark)
+val missionCompletedContainerDark = Color(0xFF203826) // dark green container
+val onMissionCompletedContainerDark = Color(0xFFBDE6C8)
+// stronger dark red for missed so it's clearly visible in dark theme
+val missionMissedContainerDark = Color(0xFF5C0F0F) // dark red container
+val onMissionMissedContainerDark = Color(0xFFFFCFCF)
+// Mission-specific in-progress container (dark)
+val missionInProgressContainerDark = Color(0xFF072D4A) // dark blue container
+val onMissionInProgressContainerDark = Color(0xFFBEE6FF)
 
 val primaryDarkMediumContrast = Color(0xFFE8DDFF)
 val onPrimaryDarkMediumContrast = Color(0xFF1E153F)

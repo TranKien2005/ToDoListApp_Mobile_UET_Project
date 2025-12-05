@@ -21,7 +21,6 @@ interface MissionDao {
     @Query("DELETE FROM missions WHERE id = :id")
     suspend fun deleteById(id: Int)
 
-    @Query("UPDATE missions SET isCompleted = :completed WHERE id = :id")
-    suspend fun updateCompleted(id: Int, completed: Boolean)
+    @Query("UPDATE missions SET status = :status WHERE id = :id")
+    suspend fun updateStatus(id: Int, status: String)
 }
-

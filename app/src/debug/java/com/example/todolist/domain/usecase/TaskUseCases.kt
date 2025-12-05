@@ -19,7 +19,7 @@ private val _tasksState = MutableStateFlow<List<Task>>(
         Task(id = 4, title = "Monthly Report", description = "Repeats monthly on the same day", startTime = LocalDateTime.now().withHour(14).withMinute(30).withDayOfMonth(5), durationMinutes = 45, repeatType = RepeatType.MONTHLY),
         Task(id = 5, title = "One-off Later", description = null, startTime = LocalDateTime.now().plusDays(1).withHour(16).withMinute(0), durationMinutes = null, repeatType = RepeatType.NONE),
         Task(id = 6, title = "No duration task", description = "Instant reminder", startTime = LocalDateTime.now().plusDays(3).withHour(11).withMinute(0), durationMinutes = null, repeatType = RepeatType.NONE),
-        Task(id = 7, title = "Past Completed", description = "Completed task", startTime = LocalDateTime.now().minusDays(1).withHour(11).withMinute(0), durationMinutes = 60, repeatType = RepeatType.NONE, isCompleted = true)
+        Task(id = 7, title = "Past Completed", description = "Completed task", startTime = LocalDateTime.now().minusDays(1).withHour(11).withMinute(0), durationMinutes = 60, repeatType = RepeatType.NONE)
     )
 )
 
@@ -27,11 +27,23 @@ class FakeGetTasksUseCase: GetTasksUseCase {
     override operator fun invoke(): Flow<List<Task>> = _tasksState
 }
 
-class FakeSaveTaskUseCase: SaveTaskUseCase {
+// New: separate create/update usecases. Create will auto-generate an id when given id == 0.
+class FakeCreateTaskUseCase: CreateTaskUseCase {
+    override suspend operator fun invoke(task: Task) {
+        val current = _tasksState.value.toMutableList()
+        // generate id = maxId + 1
+        val nextId = (current.maxOfOrNull { it.id } ?: 0) + 1
+        val created = task.copy(id = nextId)
+        current.add(created)
+        _tasksState.value = current
+    }
+}
+
+class FakeUpdateTaskUseCase: UpdateTaskUseCase {
     override suspend operator fun invoke(task: Task) {
         val current = _tasksState.value.toMutableList()
         val idx = current.indexOfFirst { it.id == task.id }
-        if (idx >= 0) current[idx] = task else current.add(task)
+        if (idx >= 0) current[idx] = task
         _tasksState.value = current
     }
 }
@@ -39,12 +51,6 @@ class FakeSaveTaskUseCase: SaveTaskUseCase {
 class FakeDeleteTaskUseCase: DeleteTaskUseCase {
     override suspend operator fun invoke(taskId: Int) {
         _tasksState.value = _tasksState.value.filterNot { it.id == taskId }
-    }
-}
-
-class FakeMarkCompletedUseCase: MarkCompletedUseCase {
-    override suspend operator fun invoke(taskId: Int, completed: Boolean) {
-        _tasksState.value = _tasksState.value.map { if (it.id == taskId) it.copy(isCompleted = completed) else it }
     }
 }
 
@@ -102,9 +108,9 @@ class FakeGetTasksByMonthUseCase: GetTasksByMonthUseCase {
 
 val fakeTaskUseCases = TaskUseCases(
     getTasks = FakeGetTasksUseCase(),
-    saveTask = FakeSaveTaskUseCase(),
+    createTask = FakeCreateTaskUseCase(),
+    updateTask = FakeUpdateTaskUseCase(),
     deleteTask = FakeDeleteTaskUseCase(),
-    markCompleted = FakeMarkCompletedUseCase(),
     getTasksByDay = FakeGetTasksByDayUseCase(),
     getTasksByMonth = FakeGetTasksByMonthUseCase()
 )

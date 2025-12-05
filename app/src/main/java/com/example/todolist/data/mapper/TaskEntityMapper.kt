@@ -13,8 +13,7 @@ object TaskEntityMapper {
             description = entity.description,
             startTime = DateExt.toLocalDateTime(entity.startTimeEpoch),
             durationMinutes = entity.durationMinutes,
-            repeatType = try { RepeatType.valueOf(entity.repeatType) } catch (_: Exception) { RepeatType.NONE },
-            isCompleted = entity.isCompleted
+            repeatType = try { RepeatType.valueOf(entity.repeatType) } catch (_: Exception) { RepeatType.NONE }
         )
     }
 
@@ -25,8 +24,7 @@ object TaskEntityMapper {
             description = task.description,
             startTimeEpoch = DateExt.toEpochMillis(task.startTime),
             durationMinutes = task.durationMinutes,
-            repeatType = task.repeatType.name,
-            isCompleted = task.isCompleted
+            repeatType = task.repeatType.name
         )
     }
 }

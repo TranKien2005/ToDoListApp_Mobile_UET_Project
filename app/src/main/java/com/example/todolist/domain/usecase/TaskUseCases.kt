@@ -9,16 +9,17 @@ interface GetTasksUseCase {
     operator fun invoke(): Flow<List<Task>>
 }
 
-interface SaveTaskUseCase {
+// Split save into create/update to avoid repository-id generation being performed in ViewModel.
+interface CreateTaskUseCase {
+    suspend operator fun invoke(task: Task)
+}
+
+interface UpdateTaskUseCase {
     suspend operator fun invoke(task: Task)
 }
 
 interface DeleteTaskUseCase {
     suspend operator fun invoke(taskId: Int)
-}
-
-interface MarkCompletedUseCase {
-    suspend operator fun invoke(taskId: Int, completed: Boolean)
 }
 
 // Interfaces for day/month queries (no implementations in main)
@@ -30,12 +31,12 @@ interface GetTasksByMonthUseCase {
     operator fun invoke(year: Int, month: Int): Flow<List<Task>>
 }
 
-// Aggregator contains only the interfaces; implementations come from debug/release DI.
+// Aggregator contains only the interfaces; implementations come from debug/release.
 data class TaskUseCases(
     val getTasks: GetTasksUseCase,
-    val saveTask: SaveTaskUseCase,
+    val createTask: CreateTaskUseCase,
+    val updateTask: UpdateTaskUseCase,
     val deleteTask: DeleteTaskUseCase,
-    val markCompleted: MarkCompletedUseCase,
     val getTasksByDay: GetTasksByDayUseCase,
     val getTasksByMonth: GetTasksByMonthUseCase
 )

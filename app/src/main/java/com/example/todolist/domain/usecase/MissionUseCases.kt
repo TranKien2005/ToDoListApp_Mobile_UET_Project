@@ -1,6 +1,7 @@
 package com.example.todolist.domain.usecase
 
 import com.example.todolist.core.model.Mission
+import com.example.todolist.core.model.MissionStatus
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
 
@@ -8,7 +9,12 @@ interface GetMissionsUseCase {
     operator fun invoke(): Flow<List<Mission>>
 }
 
-interface SaveMissionUseCase {
+// Split save into create/update
+interface CreateMissionUseCase {
+    suspend operator fun invoke(mission: Mission)
+}
+
+interface UpdateMissionUseCase {
     suspend operator fun invoke(mission: Mission)
 }
 
@@ -16,8 +22,9 @@ interface DeleteMissionUseCase {
     suspend operator fun invoke(missionId: Int)
 }
 
-interface CompleteMissionUseCase {
-    suspend operator fun invoke(mission: Mission, isCompleted: Boolean)
+// Set mission status (COMPLETED/UNSPECIFIED). MISSED is derived from deadline and stored status.
+interface SetMissionStatusUseCase {
+    suspend operator fun invoke(missionId: Int, status: MissionStatus)
 }
 
 interface GetMissionsByDateUseCase {
@@ -28,12 +35,38 @@ interface GetMissionsByMonthUseCase {
     operator fun invoke(year: Int, month: Int): Flow<List<Mission>>
 }
 
-data class MissionUseCases(
-    val getMissions: GetMissionsUseCase,
-    val saveMission: SaveMissionUseCase,
-    val deleteMission: DeleteMissionUseCase,
-    val completeMission: CompleteMissionUseCase,
-    val getMissionsByDate: GetMissionsByDateUseCase,
-    val getMissionsByMonth: GetMissionsByMonthUseCase
+// New: stats support for analysis screen
+enum class StatsGranularity {
+    DAY_OF_WEEK,
+    WEEK_OF_MONTH,
+    MONTH_OF_YEAR
+}
+
+/**
+ * One entry represents a single time unit (day/week/month) with counts for completed/missed/in-progress.
+ * label: textual label to show on chart (e.g., Mon, W1, Jan)
+ * startDate: the LocalDate representing the start of this period (useful for linking)
+ */
+data class MissionStatsEntry(
+    val label: String,
+    val startDate: LocalDate,
+    val completed: Int,
+    val missed: Int,
+    val inProgress: Int
 )
 
+interface GetMissionStatsUseCase {
+    operator fun invoke(referenceDate: LocalDate, granularity: StatsGranularity): Flow<List<MissionStatsEntry>>
+}
+
+data class MissionUseCases(
+    val getMissions: GetMissionsUseCase,
+    val createMission: CreateMissionUseCase,
+    val updateMission: UpdateMissionUseCase,
+    val deleteMission: DeleteMissionUseCase,
+    val setMissionStatus: SetMissionStatusUseCase,
+    val getMissionsByDate: GetMissionsByDateUseCase,
+    val getMissionsByMonth: GetMissionsByMonthUseCase,
+    // new
+    val getMissionStats: GetMissionStatsUseCase
+)

@@ -42,8 +42,7 @@ private val TIME_FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:
 fun TaskCardItem(
     task: Task,
     modifier: Modifier = Modifier,
-    onDelete: (Int) -> Unit = {},
-    onMarkCompleted: (Int) -> Unit = {}
+    onDelete: (Int) -> Unit = {}
 ) {
     Card(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
@@ -80,13 +79,9 @@ fun TaskCardItem(
                         onDismissRequest = { expandedMenu.value = false },
                         modifier = Modifier.wrapContentSize(Alignment.TopEnd)
                     ) {
-                        DropdownMenuItem(text = { Text("Xóa task", color = MaterialTheme.colorScheme.onSurface) }, onClick = {
+                        DropdownMenuItem(text = { Text("Delete task", color = MaterialTheme.colorScheme.onSurface) }, onClick = {
                             expandedMenu.value = false
                             onDelete(task.id)
-                        })
-                        DropdownMenuItem(text = { Text("Hoàn thành", color = MaterialTheme.colorScheme.onSurface) }, onClick = {
-                            expandedMenu.value = false
-                            onMarkCompleted(task.id)
                         })
                     }
                 }
@@ -103,12 +98,12 @@ fun TaskCardItem(
 
                 val descriptionText = task.description ?: ""
                 if (descriptionText.isNotBlank()) {
-                    // Collapsed: show single-line Text with ellipsis and inline 'Xem thêm' button
+                    // Collapsed: show single-line Text with ellipsis and inline 'View more' button
                     var expandedDesc by remember { mutableStateOf(false) }
                     var showExpandButton by remember { mutableStateOf(false) }
 
                     if (expandedDesc) {
-                        // Expanded: show full description and a trailing 'Xem bớt' clickable
+                        // Expanded: show full description and a trailing 'View less' clickable
                         Text(
                             text = descriptionText,
                             style = MaterialTheme.typography.bodyMedium,

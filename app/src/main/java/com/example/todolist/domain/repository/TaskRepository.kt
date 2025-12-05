@@ -7,5 +7,5 @@ interface TaskRepository {
     fun getTasks(): Flow<List<Task>>
     suspend fun saveTask(task: Task)
     suspend fun deleteTask(taskId: Int)
-    suspend fun markCompleted(taskId: Int, completed: Boolean)
+    // Tasks are schedules only; no completion state
 }

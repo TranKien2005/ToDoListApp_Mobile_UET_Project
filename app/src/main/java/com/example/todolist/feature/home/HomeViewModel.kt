@@ -14,6 +14,7 @@ import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.YearMonth
 import kotlinx.coroutines.flow.combine
+import com.example.todolist.core.model.Task
 
 /**
  * Home ViewModel in `main` source set. It receives TaskUseCases via constructor so DI
@@ -89,18 +90,18 @@ class HomeViewModel(
         }
     }
 
-    // New: mark a task completed/uncompleted and refresh
-    fun markTaskCompleted(taskId: Int, completed: Boolean = true) {
-        // optimistic update locally
-        _uiState.update { current -> current.copy(tasks = current.tasks.map { if (it.id == taskId) it.copy(isCompleted = completed) else it }) }
-
+    // New: save a task and refresh
+    fun saveTask(task: Task) {
         viewModelScope.launch {
             try {
-                taskUseCases.markCompleted.invoke(taskId, completed)
+                if (task.id == 0) {
+                    taskUseCases.createTask.invoke(task)
+                } else {
+                    taskUseCases.updateTask.invoke(task)
+                }
                 refresh()
             } catch (t: Throwable) {
                 _uiState.update { it.copy(isLoading = false, error = t.message) }
-                refresh()
             }
         }
     }
