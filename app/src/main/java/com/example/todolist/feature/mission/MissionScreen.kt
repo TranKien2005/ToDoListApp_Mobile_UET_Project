@@ -17,12 +17,14 @@ import androidx.compose.ui.unit.sp
 import com.example.todolist.feature.mission.components.MissionCardItem
 import com.example.todolist.feature.mission.components.DateNavigator
 import com.example.todolist.feature.mission.components.StatusFilterRow
+import com.example.todolist.core.model.Mission
 
 @Composable
 fun MissionScreen(
     missionViewModel: MissionViewModel,
     modifier: Modifier = Modifier,
-    debug: Boolean = false
+    debug: Boolean = false,
+    onEditMission: (Mission) -> Unit = {}
 ) {
     val uiState by missionViewModel.uiState.collectAsState()
     val missions = uiState.missions
@@ -143,7 +145,8 @@ fun MissionScreen(
                         MissionCardItem(
                             mission = mission,
                             onDelete = { id -> missionViewModel.deleteMission(id) },
-                            onToggleCompleted = { id -> missionViewModel.toggleMissionCompleted(id) }
+                            onToggleCompleted = { id -> missionViewModel.toggleMissionCompleted(id) },
+                            onEdit = { onEditMission(mission) }
                         )
                     }
                     Spacer(modifier = Modifier.height(12.dp))

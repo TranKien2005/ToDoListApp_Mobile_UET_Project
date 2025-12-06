@@ -22,6 +22,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.RadioButtonUnchecked
 import androidx.compose.material.icons.filled.Event
+import androidx.compose.material.icons.filled.Edit
 
 private val DATE_FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern("dd MMM yyyy HH:mm")
 
@@ -30,7 +31,8 @@ fun MissionCardItem(
     mission: Mission,
     modifier: Modifier = Modifier,
     onDelete: (Int) -> Unit = {},
-    onToggleCompleted: (Int) -> Unit = {}
+    onToggleCompleted: (Int) -> Unit = {},
+    onEdit: (Mission) -> Unit = {}
 ) {
     val primaryColor = MaterialTheme.colorScheme.primary
     val errorColor = MaterialTheme.colorScheme.error
@@ -131,6 +133,21 @@ fun MissionCardItem(
                         horizontalArrangement = Arrangement.spacedBy(4.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
+                        // Edit button (only if UNSPECIFIED - chưa hoàn thành và chưa miss)
+                        if (mission.status == MissionStatus.UNSPECIFIED) {
+                            IconButton(
+                                onClick = { onEdit(mission) },
+                                modifier = Modifier.size(32.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Edit,
+                                    contentDescription = "Edit",
+                                    tint = primaryColor,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                        }
+
                         // Toggle complete button (only if not missed)
                         if (mission.status != MissionStatus.MISSED) {
                             IconButton(

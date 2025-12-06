@@ -19,6 +19,8 @@ import com.example.todolist.feature.common.AddItemDialog
 import com.example.todolist.feature.onboarding.OnboardingScreen
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.LaunchedEffect
+import com.example.todolist.core.model.Task
+import com.example.todolist.core.model.Mission
 
 @Composable
 fun AppNavHost() {
@@ -35,6 +37,8 @@ fun AppNavHost() {
     val user by userViewModel.user.collectAsState()
 
     var showAddDialog by remember { mutableStateOf(false) }
+    var editingTask by remember { mutableStateOf<Task?>(null) }
+    var editingMission by remember { mutableStateOf<Mission?>(null) }
 
     // observe current route to decide default add type
     val currentBackStack by navController.currentBackStackEntryAsState()
@@ -62,7 +66,11 @@ fun AppNavHost() {
         onList = { navController.navigate("missions") },
         onStats = { navController.navigate("analysis") },
         onVoice = {},
-        onAdd = { showAddDialog = true }
+        onAdd = {
+            editingTask = null
+            editingMission = null
+            showAddDialog = true
+        }
     ) { padding ->
         NavHost(
             navController = navController,
@@ -83,14 +91,24 @@ fun AppNavHost() {
             composable("home") {
                 HomeScreen(
                     homeViewModel = homeViewModel,
-                    modifier = Modifier.padding(padding)
+                    modifier = Modifier.padding(padding),
+                    onEditTask = { task ->
+                        editingTask = task
+                        editingMission = null
+                        showAddDialog = true
+                    }
                 )
             }
 
             composable("missions") {
                 MissionScreen(
                     missionViewModel = missionViewModel,
-                    modifier = Modifier.padding(padding)
+                    modifier = Modifier.padding(padding),
+                    onEditMission = { mission ->
+                        editingMission = mission
+                        editingTask = null
+                        showAddDialog = true
+                    }
                 )
             }
 
@@ -117,9 +135,15 @@ fun AppNavHost() {
     if (showAddDialog) {
         val defaultIsTask = currentRoute == null || currentRoute == "home"
         AddItemDialog(
-            onDismissRequest = { showAddDialog = false },
+            onDismissRequest = {
+                showAddDialog = false
+                editingTask = null
+                editingMission = null
+            },
             addItemViewModel = addItemViewModel,
-            defaultIsTask = defaultIsTask
+            defaultIsTask = defaultIsTask,
+            editTask = editingTask,
+            editMission = editingMission
         )
     }
 }

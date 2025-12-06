@@ -34,7 +34,9 @@ fun AddItemDialog(
     onDismissRequest: () -> Unit,
     addItemViewModel: AddItemViewModel,
     defaultDate: LocalDate = LocalDate.now(),
-    defaultIsTask: Boolean = true
+    defaultIsTask: Boolean = true,
+    editTask: Task? = null,
+    editMission: Mission? = null
 ) {
     var isVisible by remember { mutableStateOf(false) }
 
@@ -43,14 +45,31 @@ fun AddItemDialog(
     }
 
     val scrollState = rememberScrollState()
-    var title by remember { mutableStateOf("") }
-    var description by remember { mutableStateOf("") }
-    var selectedTypeIsTask by remember { mutableStateOf(defaultIsTask) }
-    var date by remember { mutableStateOf(defaultDate) }
-    var time by remember { mutableStateOf(LocalTime.of(9, 0)) }
 
-    var durationText by remember { mutableStateOf("") }
-    var repeatType by remember { mutableStateOf(RepeatType.NONE) }
+    // Kiểm tra xem có phải edit mode không
+    val isEditMode = editTask != null || editMission != null
+
+    // Initialize với data từ task/mission cần edit
+    var title by remember { mutableStateOf(editTask?.title ?: editMission?.title ?: "") }
+    var description by remember { mutableStateOf(editTask?.description ?: editMission?.description ?: "") }
+    var selectedTypeIsTask by remember { mutableStateOf(editTask != null || (editMission == null && defaultIsTask)) }
+    var date by remember {
+        mutableStateOf(
+            editTask?.startTime?.toLocalDate()
+                ?: editMission?.deadline?.toLocalDate()
+                ?: defaultDate
+        )
+    }
+    var time by remember {
+        mutableStateOf(
+            editTask?.startTime?.toLocalTime()
+                ?: editMission?.deadline?.toLocalTime()
+                ?: LocalTime.of(9, 0)
+        )
+    }
+
+    var durationText by remember { mutableStateOf(editTask?.durationMinutes?.toString() ?: "") }
+    var repeatType by remember { mutableStateOf(editTask?.repeatType ?: RepeatType.NONE) }
 
     var titleError by remember { mutableStateOf<String?>(null) }
     var descriptionError by remember { mutableStateOf<String?>(null) }
@@ -181,7 +200,11 @@ fun AddItemDialog(
                 ) {
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         Text(
-                            text = if (selectedTypeIsTask) "✨ Add New Task" else "🎯 Add New Mission",
+                            text = if (isEditMode) {
+                                if (selectedTypeIsTask) "✏️ Edit Task" else "✏️ Edit Mission"
+                            } else {
+                                if (selectedTypeIsTask) "✨ Add New Task" else "🎯 Add New Mission"
+                            },
                             style = MaterialTheme.typography.headlineSmall.copy(
                                 fontWeight = FontWeight.ExtraBold,
                                 fontSize = 26.sp
@@ -189,7 +212,7 @@ fun AddItemDialog(
                             color = primaryColor
                         )
                         Text(
-                            text = "Fill in the details below",
+                            text = if (isEditMode) "Update the details below" else "Fill in the details below",
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -198,47 +221,49 @@ fun AddItemDialog(
 
                 HorizontalDivider(color = primaryColor.copy(alpha = 0.2f))
 
-                // Type Selector với animation
-                AnimatedVisibility(
-                    visible = isVisible,
-                    enter = slideInHorizontally(
-                        initialOffsetX = { -it },
-                        animationSpec = tween(500, delayMillis = 100)
-                    ) + fadeIn(animationSpec = tween(500, delayMillis = 100))
-                ) {
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(16.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = primaryColor.copy(alpha = 0.08f)
-                        )
+                // Type Selector với animation - Ẩn khi edit mode
+                if (!isEditMode) {
+                    AnimatedVisibility(
+                        visible = isVisible,
+                        enter = slideInHorizontally(
+                            initialOffsetX = { -it },
+                            animationSpec = tween(500, delayMillis = 100)
+                        ) + fadeIn(animationSpec = tween(500, delayMillis = 100))
                     ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(8.dp),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(16.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = primaryColor.copy(alpha = 0.08f)
+                            )
                         ) {
-                            FilterChip(
-                                selected = selectedTypeIsTask,
-                                onClick = { selectedTypeIsTask = true },
-                                label = { Text("📝 Task") },
-                                modifier = Modifier.weight(1f),
-                                colors = FilterChipDefaults.filterChipColors(
-                                    selectedContainerColor = primaryColor,
-                                    selectedLabelColor = MaterialTheme.colorScheme.onPrimary
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(8.dp),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                FilterChip(
+                                    selected = selectedTypeIsTask,
+                                    onClick = { selectedTypeIsTask = true },
+                                    label = { Text("📝 Task") },
+                                    modifier = Modifier.weight(1f),
+                                    colors = FilterChipDefaults.filterChipColors(
+                                        selectedContainerColor = primaryColor,
+                                        selectedLabelColor = MaterialTheme.colorScheme.onPrimary
+                                    )
                                 )
-                            )
-                            FilterChip(
-                                selected = !selectedTypeIsTask,
-                                onClick = { selectedTypeIsTask = false },
-                                label = { Text("🎯 Mission") },
-                                modifier = Modifier.weight(1f),
-                                colors = FilterChipDefaults.filterChipColors(
-                                    selectedContainerColor = primaryColor,
-                                    selectedLabelColor = MaterialTheme.colorScheme.onPrimary
+                                FilterChip(
+                                    selected = !selectedTypeIsTask,
+                                    onClick = { selectedTypeIsTask = false },
+                                    label = { Text("🎯 Mission") },
+                                    modifier = Modifier.weight(1f),
+                                    colors = FilterChipDefaults.filterChipColors(
+                                        selectedContainerColor = primaryColor,
+                                        selectedLabelColor = MaterialTheme.colorScheme.onPrimary
+                                    )
                                 )
-                            )
+                            }
                         }
                     }
                 }
@@ -461,7 +486,7 @@ fun AddItemDialog(
 
                                 if (selectedTypeIsTask) {
                                     val task = Task(
-                                        id = 0,
+                                        id = editTask?.id ?: 0,
                                         title = title.trim(),
                                         description = description.trim().ifBlank { null },
                                         startTime = dateTime,
@@ -471,10 +496,11 @@ fun AddItemDialog(
                                     addItemViewModel.saveTask(task)
                                 } else {
                                     val mission = Mission(
-                                        id = 0,
+                                        id = editMission?.id ?: 0,
                                         title = title.trim(),
                                         description = description.trim().ifBlank { null },
-                                        deadline = dateTime
+                                        deadline = dateTime,
+                                        status = editMission?.status ?: com.example.todolist.core.model.MissionStatus.UNSPECIFIED
                                     )
                                     addItemViewModel.saveMission(mission)
                                 }
@@ -488,7 +514,7 @@ fun AddItemDialog(
                                 containerColor = primaryColor
                             )
                         ) {
-                            Text("Save ✓", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                            Text(if (isEditMode) "Update ✓" else "Save ✓", fontWeight = FontWeight.Bold, fontSize = 16.sp)
                         }
                     }
                 }

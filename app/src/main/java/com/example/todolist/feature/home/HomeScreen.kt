@@ -26,6 +26,7 @@ import com.example.todolist.feature.home.components.MonthHeader
 import com.example.todolist.feature.home.components.TaskCardItem
 import com.example.todolist.feature.home.components.WeekDaysRow
 import com.example.todolist.ui.common.ViewModelProvider
+import com.example.todolist.core.model.Task
 
 
 /**
@@ -38,7 +39,8 @@ import com.example.todolist.ui.common.ViewModelProvider
 @Composable
 fun HomeScreen(
     homeViewModel: HomeViewModel,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onEditTask: (Task) -> Unit = {}
 ) {
     val uiState by homeViewModel.uiState.collectAsState()
     val tasksForDay = uiState.tasks
@@ -195,7 +197,8 @@ fun HomeScreen(
                             ) {
                                 TaskCardItem(
                                     task = task,
-                                    onDelete = { id -> homeViewModel.deleteTask(id) }
+                                    onDelete = { id -> homeViewModel.deleteTask(id) },
+                                    onEdit = onEditTask
                                 )
                             }
                             Spacer(modifier = Modifier.height(12.dp))
@@ -295,7 +298,8 @@ fun HomeScreen(
                         ) {
                             TaskCardItem(
                                 task = task,
-                                onDelete = { id -> homeViewModel.deleteTask(id) }
+                                onDelete = { id -> homeViewModel.deleteTask(id) },
+                                onEdit = onEditTask
                             )
                         }
                         Spacer(modifier = Modifier.height(12.dp))
