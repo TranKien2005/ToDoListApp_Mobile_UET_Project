@@ -1,29 +1,28 @@
 package com.example.todolist.feature.mission.components
 
+import androidx.compose.animation.*
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.todolist.core.model.Mission
 import com.example.todolist.core.model.MissionStatus
 import java.time.format.DateTimeFormatter
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.foundation.isSystemInDarkTheme
-import com.example.todolist.ui.theme.*
-import androidx.compose.foundation.clickable
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.RadioButtonUnchecked
+import androidx.compose.material.icons.filled.Event
 
-// Keep full date+time formatter for Mission (as before) but align layout like TaskCard
 private val DATE_FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern("dd MMM yyyy HH:mm")
 
 @Composable
@@ -33,100 +32,198 @@ fun MissionCardItem(
     onDelete: (Int) -> Unit = {},
     onToggleCompleted: (Int) -> Unit = {}
 ) {
-    // determine if system is in dark theme so we can pick the right color variants
-    val isDark = isSystemInDarkTheme()
+    val primaryColor = MaterialTheme.colorScheme.primary
+    val errorColor = MaterialTheme.colorScheme.error
 
-    // select container color and appropriate on-container text color based on mission status
-    val (containerColor, onContainerColor) = when (mission.status) {
-        MissionStatus.COMPLETED -> if (isDark) Pair(missionCompletedContainerDark, onMissionCompletedContainerDark) else Pair(missionCompletedContainerLight, onMissionCompletedContainerLight)
-        MissionStatus.MISSED -> if (isDark) Pair(missionMissedContainerDark, onMissionMissedContainerDark) else Pair(missionMissedContainerLight, onMissionMissedContainerLight)
-        MissionStatus.UNSPECIFIED -> if (isDark) Pair(missionInProgressContainerDark, onMissionInProgressContainerDark) else Pair(missionInProgressContainerLight, onMissionInProgressContainerLight)
+    var expanded by remember { mutableStateOf(false) }
+
+    // Determine colors based on status
+    val (statusColor, statusEmoji) = when (mission.status) {
+        MissionStatus.COMPLETED -> Pair(primaryColor, "✓")
+        MissionStatus.MISSED -> Pair(errorColor, "✗")
+        MissionStatus.UNSPECIFIED -> Pair(primaryColor, "○")
     }
 
     Card(
-        colors = CardDefaults.cardColors(containerColor = containerColor),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
         modifier = modifier
             .fillMaxWidth()
-            .padding(0.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            .clip(RoundedCornerShape(20.dp)),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        shape = RoundedCornerShape(20.dp)
     ) {
-        Column(modifier = Modifier.padding(start = 12.dp, end = 12.dp, top = 0.dp, bottom = 12.dp)) {
-            Row(
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    Brush.horizontalGradient(
+                        colors = listOf(
+                            statusColor.copy(alpha = 0.12f),
+                            MaterialTheme.colorScheme.surface
+                        )
+                    )
+                )
+        ) {
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .offset(y = (-4).dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                    .padding(16.dp)
             ) {
-                // Show full date+time for missions (kept from original implementation)
-                Text(text = mission.deadline.format(DATE_FORMATTER), style = MaterialTheme.typography.titleSmall, color = onContainerColor.copy(alpha = 0.6f))
+                // Header: Deadline + Status indicator + Actions
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Event,
+                            contentDescription = null,
+                            tint = statusColor,
+                            modifier = Modifier.size(18.dp)
+                        )
 
-                Box(contentAlignment = Alignment.TopEnd) {
-                    val expanded = remember { mutableStateOf(false) }
-                    IconButton(onClick = { expanded.value = true }, modifier = Modifier.offset(y = (-6).dp)) {
-                        Icon(imageVector = Icons.Filled.MoreVert, contentDescription = "More", modifier = Modifier.rotate(90f), tint = onContainerColor)
+                        Text(
+                            text = mission.deadline.format(DATE_FORMATTER),
+                            style = MaterialTheme.typography.titleSmall.copy(
+                                fontWeight = FontWeight.SemiBold,
+                                fontSize = 13.sp
+                            ),
+                            color = statusColor
+                        )
+
+                        // Status badge - bỏ alpha
+                        Surface(
+                            color = MaterialTheme.colorScheme.surfaceVariant,
+                            shape = RoundedCornerShape(8.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                            ) {
+                                Text(
+                                    text = statusEmoji,
+                                    fontSize = 12.sp
+                                )
+                                Text(
+                                    text = when (mission.status) {
+                                        MissionStatus.COMPLETED -> "Done"
+                                        MissionStatus.MISSED -> "Missed"
+                                        MissionStatus.UNSPECIFIED -> "Active"
+                                    },
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
                     }
 
-                    DropdownMenu(expanded = expanded.value, onDismissRequest = { expanded.value = false }, modifier = Modifier.wrapContentSize(Alignment.TopEnd)) {
-                        DropdownMenuItem(text = { Text("Delete mission", color = onContainerColor) }, onClick = { expanded.value = false; onDelete(mission.id) })
-                        // If mission is MISSED, do not show the toggle-completed action
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        // Toggle complete button (only if not missed)
                         if (mission.status != MissionStatus.MISSED) {
-                            val label = if (mission.status == MissionStatus.COMPLETED) "Mark as incomplete" else "Mark as completed"
-                            DropdownMenuItem(text = { Text(label, color = onContainerColor) }, onClick = { expanded.value = false; onToggleCompleted(mission.id) })
+                            IconButton(
+                                onClick = { onToggleCompleted(mission.id) },
+                                modifier = Modifier.size(32.dp)
+                            ) {
+                                Icon(
+                                    imageVector = if (mission.status == MissionStatus.COMPLETED)
+                                        Icons.Default.CheckCircle
+                                    else
+                                        Icons.Default.RadioButtonUnchecked,
+                                    contentDescription = "Toggle Complete",
+                                    tint = statusColor,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                        }
+
+                        IconButton(
+                            onClick = { onDelete(mission.id) },
+                            modifier = Modifier.size(32.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Delete,
+                                contentDescription = "Delete",
+                                tint = errorColor,
+                                modifier = Modifier.size(20.dp)
+                            )
                         }
                     }
                 }
-            }
 
-            // Title and description area: layout aligned like TaskCard and add collapse/expand behavior
-            Column(modifier = Modifier.offset(y = (-12).dp)) {
-                Text(text = mission.title, style = MaterialTheme.typography.titleLarge, color = onContainerColor)
-                val descriptionText = mission.description.orEmpty()
-                if (descriptionText.isNotBlank()) {
+                Spacer(modifier = Modifier.height(12.dp))
 
-                    Spacer(modifier = Modifier.height(4.dp))
+                // Title
+                Text(
+                    text = mission.title,
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp
+                    ),
+                    color = MaterialTheme.colorScheme.onSurface
+                )
 
-                    var expandedDesc by remember { mutableStateOf(false) }
-                    var showExpandButton by remember { mutableStateOf(false) }
+                // Description với expand/collapse
+                mission.description?.let { desc ->
+                    if (desc.isNotBlank()) {
+                        Spacer(modifier = Modifier.height(8.dp))
 
-                    if (expandedDesc) {
-                        Text(
-                            text = descriptionText,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = onContainerColor.copy(alpha = 0.6f)
-                        )
-                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                            Text(
-                                text = "View less",
-                                color = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier
-                                    .clickable { expandedDesc = false }
-                                    .padding(start = 8.dp)
-                            )
-                        }
-                    } else {
-                        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                            Text(
-                                text = descriptionText,
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = onContainerColor.copy(alpha = 0.6f),
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                                modifier = Modifier.weight(1f),
-                                onTextLayout = { textLayoutResult ->
-                                    showExpandButton = textLayoutResult.hasVisualOverflow
-                                }
-                            )
-
-                            if (showExpandButton) {
+                        AnimatedVisibility(
+                            visible = !expanded,
+                            enter = fadeIn(),
+                            exit = fadeOut()
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
                                 Text(
-                                    text = "View more",
-                                    color = MaterialTheme.colorScheme.primary,
-                                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
-                                    modifier = Modifier
-                                        .clickable { expandedDesc = true }
-                                        .padding(start = 8.dp)
+                                    text = desc,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                    modifier = Modifier.weight(1f)
                                 )
+                                TextButton(
+                                    onClick = { expanded = true },
+                                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
+                                ) {
+                                    Text("More", fontSize = 12.sp, color = statusColor)
+                                }
+                            }
+                        }
+
+                        AnimatedVisibility(
+                            visible = expanded,
+                            enter = expandVertically() + fadeIn(),
+                            exit = shrinkVertically() + fadeOut()
+                        ) {
+                            Column {
+                                Text(
+                                    text = desc,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                TextButton(
+                                    onClick = { expanded = false },
+                                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
+                                ) {
+                                    Text("Less", fontSize = 12.sp, color = statusColor)
+                                }
                             }
                         }
                     }

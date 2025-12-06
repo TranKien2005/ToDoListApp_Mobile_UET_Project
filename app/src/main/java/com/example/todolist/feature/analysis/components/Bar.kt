@@ -12,23 +12,36 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.font.FontWeight
 
 @Composable
 fun Bar(color: Color, contentColor: Color, heightDp: Dp, label: Int) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.width(18.dp)) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.width(22.dp)) {
         // Show number inside bar if tall enough, otherwise show below
-        Box(modifier = Modifier
-            .height(heightDp)
-            .width(18.dp)
-            .background(color, shape = RoundedCornerShape(4.dp)), contentAlignment = Alignment.Center) {
-            if (label > 0 && heightDp >= 24.dp) {
-                Text(text = label.toString(), color = contentColor, fontSize = 10.sp, textAlign = TextAlign.Center)
+        Box(
+            modifier = Modifier
+                .height(heightDp.coerceAtLeast(4.dp))
+                .width(22.dp)
+                .background(color, shape = RoundedCornerShape(6.dp)),
+            contentAlignment = Alignment.Center
+        ) {
+            if (label > 0 && heightDp >= 28.dp) {
+                Text(
+                    text = label.toString(),
+                    color = contentColor,
+                    fontSize = 11.sp,
+                    textAlign = TextAlign.Center,
+                    fontWeight = FontWeight.Bold
+                )
             }
         }
         Spacer(modifier = Modifier.height(6.dp))
-        if (label > 0 && heightDp < 24.dp) {
-            Text(text = label.toString(), fontSize = 10.sp)
+        if (label > 0 && heightDp < 28.dp) {
+            Text(
+                text = label.toString(),
+                fontSize = 10.sp,
+                fontWeight = FontWeight.SemiBold
+            )
         }
     }
 }
-

@@ -1,41 +1,26 @@
 package com.example.todolist.feature.home.components
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.clickable
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
+import androidx.compose.animation.*
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.unit.sp
 import com.example.todolist.core.model.Task
-import androidx.compose.ui.Alignment
 import java.time.format.DateTimeFormatter
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.AccessTime
+import androidx.compose.material.icons.filled.Repeat
 
-// Top-level formatter so it's reused and not recreated on every composition
 private val TIME_FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
 
 @Composable
@@ -44,105 +29,198 @@ fun TaskCardItem(
     modifier: Modifier = Modifier,
     onDelete: (Int) -> Unit = {}
 ) {
+    val primaryColor = MaterialTheme.colorScheme.primary
+    val secondaryColor = MaterialTheme.colorScheme.secondary
+
+    var expanded by remember { mutableStateOf(false) }
+
     Card(
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
         modifier = modifier
             .fillMaxWidth()
-            .padding(0.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            .clip(RoundedCornerShape(20.dp)),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        shape = RoundedCornerShape(20.dp)
     ) {
-        Column(modifier = Modifier.padding(start = 12.dp, end = 12.dp, top = 0.dp, bottom = 12.dp)) {
-            Row(modifier = Modifier
+        Box(
+            modifier = Modifier
                 .fillMaxWidth()
-                .offset(y = (-4).dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                val startText = task.startTime.toLocalTime().format(TIME_FORMATTER)
-                val endTime = task.durationMinutes?.let { task.startTime.plusMinutes(it) }
-                val endText = endTime?.toLocalTime()?.format(TIME_FORMATTER)
-                val timeText = if (endText.isNullOrBlank()) startText else "$startText - $endText"
-                Text(text = timeText, style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onSurface.copy(alpha= 0.6f))
-
-                Box(contentAlignment = Alignment.TopEnd) {
-                    val expandedMenu = remember { mutableStateOf(false) }
-                    IconButton(onClick = { expandedMenu.value = true }, modifier = Modifier.offset(y = (-6).dp)) {
-                        // Icon uses content color by default; specify onSurface to be explicit and
-                        // ensure visibility in dark mode.
-                        Icon(
-                            imageVector = Icons.Filled.MoreVert,
-                            contentDescription = "More",
-                            modifier = Modifier.rotate(90f),
-                            tint = MaterialTheme.colorScheme.onSurface
+                .background(
+                    Brush.horizontalGradient(
+                        colors = listOf(
+                            primaryColor.copy(alpha = 0.12f),
+                            MaterialTheme.colorScheme.surface
                         )
+                    )
+                )
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ) {
+                // Header: Time + Repeat indicator
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.AccessTime,
+                            contentDescription = null,
+                            tint = primaryColor,
+                            modifier = Modifier.size(18.dp)
+                        )
+
+                        val startText = task.startTime.toLocalTime().format(TIME_FORMATTER)
+                        val endTime = task.durationMinutes?.let { task.startTime.plusMinutes(it) }
+                        val endText = endTime?.toLocalTime()?.format(TIME_FORMATTER)
+                        val timeText = if (endText != null) "$startText - $endText" else startText
+
+                        Text(
+                            text = timeText,
+                            style = MaterialTheme.typography.titleSmall.copy(
+                                fontWeight = FontWeight.SemiBold,
+                                fontSize = 14.sp
+                            ),
+                            color = primaryColor
+                        )
+
+                        if (task.repeatType != com.example.todolist.core.model.RepeatType.NONE) {
+                            Surface(
+                                color = MaterialTheme.colorScheme.surfaceVariant,
+                                shape = RoundedCornerShape(8.dp)
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Repeat,
+                                        contentDescription = null,
+                                        tint = primaryColor,
+                                        modifier = Modifier.size(14.dp)
+                                    )
+                                    Text(
+                                        text = task.repeatType.name,
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+                            }
+                        }
                     }
 
-                    DropdownMenu(
-                        expanded = expandedMenu.value,
-                        onDismissRequest = { expandedMenu.value = false },
-                        modifier = Modifier.wrapContentSize(Alignment.TopEnd)
+                    IconButton(
+                        onClick = { onDelete(task.id) },
+                        modifier = Modifier.size(32.dp)
                     ) {
-                        DropdownMenuItem(text = { Text("Delete task", color = MaterialTheme.colorScheme.onSurface) }, onClick = {
-                            expandedMenu.value = false
-                            onDelete(task.id)
-                        })
+                        Icon(
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = "Delete",
+                            tint = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.size(20.dp)
+                        )
                     }
                 }
-            }
 
-            // Title and description area. Description shows single-line with ellipsis by default.
-            Column(modifier = Modifier.offset(y = (-12).dp)) {
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // Title
                 Text(
                     text = task.title,
-                    style = MaterialTheme.typography.titleLarge,
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp
+                    ),
                     color = MaterialTheme.colorScheme.onSurface
                 )
-                Spacer(modifier = Modifier.height(4.dp))
 
-                val descriptionText = task.description ?: ""
-                if (descriptionText.isNotBlank()) {
-                    // Collapsed: show single-line Text with ellipsis and inline 'View more' button
-                    var expandedDesc by remember { mutableStateOf(false) }
-                    var showExpandButton by remember { mutableStateOf(false) }
+                // Description với expand/collapse
+                task.description?.let { desc ->
+                    if (desc.isNotBlank()) {
+                        Spacer(modifier = Modifier.height(8.dp))
 
-                    if (expandedDesc) {
-                        // Expanded: show full description and a trailing 'View less' clickable
-                        Text(
-                            text = descriptionText,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                        )
-                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                            Text(
-                                text = "View less",
-                                color = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier
-                                    .clickable { expandedDesc = false }
-                                    .padding(start = 8.dp)
-                            )
-                        }
-                    } else {
-                        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                            Text(
-                                text = descriptionText,
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                                modifier = Modifier.weight(1f),
-                                onTextLayout = { textLayoutResult ->
-                                    showExpandButton = textLayoutResult.hasVisualOverflow
-                                }
-                            )
-
-                            if (showExpandButton) {
-                                // Inline clickable label placed after the single-line description
+                        AnimatedVisibility(
+                            visible = !expanded,
+                            enter = fadeIn(),
+                            exit = fadeOut()
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
                                 Text(
-                                    text = "View more",
-                                    color = MaterialTheme.colorScheme.primary,
-                                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
-                                    modifier = Modifier
-                                        .clickable { expandedDesc = true }
-                                        .padding(start = 8.dp)
+                                    text = desc,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                    modifier = Modifier.weight(1f)
                                 )
+                                TextButton(
+                                    onClick = { expanded = true },
+                                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
+                                ) {
+                                    Text("More", fontSize = 12.sp, color = primaryColor)
+                                }
                             }
+                        }
+
+                        AnimatedVisibility(
+                            visible = expanded,
+                            enter = expandVertically() + fadeIn(),
+                            exit = shrinkVertically() + fadeOut()
+                        ) {
+                            Column {
+                                Text(
+                                    text = desc,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                TextButton(
+                                    onClick = { expanded = false },
+                                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
+                                ) {
+                                    Text("Less", fontSize = 12.sp, color = primaryColor)
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Duration indicator
+                task.durationMinutes?.let { duration ->
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Surface(
+                        color = MaterialTheme.colorScheme.secondaryContainer,
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Text(
+                                text = "⏱️",
+                                fontSize = 14.sp
+                            )
+                            Text(
+                                text = "$duration minutes",
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                                fontWeight = FontWeight.Medium
+                            )
                         }
                     }
                 }

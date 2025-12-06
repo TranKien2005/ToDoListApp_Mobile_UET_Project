@@ -16,6 +16,9 @@ import com.example.todolist.ui.common.ViewModelProvider
 import com.example.todolist.feature.home.HomeScreen
 import com.example.todolist.feature.mission.MissionScreen
 import com.example.todolist.feature.common.AddItemDialog
+import com.example.todolist.feature.onboarding.OnboardingScreen
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.LaunchedEffect
 
 @Composable
 fun AppNavHost() {
@@ -27,13 +30,34 @@ fun AppNavHost() {
     val missionViewModel = ViewModelProvider.provideMissionViewModel(context)
     val addItemViewModel = ViewModelProvider.provideAddItemViewModel(context)
 
+    // Lấy user data để hiển thị trên TopBar
+    val userViewModel = ViewModelProvider.provideUserViewModel(context)
+    val user by userViewModel.user.collectAsState()
+
     var showAddDialog by remember { mutableStateOf(false) }
 
     // observe current route to decide default add type
     val currentBackStack by navController.currentBackStackEntryAsState()
     val currentRoute = currentBackStack?.destination?.route
 
-    AppScaffold(title = "Todolist", showBottomBar = true,
+    // Kiểm tra user và navigate đến onboarding nếu chưa có user
+    LaunchedEffect(user) {
+        if (user == null && currentRoute != "onboarding") {
+            navController.navigate("onboarding") {
+                popUpTo(0) { inclusive = true } // Clear back stack
+            }
+        }
+    }
+
+    // Chỉ hiển thị TopBar và BottomBar khi không ở màn hình onboarding
+    val showBars = currentRoute != "onboarding"
+
+    AppScaffold(
+        title = "Todolist",
+        showTopBar = showBars,  // Ẩn TopBar khi ở onboarding
+        showBottomBar = showBars,  // Ẩn BottomBar khi ở onboarding
+        user = user,  // Truyền user data
+        onSettingsClick = { navController.navigate("settings") },  // Navigate đến settings
         onHome = { navController.navigate("home") },
         onList = { navController.navigate("missions") },
         onStats = { navController.navigate("analysis") },
@@ -42,9 +66,20 @@ fun AppNavHost() {
     ) { padding ->
         NavHost(
             navController = navController,
-            startDestination = "home",
+            startDestination = if (user == null) "onboarding" else "home",
             modifier = Modifier
         ) {
+            composable("onboarding") {
+                OnboardingScreen(
+                    onUserCreated = { newUser ->
+                        userViewModel.saveUser(newUser)
+                        navController.navigate("home") {
+                            popUpTo("onboarding") { inclusive = true }
+                        }
+                    }
+                )
+            }
+
             composable("home") {
                 HomeScreen(
                     homeViewModel = homeViewModel,
@@ -63,6 +98,16 @@ fun AppNavHost() {
                 val analysisVm = ViewModelProvider.provideMissionAnalysisViewModel(context)
                 com.example.todolist.feature.analysis.MissionAnalysisScreen(
                     viewModel = analysisVm,
+                    modifier = Modifier.padding(padding)
+                )
+            }
+
+            composable("settings") {
+                val settingsVm = ViewModelProvider.provideSettingsViewModel(context)
+                com.example.todolist.feature.settings.SettingsScreen(
+                    viewModel = settingsVm,
+                    userViewModel = userViewModel,
+                    onBackClick = { navController.popBackStack() },
                     modifier = Modifier.padding(padding)
                 )
             }

@@ -6,13 +6,22 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.example.todolist.data.local.dao.MissionDao
 import com.example.todolist.data.local.dao.TaskDao
+import com.example.todolist.data.local.dao.UserDao
+import com.example.todolist.data.local.dao.SettingsDao
 import com.example.todolist.data.local.entity.MissionEntity
 import com.example.todolist.data.local.entity.TaskEntity
+import com.example.todolist.data.local.entity.UserEntity
+import com.example.todolist.data.local.entity.SettingsEntity
 
-@Database(entities = [TaskEntity::class, MissionEntity::class], version = 1)
+@Database(
+    entities = [TaskEntity::class, MissionEntity::class, UserEntity::class, SettingsEntity::class],
+    version = 2
+)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun taskDao(): TaskDao
     abstract fun missionDao(): MissionDao
+    abstract fun userDao(): UserDao
+    abstract fun settingsDao(): SettingsDao
 
     companion object {
         @Volatile
@@ -31,4 +40,3 @@ abstract class AppDatabase : RoomDatabase() {
         }
     }
 }
-

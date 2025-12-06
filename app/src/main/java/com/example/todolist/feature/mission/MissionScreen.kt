@@ -1,22 +1,19 @@
 package com.example.todolist.feature.mission
 
-import android.widget.Toast
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.animation.*
+import androidx.compose.animation.core.*
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.todolist.ui.common.ViewModelProvider
+import androidx.compose.ui.unit.sp
 import com.example.todolist.feature.mission.components.MissionCardItem
 import com.example.todolist.feature.mission.components.DateNavigator
 import com.example.todolist.feature.mission.components.StatusFilterRow
@@ -28,73 +25,130 @@ fun MissionScreen(
     debug: Boolean = false
 ) {
     val uiState by missionViewModel.uiState.collectAsState()
-    val context = LocalContext.current
-
     val missions = uiState.missions
-    val gran = uiState.granularity
-    val ref = uiState.referenceDate
 
-    LazyColumn(modifier = modifier.padding(16.dp)) {
-        item {
-            // Use shared DateNavigator component which includes prev/title/next and granularity chips
-            DateNavigator(
-                referenceDate = ref,
-                granularity = gran,
-                onPrev = {
-                    missionViewModel.prev()
-                    if (debug) Toast.makeText(context, "Prev pressed", Toast.LENGTH_SHORT).show()
-                },
-                onNext = {
-                    missionViewModel.next()
-                    if (debug) Toast.makeText(context, "Next pressed", Toast.LENGTH_SHORT).show()
-                },
-                onSetGranularity = { g ->
-                    missionViewModel.setGranularity(g)
-                    if (debug) Toast.makeText(context, "Granularity: $g", Toast.LENGTH_SHORT).show()
-                }
+    var isVisible by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        isVisible = true
+    }
+
+    val primaryColor = MaterialTheme.colorScheme.primary
+    val secondaryColor = MaterialTheme.colorScheme.secondary
+    val tertiaryColor = MaterialTheme.colorScheme.tertiary
+
+    val infiniteTransition = rememberInfiniteTransition(label = "background")
+    val animatedOffset by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1000f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(25000, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "offset"
+    )
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(
+                Brush.linearGradient(
+                    colors = listOf(
+                        primaryColor.copy(alpha = 0.06f),
+                        secondaryColor.copy(alpha = 0.03f),
+                        tertiaryColor.copy(alpha = 0.04f)
+                    ),
+                    start = androidx.compose.ui.geometry.Offset(animatedOffset, animatedOffset),
+                    end = androidx.compose.ui.geometry.Offset(
+                        animatedOffset + 1000f,
+                        animatedOffset + 1000f
+                    )
+                )
             )
+    ) {
+        LazyColumn(modifier = modifier.padding(16.dp)) {
+            item {
+                AnimatedVisibility(
+                    visible = isVisible,
+                    enter = slideInVertically(
+                        initialOffsetY = { -it },
+                        animationSpec = tween(500)
+                    ) + fadeIn(animationSpec = tween(500))
+                ) {
+                    DateNavigator(
+                        referenceDate = uiState.referenceDate,
+                        granularity = uiState.granularity,
+                        onPrev = { missionViewModel.prev() },
+                        onNext = { missionViewModel.next() },
+                        onSetGranularity = { g -> missionViewModel.setGranularity(g) }
+                    )
+                }
 
-            Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-            // Status filter row (All / Completed / In progress / Missed) - use component
-            StatusFilterRow(selectedFilter = uiState.statusFilter, onSelect = { f ->
-                missionViewModel.setStatusFilter(f)
-                if (debug) Toast.makeText(context, "Status: $f", Toast.LENGTH_SHORT).show()
-            })
+                AnimatedVisibility(
+                    visible = isVisible,
+                    enter = slideInVertically(
+                        initialOffsetY = { it },
+                        animationSpec = tween(500, delayMillis = 100)
+                    ) + fadeIn(animationSpec = tween(500, delayMillis = 100))
+                ) {
+                    StatusFilterRow(
+                        selectedFilter = uiState.statusFilter,
+                        onSelect = { f -> missionViewModel.setStatusFilter(f) }
+                    )
+                }
 
-            Spacer(modifier = Modifier.height(12.dp))
-        }
+                Spacer(modifier = Modifier.height(20.dp))
 
-        if (missions.isEmpty()) {
-            item { Text(text = "No missions", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant) }
-        } else {
-            items(missions) { mission ->
-                MissionCardItem(
-                    mission = mission,
-                    onDelete = { id -> missionViewModel.deleteMission(id) },
-                    onToggleCompleted = { id -> missionViewModel.toggleMissionCompleted(id) })
-                Spacer(modifier = Modifier.height(8.dp))
+                AnimatedVisibility(
+                    visible = isVisible,
+                    enter = fadeIn(animationSpec = tween(500, delayMillis = 200))
+                ) {
+                    Text(
+                        text = "🎯 Missions",
+                        style = MaterialTheme.typography.titleLarge.copy(
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 20.sp
+                        ),
+                        color = primaryColor,
+                        modifier = Modifier.padding(bottom = 12.dp)
+                    )
+                }
+            }
+
+            if (missions.isEmpty()) {
+                item {
+                    AnimatedVisibility(
+                        visible = isVisible,
+                        enter = fadeIn(animationSpec = tween(600, delayMillis = 300))
+                    ) {
+                        Text(
+                            text = "No missions found",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(vertical = 24.dp)
+                        )
+                    }
+                }
+            } else {
+                items(missions) { mission ->
+                    AnimatedVisibility(
+                        visible = isVisible,
+                        enter = slideInVertically(
+                            initialOffsetY = { it },
+                            animationSpec = tween(400, delayMillis = 300)
+                        ) + fadeIn(animationSpec = tween(400, delayMillis = 300))
+                    ) {
+                        MissionCardItem(
+                            mission = mission,
+                            onDelete = { id -> missionViewModel.deleteMission(id) },
+                            onToggleCompleted = { id -> missionViewModel.toggleMissionCompleted(id) }
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(12.dp))
+                }
             }
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun MissionScreenPreview() {
-    val context = LocalContext.current
-    val vm = ViewModelProvider.provideMissionViewModel(context)
-    Surface(color = MaterialTheme.colorScheme.background) {
-        MissionScreen(missionViewModel = vm)
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun MissionScreenDebugPreview() {
-    val context = LocalContext.current
-    val vm = ViewModelProvider.provideMissionViewModel(context)
-    Surface(color = MaterialTheme.colorScheme.background) {
-        MissionScreen(missionViewModel = vm, debug = true)
     }
 }

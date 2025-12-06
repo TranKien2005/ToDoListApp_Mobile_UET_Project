@@ -1,24 +1,25 @@
 package com.example.todolist.feature.analysis
 
+import androidx.compose.animation.*
+import androidx.compose.animation.core.*
+import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.todolist.ui.common.ViewModelProvider
-import androidx.compose.material3.Surface
-import androidx.compose.material3.MaterialTheme
 
 // extracted analysis components
 import com.example.todolist.feature.analysis.components.LegendItem
@@ -48,7 +49,28 @@ fun MissionAnalysisScreen(
     val gran = uiState.granularity
     val ref = uiState.referenceDate
 
+    var isVisible by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        isVisible = true
+    }
+
     val darkTheme = isSystemInDarkTheme()
+    val primaryColor = MaterialTheme.colorScheme.primary
+    val secondaryColor = MaterialTheme.colorScheme.secondary
+    val tertiaryColor = MaterialTheme.colorScheme.tertiary
+
+    // Animated background
+    val infiniteTransition = rememberInfiniteTransition(label = "background")
+    val animatedOffset by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1000f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(25000, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "offset"
+    )
 
     // pick mission-specific palette from theme (light/dark variants)
     val colorCompleted = if (darkTheme) missionCompletedContainerDark else missionCompletedContainerLight
@@ -66,72 +88,274 @@ fun MissionAnalysisScreen(
         (stats.maxOfOrNull { val total = it.completed + it.missed + it.inProgress; maxOf(total, it.completed, it.missed) } ?: 1).coerceAtLeast(1)
     }
 
-    Column(modifier = modifier.padding(16.dp)) {
-        // Use shared DateNavigator (prev/title/next + granularity chips)
-        DateNavigator(
-            referenceDate = ref,
-            granularity = gran,
-            onPrev = { viewModel.prev() },
-            onNext = { viewModel.next() },
-            onSetGranularity = { viewModel.setGranularity(it) }
-        )
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(
+                Brush.linearGradient(
+                    colors = listOf(
+                        primaryColor.copy(alpha = 0.06f),
+                        secondaryColor.copy(alpha = 0.03f),
+                        tertiaryColor.copy(alpha = 0.04f)
+                    ),
+                    start = androidx.compose.ui.geometry.Offset(animatedOffset, animatedOffset),
+                    end = androidx.compose.ui.geometry.Offset(
+                        animatedOffset + 1000f,
+                        animatedOffset + 1000f
+                    )
+                )
+            )
+    ) {
+        LazyColumn(modifier = modifier.padding(16.dp)) {
+            item {
+                // Animated Header
+                AnimatedVisibility(
+                    visible = isVisible,
+                    enter = slideInVertically(
+                        initialOffsetY = { -it },
+                        animationSpec = tween(500)
+                    ) + fadeIn(animationSpec = tween(500))
+                ) {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text(
+                            text = "📊 Mission Analytics",
+                            style = MaterialTheme.typography.headlineMedium.copy(
+                                fontWeight = FontWeight.ExtraBold,
+                                fontSize = 28.sp
+                            ),
+                            color = primaryColor
+                        )
+                        Text(
+                            text = "Track your mission progress over time",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                }
 
-        Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-        // Legend - Total, Completed, Missed
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly, verticalAlignment = Alignment.CenterVertically) {
-            LegendItem(color = colorTotal, label = "Total")
-            LegendItem(color = colorCompleted, label = "Completed")
-            LegendItem(color = colorMissed, label = "Missed")
-        }
+                // Use shared DateNavigator (prev/title/next + granularity chips)
+                AnimatedVisibility(
+                    visible = isVisible,
+                    enter = slideInVertically(
+                        initialOffsetY = { -it },
+                        animationSpec = tween(500, delayMillis = 100)
+                    ) + fadeIn(animationSpec = tween(500, delayMillis = 100))
+                ) {
+                    DateNavigator(
+                        referenceDate = ref,
+                        granularity = gran,
+                        onPrev = { viewModel.prev() },
+                        onNext = { viewModel.next() },
+                        onSetGranularity = { viewModel.setGranularity(it) }
+                    )
+                }
 
-        Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-        // Chart area with horizontal scroll when many columns - use LazyRow for performance
-        Box(modifier = Modifier
-            .fillMaxWidth()
-            .height(240.dp)
-            .padding(horizontal = 4.dp)) {
-
-            if (uiState.isLoading) {
-                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-            } else if (stats.isEmpty()) {
-                Text(text = "No data", modifier = Modifier.align(Alignment.Center))
-            } else {
-                LazyRow(modifier = Modifier.fillMaxWidth().align(Alignment.BottomCenter), horizontalArrangement = Arrangement.spacedBy(12.dp), contentPadding = PaddingValues(horizontal = 8.dp)) {
-                    items(stats) { entry ->
-                        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.width(100.dp)) {
-                            val total = entry.completed + entry.missed + entry.inProgress
-                            val totalHeight = (total.toFloat() / maxValue) * 160f
-                            val completedHeight = (entry.completed.toFloat() / maxValue) * 160f
-                            val missedHeight = (entry.missed.toFloat() / maxValue) * 160f
-
-                            Row(verticalAlignment = Alignment.Bottom, modifier = Modifier.height(180.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                Bar(color = colorTotal, contentColor = contentOnTotal, heightDp = totalHeight.dp, label = total)
-                                Bar(color = colorCompleted, contentColor = contentOnCompleted, heightDp = completedHeight.dp, label = entry.completed)
-                                Bar(color = colorMissed, contentColor = contentOnMissed, heightDp = missedHeight.dp, label = entry.missed)
-                            }
-
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(text = entry.label, fontSize = 12.sp)
+                // Legend - Total, Completed, Missed with animation
+                AnimatedVisibility(
+                    visible = isVisible,
+                    enter = slideInHorizontally(
+                        initialOffsetX = { -it },
+                        animationSpec = tween(500, delayMillis = 200)
+                    ) + fadeIn(animationSpec = tween(500, delayMillis = 200))
+                ) {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                        ),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            horizontalArrangement = Arrangement.SpaceEvenly,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            LegendItem(color = colorTotal, label = "Total")
+                            LegendItem(color = colorCompleted, label = "Completed")
+                            LegendItem(color = colorMissed, label = "Missed")
                         }
                     }
                 }
+
+                Spacer(modifier = Modifier.height(20.dp))
             }
-        }
 
-        Spacer(modifier = Modifier.height(16.dp))
+            item {
+                // Chart area with horizontal scroll when many columns - use LazyRow for performance
+                AnimatedVisibility(
+                    visible = isVisible,
+                    enter = scaleIn(
+                        initialScale = 0.95f,
+                        animationSpec = tween(600, delayMillis = 300)
+                    ) + fadeIn(animationSpec = tween(600, delayMillis = 300))
+                ) {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(20.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surface
+                        ),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                    ) {
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Text(
+                                text = "Mission Statistics",
+                                style = MaterialTheme.typography.titleMedium.copy(
+                                    fontWeight = FontWeight.Bold
+                                ),
+                                color = primaryColor
+                            )
 
-        // Totals / Details
-        Card(modifier = Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow)) {
-            Column(modifier = Modifier.padding(12.dp)) {
-                Text(text = "Totals", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                Spacer(modifier = Modifier.height(8.dp))
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    DetailItem(label = "Total missions", value = viewModel.totalMissions())
-                    DetailItem(label = "Completed", value = viewModel.totalCompleted())
-                    DetailItem(label = "Missed", value = viewModel.totalMissed())
-                    DetailItem(label = "In Progress", value = viewModel.totalInProgress())
+                            Spacer(modifier = Modifier.height(12.dp))
+
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(240.dp)
+                            ) {
+                                if (uiState.isLoading) {
+                                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                                } else if (stats.isEmpty()) {
+                                    Column(
+                                        modifier = Modifier.align(Alignment.Center),
+                                        horizontalAlignment = Alignment.CenterHorizontally
+                                    ) {
+                                        Text(
+                                            text = "📭",
+                                            fontSize = 48.sp
+                                        )
+                                        Spacer(modifier = Modifier.height(8.dp))
+                                        Text(
+                                            text = "No data available",
+                                            style = MaterialTheme.typography.bodyLarge,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
+                                } else {
+                                    LazyRow(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .align(Alignment.BottomCenter),
+                                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                                        contentPadding = PaddingValues(horizontal = 8.dp)
+                                    ) {
+                                        items(stats) { entry ->
+                                            Column(
+                                                horizontalAlignment = Alignment.CenterHorizontally,
+                                                modifier = Modifier.width(100.dp)
+                                            ) {
+                                                val total = entry.completed + entry.missed + entry.inProgress
+                                                val totalHeight = (total.toFloat() / maxValue) * 160f
+                                                val completedHeight = (entry.completed.toFloat() / maxValue) * 160f
+                                                val missedHeight = (entry.missed.toFloat() / maxValue) * 160f
+
+                                                Row(
+                                                    verticalAlignment = Alignment.Bottom,
+                                                    modifier = Modifier.height(180.dp),
+                                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                                ) {
+                                                    Bar(
+                                                        color = colorTotal,
+                                                        contentColor = contentOnTotal,
+                                                        heightDp = totalHeight.dp,
+                                                        label = total
+                                                    )
+                                                    Bar(
+                                                        color = colorCompleted,
+                                                        contentColor = contentOnCompleted,
+                                                        heightDp = completedHeight.dp,
+                                                        label = entry.completed
+                                                    )
+                                                    Bar(
+                                                        color = colorMissed,
+                                                        contentColor = contentOnMissed,
+                                                        heightDp = missedHeight.dp,
+                                                        label = entry.missed
+                                                    )
+                                                }
+
+                                                Spacer(modifier = Modifier.height(8.dp))
+                                                Text(
+                                                    text = entry.label,
+                                                    fontSize = 11.sp,
+                                                    fontWeight = FontWeight.Medium,
+                                                    color = MaterialTheme.colorScheme.onSurface
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+
+            item {
+                // Totals / Details with animation
+                AnimatedVisibility(
+                    visible = isVisible,
+                    enter = slideInVertically(
+                        initialOffsetY = { it },
+                        animationSpec = tween(500, delayMillis = 400)
+                    ) + fadeIn(animationSpec = tween(500, delayMillis = 400))
+                ) {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(20.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surface
+                        ),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                    ) {
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = "Summary",
+                                    style = MaterialTheme.typography.titleMedium.copy(
+                                        fontWeight = FontWeight.Bold
+                                    ),
+                                    color = primaryColor
+                                )
+                                Surface(
+                                    color = primaryColor.copy(alpha = 0.1f),
+                                    shape = RoundedCornerShape(8.dp)
+                                ) {
+                                    Text(
+                                        text = "Total: ${viewModel.totalMissions()}",
+                                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                                        style = MaterialTheme.typography.labelLarge,
+                                        color = primaryColor,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.height(12.dp))
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceEvenly
+                            ) {
+                                DetailItem(label = "Completed", value = viewModel.totalCompleted())
+                                DetailItem(label = "Missed", value = viewModel.totalMissed())
+                                DetailItem(label = "In Progress", value = viewModel.totalInProgress())
+                            }
+                        }
+                    }
                 }
             }
         }

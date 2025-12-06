@@ -1,45 +1,33 @@
 package com.example.todolist.feature.common
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.rememberModalBottomSheetState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import androidx.compose.animation.*
+import androidx.compose.animation.core.*
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.ui.graphics.Color
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Event
+import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material.icons.filled.Description
+import androidx.compose.material.icons.filled.Title
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.todolist.core.model.Mission
 import com.example.todolist.core.model.Task
 import com.example.todolist.core.model.RepeatType
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.LocalDate
+import java.util.Locale
 import com.example.todolist.feature.common.AddItemViewModel
 
-/**
- * A simple dialog that allows creating either a Task or a Mission.
- * It does not call UseCases directly; instead it exposes onSaveTask/onSaveMission callbacks
- * so callers (ViewModels/screens) can pass appropriate use case invocations.
- *
- * Fields: title (required), description (required), date (required), time (required), duration(required for task), repeat (required for task but enum default exists).
- */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddItemDialog(
@@ -48,6 +36,12 @@ fun AddItemDialog(
     defaultDate: LocalDate = LocalDate.now(),
     defaultIsTask: Boolean = true
 ) {
+    var isVisible by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        isVisible = true
+    }
+
     val scrollState = rememberScrollState()
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
@@ -55,25 +49,23 @@ fun AddItemDialog(
     var date by remember { mutableStateOf(defaultDate) }
     var time by remember { mutableStateOf(LocalTime.of(9, 0)) }
 
-    // Task-specific fields
-    var durationText by remember { mutableStateOf("") } // minutes, now required for Task
+    var durationText by remember { mutableStateOf("") }
     var repeatType by remember { mutableStateOf(RepeatType.NONE) }
 
-    // validation errors
     var titleError by remember { mutableStateOf<String?>(null) }
     var descriptionError by remember { mutableStateOf<String?>(null) }
-    var dateError by remember { mutableStateOf<String?>(null) }
-    var timeError by remember { mutableStateOf<String?>(null) }
     var durationError by remember { mutableStateOf<String?>(null) }
 
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    // State for DatePicker and TimePicker dialogs
+    var showDatePicker by remember { mutableStateOf(false) }
+    var showTimePicker by remember { mutableStateOf(false) }
+
+    val primaryColor = MaterialTheme.colorScheme.primary
+    val secondaryColor = MaterialTheme.colorScheme.secondary
 
     fun validateAll(): Boolean {
-        // reset
         titleError = null
         descriptionError = null
-        dateError = null
-        timeError = null
         durationError = null
 
         var ok = true
@@ -85,164 +77,418 @@ fun AddItemDialog(
             descriptionError = "Description is required"
             ok = false
         }
-        // date/time validation: check parsability by converting back to string/parse
-        try {
-            LocalDate.parse(date.toString())
-        } catch (_: Exception) {
-            dateError = "Invalid date"
-            ok = false
-        }
-        try {
-            LocalTime.parse(time.toString())
-        } catch (_: Exception) {
-            timeError = "Invalid time"
-            ok = false
-        }
         if (selectedTypeIsTask) {
             if (durationText.isBlank()) {
-                durationError = "Duration is required for tasks"
+                durationError = "Duration is required"
                 ok = false
             } else if (durationText.toLongOrNull() == null) {
-                durationError = "Duration must be a number (minutes)"
+                durationError = "Must be a number"
                 ok = false
             }
         }
-
         return ok
+    }
+
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
+    // DatePicker Dialog
+    if (showDatePicker) {
+        val datePickerState = rememberDatePickerState(
+            initialSelectedDateMillis = date.toEpochDay() * 24 * 60 * 60 * 1000
+        )
+        DatePickerDialog(
+            onDismissRequest = { showDatePicker = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    datePickerState.selectedDateMillis?.let { millis ->
+                        date = LocalDate.ofEpochDay(millis / (24 * 60 * 60 * 1000))
+                    }
+                    showDatePicker = false
+                }) {
+                    Text("OK")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDatePicker = false }) {
+                    Text("Cancel")
+                }
+            }
+        ) {
+            DatePicker(state = datePickerState)
+        }
+    }
+
+    // TimePicker Dialog
+    if (showTimePicker) {
+        val timePickerState = rememberTimePickerState(
+            initialHour = time.hour,
+            initialMinute = time.minute,
+            is24Hour = true
+        )
+        AlertDialog(
+            onDismissRequest = { showTimePicker = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    time = LocalTime.of(timePickerState.hour, timePickerState.minute)
+                    showTimePicker = false
+                }) {
+                    Text("OK")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showTimePicker = false }) {
+                    Text("Cancel")
+                }
+            },
+            text = {
+                TimePicker(state = timePickerState)
+            }
+        )
     }
 
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
-        sheetState = sheetState
+        sheetState = sheetState,
+        containerColor = MaterialTheme.colorScheme.surface,
+        shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp)
     ) {
-        Surface(color = MaterialTheme.colorScheme.surfaceVariant) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    Brush.verticalGradient(
+                        colors = listOf(
+                            primaryColor.copy(alpha = 0.05f),
+                            secondaryColor.copy(alpha = 0.02f)
+                        )
+                    )
+                )
+        ) {
             Column(
                 modifier = Modifier
-                    .padding(12.dp)
-                    .heightIn(max = 520.dp)
+                    .padding(24.dp)
+                    .heightIn(max = 600.dp)
                     .verticalScroll(scrollState),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                // header row with title and actions
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text(text = if (selectedTypeIsTask) "Add Task" else "Add Mission", style = MaterialTheme.typography.titleMedium)
-                    Row {
-                        TextButton(onClick = {
-                            onDismissRequest()
-                        }) { Text(text = "Cancel") }
-
-                        TextButton(onClick = {
-                            val valid = validateAll()
-                            if (!valid) return@TextButton
-
-                            val dateTime = LocalDateTime.of(date, time)
-
-                            if (selectedTypeIsTask) {
-                                val durationMinutes = durationText.toLong()
-
-                                val task = Task(
-                                    id = 0,
-                                    title = title.trim(),
-                                    description = description.trim().ifBlank { null },
-                                    startTime = dateTime,
-                                    durationMinutes = durationMinutes,
-                                    repeatType = repeatType
-                                )
-                                addItemViewModel.saveTask(task)
-                            } else {
-                                // mission.status defaults to UNSPECIFIED
-                                val mission = Mission(id = 0, title = title.trim(), description = description.trim().ifBlank { null }, deadline = dateTime)
-                                addItemViewModel.saveMission(mission)
-                            }
-
-                            onDismissRequest()
-                        }) { Text(text = "Save") }
+                // Animated Header
+                AnimatedVisibility(
+                    visible = isVisible,
+                    enter = slideInVertically(
+                        initialOffsetY = { -it },
+                        animationSpec = tween(400)
+                    ) + fadeIn(animationSpec = tween(400))
+                ) {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text(
+                            text = if (selectedTypeIsTask) "✨ Add New Task" else "🎯 Add New Mission",
+                            style = MaterialTheme.typography.headlineSmall.copy(
+                                fontWeight = FontWeight.ExtraBold,
+                                fontSize = 26.sp
+                            ),
+                            color = primaryColor
+                        )
+                        Text(
+                            text = "Fill in the details below",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     }
                 }
 
-                // content fields
-                OutlinedTextField(value = title, onValueChange = { title = it }, label = { Text("Title") }, modifier = Modifier.fillMaxWidth(), isError = titleError != null)
-                if (titleError != null) Text(text = titleError ?: "", color = Color.Red)
+                HorizontalDivider(color = primaryColor.copy(alpha = 0.2f))
 
-                OutlinedTextField(value = description, onValueChange = { description = it }, label = { Text("Description") }, modifier = Modifier.fillMaxWidth(), isError = descriptionError != null)
-                if (descriptionError != null) Text(text = descriptionError ?: "", color = Color.Red)
-
-                // Simple type selector
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
-                        RadioButton(selected = selectedTypeIsTask, onClick = { selectedTypeIsTask = true })
-                        Text(text = "Task", modifier = Modifier.padding(start = 4.dp))
-                    }
-                    Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
-                        RadioButton(selected = !selectedTypeIsTask, onClick = { selectedTypeIsTask = false })
-                        Text(text = "Mission", modifier = Modifier.padding(start = 4.dp))
-                    }
-                }
-
-                // Date and time inputs: to keep this small and dependency-free we use basic text fields expecting yyyy-mm-dd and HH:mm formats.
-                OutlinedTextField(
-                    value = date.toString(),
-                    onValueChange = { input ->
-                        try {
-                            val parsed = LocalDate.parse(input)
-                            date = parsed
-                            dateError = null
-                        } catch (_: Exception) {
-                            dateError = "Invalid date"
-                        }
-                    },
-                    label = { Text("Date (YYYY-MM-DD)") },
-                    modifier = Modifier.fillMaxWidth(),
-                    isError = dateError != null
-                )
-                if (dateError != null) Text(text = dateError ?: "", color = Color.Red)
-
-                OutlinedTextField(
-                    value = time.toString(),
-                    onValueChange = { input ->
-                        try {
-                            val parsed = LocalTime.parse(input)
-                            time = parsed
-                            timeError = null
-                        } catch (_: Exception) {
-                            timeError = "Invalid time"
-                        }
-                    },
-                    label = { Text("Time (HH:MM)") },
-                    modifier = Modifier.fillMaxWidth(),
-                    isError = timeError != null
-                )
-                if (timeError != null) Text(text = timeError ?: "", color = Color.Red)
-
-                // Show Task-specific fields only when Task is selected
-                if (selectedTypeIsTask) {
-                    // Duration (minutes) - required now
-                    OutlinedTextField(
-                        value = durationText,
-                        onValueChange = { input ->
-                            // keep only digits to simplify parsing
-                            durationText = input.filter { it.isDigit() }
-                            durationError = null
-                        },
-                        label = { Text("Duration (minutes)") },
+                // Type Selector với animation
+                AnimatedVisibility(
+                    visible = isVisible,
+                    enter = slideInHorizontally(
+                        initialOffsetX = { -it },
+                        animationSpec = tween(500, delayMillis = 100)
+                    ) + fadeIn(animationSpec = tween(500, delayMillis = 100))
+                ) {
+                    Card(
                         modifier = Modifier.fillMaxWidth(),
-                        isError = durationError != null
-                    )
-                    if (durationError != null) Text(text = durationError ?: "", color = Color.Red)
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = primaryColor.copy(alpha = 0.08f)
+                        )
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(8.dp),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            FilterChip(
+                                selected = selectedTypeIsTask,
+                                onClick = { selectedTypeIsTask = true },
+                                label = { Text("📝 Task") },
+                                modifier = Modifier.weight(1f),
+                                colors = FilterChipDefaults.filterChipColors(
+                                    selectedContainerColor = primaryColor,
+                                    selectedLabelColor = MaterialTheme.colorScheme.onPrimary
+                                )
+                            )
+                            FilterChip(
+                                selected = !selectedTypeIsTask,
+                                onClick = { selectedTypeIsTask = false },
+                                label = { Text("🎯 Mission") },
+                                modifier = Modifier.weight(1f),
+                                colors = FilterChipDefaults.filterChipColors(
+                                    selectedContainerColor = primaryColor,
+                                    selectedLabelColor = MaterialTheme.colorScheme.onPrimary
+                                )
+                            )
+                        }
+                    }
+                }
 
-                    // Repeat type selector - vertical list to avoid horizontal overflow
-                    Column {
-                        Text(text = "Repeat")
-                        Column(verticalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.padding(top = 4.dp)) {
-                            RepeatType.entries.forEach { rt ->
-                                Row(
-                                    verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
-                                    modifier = Modifier.fillMaxWidth()
+                // Form Fields với animations
+                AnimatedVisibility(
+                    visible = isVisible,
+                    enter = slideInVertically(
+                        initialOffsetY = { it },
+                        animationSpec = tween(500, delayMillis = 200)
+                    ) + fadeIn(animationSpec = tween(500, delayMillis = 200))
+                ) {
+                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        // Title Field
+                        OutlinedTextField(
+                            value = title,
+                            onValueChange = {
+                                title = it
+                                titleError = null
+                            },
+                            label = { Text("Title") },
+                            leadingIcon = {
+                                Icon(Icons.Default.Title, contentDescription = null, tint = primaryColor)
+                            },
+                            placeholder = { Text("Enter ${if (selectedTypeIsTask) "task" else "mission"} title") },
+                            modifier = Modifier.fillMaxWidth(),
+                            singleLine = true,
+                            isError = titleError != null,
+                            supportingText = titleError?.let { { Text(it, color = MaterialTheme.colorScheme.error) } },
+                            shape = RoundedCornerShape(16.dp),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = primaryColor,
+                                focusedLabelColor = primaryColor
+                            )
+                        )
+
+                        // Description Field
+                        OutlinedTextField(
+                            value = description,
+                            onValueChange = {
+                                description = it
+                                descriptionError = null
+                            },
+                            label = { Text("Description") },
+                            leadingIcon = {
+                                Icon(Icons.Default.Description, contentDescription = null, tint = primaryColor)
+                            },
+                            placeholder = { Text("Add details...") },
+                            modifier = Modifier.fillMaxWidth(),
+                            minLines = 3,
+                            maxLines = 5,
+                            isError = descriptionError != null,
+                            supportingText = descriptionError?.let { { Text(it, color = MaterialTheme.colorScheme.error) } },
+                            shape = RoundedCornerShape(16.dp),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = primaryColor,
+                                focusedLabelColor = primaryColor
+                            )
+                        )
+
+                        // Date & Time Row - Now clickable with pickers
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            OutlinedTextField(
+                                value = date.toString(),
+                                onValueChange = {},
+                                label = { Text("Date") },
+                                leadingIcon = {
+                                    Icon(Icons.Default.Event, contentDescription = null, tint = primaryColor)
+                                },
+                                readOnly = true,
+                                modifier = Modifier.weight(1f),
+                                shape = RoundedCornerShape(16.dp),
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    focusedBorderColor = primaryColor
+                                ),
+                                interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
+                                    .also { interactionSource ->
+                                        LaunchedEffect(interactionSource) {
+                                            interactionSource.interactions.collect { interaction ->
+                                                if (interaction is androidx.compose.foundation.interaction.PressInteraction.Release) {
+                                                    showDatePicker = true
+                                                }
+                                            }
+                                        }
+                                    }
+                            )
+
+                            OutlinedTextField(
+                                value = String.format(Locale.getDefault(), "%02d:%02d", time.hour, time.minute),
+                                onValueChange = {},
+                                label = { Text("Time") },
+                                leadingIcon = {
+                                    Icon(Icons.Default.Schedule, contentDescription = null, tint = primaryColor)
+                                },
+                                readOnly = true,
+                                modifier = Modifier.weight(1f),
+                                shape = RoundedCornerShape(16.dp),
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    focusedBorderColor = primaryColor
+                                ),
+                                interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
+                                    .also { interactionSource ->
+                                        LaunchedEffect(interactionSource) {
+                                            interactionSource.interactions.collect { interaction ->
+                                                if (interaction is androidx.compose.foundation.interaction.PressInteraction.Release) {
+                                                    showTimePicker = true
+                                                }
+                                            }
+                                        }
+                                    }
+                            )
+                        }
+
+                        // Task-specific: Duration & Repeat
+                        AnimatedVisibility(
+                            visible = selectedTypeIsTask,
+                            enter = expandVertically() + fadeIn(),
+                            exit = shrinkVertically() + fadeOut()
+                        ) {
+                            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                                OutlinedTextField(
+                                    value = durationText,
+                                    onValueChange = {
+                                        if (it.all { char -> char.isDigit() }) {
+                                            durationText = it
+                                            durationError = null
+                                        }
+                                    },
+                                    label = { Text("Duration (minutes)") },
+                                    placeholder = { Text("e.g., 60") },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    singleLine = true,
+                                    isError = durationError != null,
+                                    supportingText = durationError?.let { { Text(it, color = MaterialTheme.colorScheme.error) } },
+                                    shape = RoundedCornerShape(16.dp),
+                                    colors = OutlinedTextFieldDefaults.colors(
+                                        focusedBorderColor = primaryColor,
+                                        focusedLabelColor = primaryColor
+                                    )
+                                )
+
+                                // Repeat Type Selector
+                                Card(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    shape = RoundedCornerShape(16.dp),
+                                    colors = CardDefaults.cardColors(
+                                        containerColor = MaterialTheme.colorScheme.surfaceVariant
+                                    )
                                 ) {
-                                    RadioButton(selected = repeatType == rt, onClick = { repeatType = rt })
-                                    Text(text = rt.name, modifier = Modifier.padding(start = 8.dp))
+                                    Column(modifier = Modifier.padding(16.dp)) {
+                                        Text(
+                                            "Repeat",
+                                            style = MaterialTheme.typography.titleSmall.copy(
+                                                fontWeight = FontWeight.Bold
+                                            ),
+                                            color = primaryColor
+                                        )
+                                        Spacer(modifier = Modifier.height(8.dp))
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                        ) {
+                                            listOf(
+                                                RepeatType.NONE to "None",
+                                                RepeatType.DAILY to "Daily",
+                                                RepeatType.WEEKLY to "Weekly",
+                                                RepeatType.MONTHLY to "Monthly"
+                                            ).forEach { (type, label) ->
+                                                FilterChip(
+                                                    selected = repeatType == type,
+                                                    onClick = { repeatType = type },
+                                                    label = { Text(label, fontSize = 12.sp) },
+                                                    modifier = Modifier.weight(1f),
+                                                    colors = FilterChipDefaults.filterChipColors(
+                                                        selectedContainerColor = primaryColor,
+                                                        selectedLabelColor = MaterialTheme.colorScheme.onPrimary
+                                                    )
+                                                )
+                                            }
+                                        }
+                                    }
                                 }
                             }
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Action Buttons
+                AnimatedVisibility(
+                    visible = isVisible,
+                    enter = slideInVertically(
+                        initialOffsetY = { it },
+                        animationSpec = tween(500, delayMillis = 300)
+                    ) + fadeIn(animationSpec = tween(500, delayMillis = 300))
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        OutlinedButton(
+                            onClick = onDismissRequest,
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(56.dp),
+                            shape = RoundedCornerShape(16.dp)
+                        ) {
+                            Text("Cancel", fontWeight = FontWeight.Bold)
+                        }
+
+                        Button(
+                            onClick = {
+                                if (!validateAll()) return@Button
+
+                                val dateTime = LocalDateTime.of(date, time)
+
+                                if (selectedTypeIsTask) {
+                                    val task = Task(
+                                        id = 0,
+                                        title = title.trim(),
+                                        description = description.trim().ifBlank { null },
+                                        startTime = dateTime,
+                                        durationMinutes = durationText.toLongOrNull(),
+                                        repeatType = repeatType
+                                    )
+                                    addItemViewModel.saveTask(task)
+                                } else {
+                                    val mission = Mission(
+                                        id = 0,
+                                        title = title.trim(),
+                                        description = description.trim().ifBlank { null },
+                                        deadline = dateTime
+                                    )
+                                    addItemViewModel.saveMission(mission)
+                                }
+                                onDismissRequest()
+                            },
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(56.dp),
+                            shape = RoundedCornerShape(16.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = primaryColor
+                            )
+                        ) {
+                            Text("Save ✓", fontWeight = FontWeight.Bold, fontSize = 16.sp)
                         }
                     }
                 }

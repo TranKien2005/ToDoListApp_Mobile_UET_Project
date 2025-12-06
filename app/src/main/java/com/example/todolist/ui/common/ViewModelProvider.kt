@@ -6,6 +6,8 @@ import com.example.todolist.feature.home.HomeViewModel
 import com.example.todolist.feature.mission.MissionViewModel
 import com.example.todolist.feature.common.AddItemViewModel
 import com.example.todolist.feature.analysis.MissionAnalysisViewModel
+import com.example.todolist.feature.user.UserViewModel
+import com.example.todolist.feature.settings.SettingsViewModel
 
 object ViewModelProvider {
 
@@ -34,4 +36,15 @@ object ViewModelProvider {
         return MissionAnalysisViewModel(missionUseCases.getMissionStats)
     }
 
+    fun provideUserViewModel(context: Context): UserViewModel {
+        val appModule = AppModule(context)
+        val userUseCases = appModule.domainModule.userUseCases
+        return UserViewModel(userUseCases)
+    }
+
+    fun provideSettingsViewModel(context: Context): SettingsViewModel {
+        val appModule = AppModule(context)
+        val settingsUseCases = appModule.domainModule.settingsUseCases
+        return SettingsViewModel(settingsUseCases)
+    }
 }
