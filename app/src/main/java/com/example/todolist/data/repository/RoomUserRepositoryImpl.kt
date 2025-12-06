@@ -5,6 +5,7 @@ import com.example.todolist.data.mapper.UserEntityMapper
 import com.example.todolist.domain.repository.UserRepository
 import com.example.todolist.core.model.User
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 
 class RoomUserRepositoryImpl(
@@ -12,9 +13,11 @@ class RoomUserRepositoryImpl(
 ) : UserRepository {
 
     override fun getUser(): Flow<User?> {
-        return userDao.getUser().map { entity ->
-            entity?.let { UserEntityMapper.toDomain(it) }
-        }
+        return userDao.getUser()
+            .map { entity ->
+                entity?.let { UserEntityMapper.toDomain(it) }
+            }
+            .distinctUntilChanged()
     }
 
     override suspend fun saveUser(user: User) {
@@ -31,4 +34,3 @@ class RoomUserRepositoryImpl(
         userDao.deleteAll()
     }
 }
-

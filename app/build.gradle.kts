@@ -36,6 +36,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
     compileOptions {
@@ -82,6 +83,8 @@ dependencies {
     kapt("androidx.room:room-compiler:2.8.4")
     // Desugaring libs for java.time on older devices
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
+    // WorkManager for notifications
+    implementation("androidx.work:work-runtime-ktx:2.9.0")
 
     // Test dependencies
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2")

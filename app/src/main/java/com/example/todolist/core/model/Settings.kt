@@ -10,6 +10,11 @@ data class Settings(
     // Thông báo mission vào đầu tuần nếu có deadline trong tuần
     val notifyWeeklyMissions: Boolean = true,
     // Thông báo mission vào đầu tháng nếu có deadline trong tháng
-    val notifyMonthlyMissions: Boolean = true
+    val notifyMonthlyMissions: Boolean = true,
+    // Thời gian gửi thông báo tóm tắt hàng ngày (giờ trong ngày: 0-23), mặc định 7h sáng
+    val dailySummaryHour: Int = 7,
+    // Cảnh báo mission sắp đến deadline trước bao nhiêu phút
+    val missionDeadlineWarningMinutes: Int = 60,
+    // Bật thông báo khi task/mission đã quá hạn
+    val overdueNotificationEnabled: Boolean = true
 )
-

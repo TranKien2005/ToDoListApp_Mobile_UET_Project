@@ -53,5 +53,25 @@ class SettingsViewModel(
             settingsUseCases.updateSettings(current.copy(notifyMonthlyMissions = enabled))
         }
     }
-}
 
+    fun updateDailySummaryHour(hour: Int) {
+        viewModelScope.launch {
+            val current = settings.value
+            settingsUseCases.updateSettings(current.copy(dailySummaryHour = hour))
+        }
+    }
+
+    fun updateMissionDeadlineWarningMinutes(minutes: Int) {
+        viewModelScope.launch {
+            val current = settings.value
+            settingsUseCases.updateSettings(current.copy(missionDeadlineWarningMinutes = minutes))
+        }
+    }
+
+    fun updateOverdueNotificationEnabled(enabled: Boolean) {
+        viewModelScope.launch {
+            val current = settings.value
+            settingsUseCases.updateSettings(current.copy(overdueNotificationEnabled = enabled))
+        }
+    }
+}

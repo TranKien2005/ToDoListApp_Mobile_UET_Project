@@ -3,15 +3,21 @@ package com.example.todolist.data.di
 import android.content.Context
 import com.example.todolist.data.local.dao.MissionDao
 import com.example.todolist.data.local.dao.TaskDao
+import com.example.todolist.data.local.dao.NotificationDao
+import com.example.todolist.data.local.dao.SettingsDao
 import com.example.todolist.data.local.di.LocalModule
 import com.example.todolist.data.remote.di.NetworkModule
 import com.example.todolist.data.remote.service.AiApiService
 import com.example.todolist.data.repository.RemoteAiRepositoryImpl
 import com.example.todolist.data.repository.RoomMissionRepositoryImpl
 import com.example.todolist.data.repository.RoomTaskRepositoryImpl
+import com.example.todolist.data.repository.RoomNotificationRepositoryImpl
+import com.example.todolist.data.repository.RoomSettingsRepositoryImpl
 import com.example.todolist.domain.repository.AiRepository
 import com.example.todolist.domain.repository.MissionRepository
 import com.example.todolist.domain.repository.TaskRepository
+import com.example.todolist.domain.repository.NotificationRepository
+import com.example.todolist.domain.repository.SettingsRepository
 import retrofit2.Retrofit
 
 object RepositoryModule {
@@ -25,6 +31,16 @@ object RepositoryModule {
 
     fun provideTaskRepository(context: Context): TaskRepository = provideTaskRepository(LocalModule.provideTaskDao(context))
 
+    /** Provide NotificationRepository from NotificationDao */
+    fun provideNotificationRepository(dao: NotificationDao): NotificationRepository = RoomNotificationRepositoryImpl(dao)
+
+    fun provideNotificationRepository(context: Context): NotificationRepository = provideNotificationRepository(LocalModule.provideNotificationDao(context))
+
+    /** Provide SettingsRepository from SettingsDao */
+    fun provideSettingsRepository(dao: SettingsDao): SettingsRepository = RoomSettingsRepositoryImpl(dao)
+
+    fun provideSettingsRepository(context: Context): SettingsRepository = provideSettingsRepository(LocalModule.provideSettingsDao(context))
+
     /** Provide AiRepository using AiApiService (remote). If you later add local persistence for AI results, change this to compose local+remote */
     fun provideAiRepository(apiService: AiApiService): AiRepository = RemoteAiRepositoryImpl(apiService)
 
@@ -35,4 +51,3 @@ object RepositoryModule {
         return provideAiRepository(retrofit)
     }
 }
-

@@ -6,12 +6,16 @@ import com.example.todolist.core.model.Mission
 import com.example.todolist.core.model.MissionStatus
 import com.example.todolist.domain.repository.MissionRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 
 class RoomMissionRepositoryImpl(
     private val dao: MissionDao
 ) : MissionRepository {
-    override fun getMissions(): Flow<List<Mission>> = dao.getAll().map { list -> list.map { MissionEntityMapper.toDomain(it) } }
+    override fun getMissions(): Flow<List<Mission>> =
+        dao.getAll()
+            .map { list -> list.map { MissionEntityMapper.toDomain(it) } }
+            .distinctUntilChanged()
 
     override suspend fun saveMission(mission: Mission) {
         dao.insert(MissionEntityMapper.fromDomain(mission))

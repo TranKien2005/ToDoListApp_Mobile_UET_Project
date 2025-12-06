@@ -4,6 +4,8 @@ import android.content.Context
 import com.example.todolist.data.local.database.AppDatabase
 import com.example.todolist.data.local.dao.MissionDao
 import com.example.todolist.data.local.dao.TaskDao
+import com.example.todolist.data.local.dao.NotificationDao
+import com.example.todolist.data.local.dao.SettingsDao
 
 object LocalModule {
     /**
@@ -20,11 +22,18 @@ object LocalModule {
 
     fun provideTaskDao(db: AppDatabase): TaskDao = db.taskDao()
 
+    fun provideNotificationDao(db: AppDatabase): NotificationDao = db.notificationDao()
+
+    fun provideSettingsDao(db: AppDatabase): SettingsDao = db.settingsDao()
+
     /**
      * Convenience overloads that accept a Context and obtain the DB internally.
      */
     fun provideMissionDao(context: Context): MissionDao = provideMissionDao(provideAppDatabase(context))
 
     fun provideTaskDao(context: Context): TaskDao = provideTaskDao(provideAppDatabase(context))
-}
 
+    fun provideNotificationDao(context: Context): NotificationDao = provideNotificationDao(provideAppDatabase(context))
+
+    fun provideSettingsDao(context: Context): SettingsDao = provideSettingsDao(provideAppDatabase(context))
+}

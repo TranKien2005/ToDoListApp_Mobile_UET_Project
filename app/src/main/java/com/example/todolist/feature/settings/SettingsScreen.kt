@@ -167,6 +167,16 @@ fun SettingsScreen(
                             onValueChange = { viewModel.updateTaskReminderMinutes(it) }
                         )
 
+                        MissionDeadlineWarningSlider(
+                            warningMinutes = settings.missionDeadlineWarningMinutes,
+                            onValueChange = { viewModel.updateMissionDeadlineWarningMinutes(it) }
+                        )
+
+                        DailySummaryHourSlider(
+                            summaryHour = settings.dailySummaryHour,
+                            onValueChange = { viewModel.updateDailySummaryHour(it) }
+                        )
+
                         SwitchSettingItem(
                             title = "Daily Mission Notifications",
                             description = "Notify about missions with deadlines today",
@@ -189,6 +199,14 @@ fun SettingsScreen(
                             emoji = "🗓️",
                             checked = settings.notifyMonthlyMissions,
                             onCheckedChange = { viewModel.updateNotifyMonthlyMissions(it) }
+                        )
+
+                        SwitchSettingItem(
+                            title = "Overdue Notifications",
+                            description = "Notify when tasks/missions are overdue",
+                            emoji = "⏰",
+                            checked = settings.overdueNotificationEnabled,
+                            onCheckedChange = { viewModel.updateOverdueNotificationEnabled(it) }
                         )
                     }
                 }
@@ -357,6 +375,74 @@ fun TaskReminderSlider(
                 onValueChange = { onValueChange(it.toInt()) },
                 valueRange = 5f..60f,
                 steps = 10,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+    }
+}
+
+@Composable
+fun MissionDeadlineWarningSlider(
+    warningMinutes: Int,
+    onValueChange: (Int) -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            Text(
+                text = "Mission Deadline Warning Time",
+                style = MaterialTheme.typography.titleMedium
+            )
+            Text(
+                text = "Warn $warningMinutes minutes before mission deadline",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Slider(
+                value = warningMinutes.toFloat(),
+                onValueChange = { onValueChange(it.toInt()) },
+                valueRange = 0f..120f,
+                steps = 12,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+    }
+}
+
+@Composable
+fun DailySummaryHourSlider(
+    summaryHour: Int,
+    onValueChange: (Int) -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            Text(
+                text = "Daily Summary Hour",
+                style = MaterialTheme.typography.titleMedium
+            )
+            Text(
+                text = "Receive daily summary at $summaryHour:00",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Slider(
+                value = summaryHour.toFloat(),
+                onValueChange = { onValueChange(it.toInt()) },
+                valueRange = 0f..23f,
+                steps = 23,
                 modifier = Modifier.fillMaxWidth()
             )
         }

@@ -9,6 +9,8 @@ data class SettingsEntity(
     val taskReminderMinutes: Int = 15,
     val notifyDailyMissions: Boolean = true,
     val notifyWeeklyMissions: Boolean = true,
-    val notifyMonthlyMissions: Boolean = true
+    val notifyMonthlyMissions: Boolean = true,
+    val dailySummaryHour: Int = 7,
+    val missionDeadlineWarningMinutes: Int = 60,
+    val overdueNotificationEnabled: Boolean = true
 )
-

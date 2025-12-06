@@ -6,7 +6,9 @@ import com.example.todolist.data.repository.RoomUserRepositoryImpl
 import com.example.todolist.data.repository.RoomSettingsRepositoryImpl
 import com.example.todolist.data.repository.RoomTaskRepositoryImpl
 import com.example.todolist.data.repository.RoomMissionRepositoryImpl
+import com.example.todolist.data.repository.RoomNotificationRepositoryImpl
 import com.example.todolist.domain.usecase.*
+import com.example.todolist.notification.NotificationScheduler
 
 class DomainModule(context: Context) {
     val appContext = context.applicationContext
@@ -19,6 +21,10 @@ class DomainModule(context: Context) {
     private val settingsRepository = RoomSettingsRepositoryImpl(database.settingsDao())
     private val taskRepository = RoomTaskRepositoryImpl(database.taskDao())
     private val missionRepository = RoomMissionRepositoryImpl(database.missionDao())
+    private val notificationRepository = RoomNotificationRepositoryImpl(database.notificationDao())
+
+    // Notification Scheduler
+    private val notificationScheduler = NotificationScheduler(appContext)
 
     // Use Cases
     val userUseCases = UserUseCases(
@@ -47,8 +53,20 @@ class DomainModule(context: Context) {
         createMission = RealCreateMissionUseCase(missionRepository),
         updateMission = RealUpdateMissionUseCase(missionRepository),
         deleteMission = RealDeleteMissionUseCase(missionRepository),
-        getMissionsByDay = RealGetMissionsByDayUseCase(missionRepository),
-        getMissionsByMonth = RealGetMissionsByMonthUseCase(missionRepository)
+        setMissionStatus = RealSetMissionStatusUseCase(missionRepository),
+        getMissionsByDate = RealGetMissionsByDateUseCase(missionRepository),
+        getMissionsByMonth = RealGetMissionsByMonthUseCase(missionRepository),
+        getMissionStats = RealGetMissionStatsUseCase(missionRepository)
+    )
+
+    val notificationUseCases = NotificationUseCases(
+        getNotifications = RealGetNotificationsUseCase(notificationRepository),
+        scheduleTaskNotification = RealScheduleTaskNotificationUseCase(notificationRepository, notificationScheduler),
+        scheduleMissionNotification = RealScheduleMissionNotificationUseCase(notificationRepository, notificationScheduler),
+        cancelTaskNotifications = RealCancelTaskNotificationsUseCase(notificationRepository, notificationScheduler),
+        cancelMissionNotifications = RealCancelMissionNotificationsUseCase(notificationRepository, notificationScheduler),
+        markNotificationAsRead = RealMarkNotificationAsReadUseCase(notificationRepository),
+        deleteReadNotifications = RealDeleteReadNotificationsUseCase(notificationRepository),
+        createNotification = RealCreateNotificationUseCase(notificationRepository)
     )
 }
-

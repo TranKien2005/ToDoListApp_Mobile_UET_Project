@@ -10,7 +10,10 @@ object SettingsEntityMapper {
             taskReminderMinutes = entity.taskReminderMinutes,
             notifyDailyMissions = entity.notifyDailyMissions,
             notifyWeeklyMissions = entity.notifyWeeklyMissions,
-            notifyMonthlyMissions = entity.notifyMonthlyMissions
+            notifyMonthlyMissions = entity.notifyMonthlyMissions,
+            dailySummaryHour = entity.dailySummaryHour,
+            missionDeadlineWarningMinutes = entity.missionDeadlineWarningMinutes,
+            overdueNotificationEnabled = entity.overdueNotificationEnabled
         )
     }
 
@@ -20,8 +23,10 @@ object SettingsEntityMapper {
             taskReminderMinutes = settings.taskReminderMinutes,
             notifyDailyMissions = settings.notifyDailyMissions,
             notifyWeeklyMissions = settings.notifyWeeklyMissions,
-            notifyMonthlyMissions = settings.notifyMonthlyMissions
+            notifyMonthlyMissions = settings.notifyMonthlyMissions,
+            dailySummaryHour = settings.dailySummaryHour,
+            missionDeadlineWarningMinutes = settings.missionDeadlineWarningMinutes,
+            overdueNotificationEnabled = settings.overdueNotificationEnabled
         )
     }
 }
-

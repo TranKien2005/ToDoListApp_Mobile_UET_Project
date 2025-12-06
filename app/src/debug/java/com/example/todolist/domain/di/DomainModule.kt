@@ -4,6 +4,7 @@ import com.example.todolist.domain.usecase.fakeMissionUseCases
 import com.example.todolist.domain.usecase.fakeTaskUseCases
 import com.example.todolist.domain.usecase.fakeUserUseCases
 import com.example.todolist.domain.usecase.fakeSettingsUseCases
+import com.example.todolist.domain.usecase.fakeNotificationUseCases
 
 class DomainModule (context: android.content.Context) {
     val appContext = context.applicationContext
@@ -11,4 +12,5 @@ class DomainModule (context: android.content.Context) {
     val missionUseCases = fakeMissionUseCases
     val userUseCases = fakeUserUseCases
     val settingsUseCases = fakeSettingsUseCases
+    val notificationUseCases = fakeNotificationUseCases
 }

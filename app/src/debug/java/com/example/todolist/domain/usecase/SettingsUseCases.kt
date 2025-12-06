@@ -13,7 +13,10 @@ private val _settingsState = MutableStateFlow(
         taskReminderMinutes = 15,
         notifyDailyMissions = true,
         notifyWeeklyMissions = true,
-        notifyMonthlyMissions = true
+        notifyMonthlyMissions = true,
+        dailySummaryHour = 7,
+        missionDeadlineWarningMinutes = 60,
+        overdueNotificationEnabled = true
     )
 )
 
@@ -32,4 +35,3 @@ val fakeSettingsUseCases = SettingsUseCases(
     getSettings = FakeGetSettingsUseCase(),
     updateSettings = FakeUpdateSettingsUseCase()
 )
-

@@ -28,12 +28,13 @@ fun AppNavHost() {
     val context = LocalContext.current
 
     // create viewmodels here so we can forward save callbacks from the global add dialog
-    val homeViewModel = ViewModelProvider.provideHomeViewModel(context)
-    val missionViewModel = ViewModelProvider.provideMissionViewModel(context)
-    val addItemViewModel = ViewModelProvider.provideAddItemViewModel(context)
+    // IMPORTANT: Use remember to cache ViewModels and prevent recreation on recomposition
+    val homeViewModel = remember { ViewModelProvider.provideHomeViewModel(context) }
+    val missionViewModel = remember { ViewModelProvider.provideMissionViewModel(context) }
+    val addItemViewModel = remember { ViewModelProvider.provideAddItemViewModel(context) }
 
     // Lấy user data để hiển thị trên TopBar
-    val userViewModel = ViewModelProvider.provideUserViewModel(context)
+    val userViewModel = remember { ViewModelProvider.provideUserViewModel(context) }
     val user by userViewModel.user.collectAsState()
 
     var showAddDialog by remember { mutableStateOf(false) }
