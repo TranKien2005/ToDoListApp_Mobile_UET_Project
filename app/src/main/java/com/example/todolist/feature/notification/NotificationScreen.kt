@@ -166,10 +166,13 @@ fun NotificationItem(
             .clickable { expanded = !expanded },
         colors = CardDefaults.cardColors(
             containerColor = if (notification.isRead) {
-                MaterialTheme.colorScheme.surface
+                MaterialTheme.colorScheme.surfaceVariant
             } else {
-                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
+                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f)
             }
+        ),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = if (notification.isRead) 0.dp else 2.dp
         )
     ) {
         Column(
@@ -180,75 +183,114 @@ fun NotificationItem(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.Top
             ) {
-                // Notification icon and title
-                Row(
-                    modifier = Modifier.weight(1f),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    NotificationTypeIcon(notification.type)
+                // Notification icon
+                NotificationTypeIcon(notification.type)
 
-                    Column(modifier = Modifier.weight(1f)) {
+                Spacer(modifier = Modifier.width(12.dp))
+
+                // Content
+                Column(modifier = Modifier.weight(1f)) {
+                    // Title
+                    Text(
+                        text = notification.title,
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontWeight = if (notification.isRead) FontWeight.Normal else FontWeight.Bold
+                        ),
+                        maxLines = if (expanded) Int.MAX_VALUE else 2,
+                        overflow = TextOverflow.Ellipsis,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+
+                    Spacer(modifier = Modifier.height(6.dp))
+
+                    // Message preview or full message
+                    if (notification.message.isNotBlank()) {
                         Text(
-                            text = notification.title,
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = if (notification.isRead) FontWeight.Normal else FontWeight.Bold,
-                            maxLines = if (expanded) Int.MAX_VALUE else 2,
-                            overflow = TextOverflow.Ellipsis
+                            text = notification.message,
+                            style = MaterialTheme.typography.bodyMedium,
+                            maxLines = if (expanded) Int.MAX_VALUE else 3,
+                            overflow = TextOverflow.Ellipsis,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                         )
-                        Spacer(modifier = Modifier.height(4.dp))
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+
+                    // Timestamp
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
                         NotificationTimestamp(notification.scheduledTime)
+
+                        // Status badge
+                        if (notification.isDelivered && !notification.isRead) {
+                            Surface(
+                                shape = CircleShape,
+                                color = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(6.dp)
+                            ) {}
+                        }
                     }
                 }
 
-                // Unread badge
+                // Unread indicator
                 if (!notification.isRead) {
                     Box(
                         modifier = Modifier
-                            .size(8.dp)
+                            .padding(start = 8.dp)
+                            .size(10.dp)
                             .clip(CircleShape)
-                            .background(Color.Red)
+                            .background(MaterialTheme.colorScheme.primary)
                     )
                 }
             }
 
-            // Message
+            // Action buttons (when expanded)
             if (expanded) {
-                Spacer(modifier = Modifier.height(12.dp))
-                Text(
-                    text = notification.message,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
-                )
-
                 Spacer(modifier = Modifier.height(16.dp))
+                HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f))
+                Spacer(modifier = Modifier.height(12.dp))
 
-                // Action buttons
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     if (!notification.isRead) {
-                        TextButton(onClick = onMarkAsRead) {
+                        FilledTonalButton(
+                            onClick = onMarkAsRead,
+                            modifier = Modifier.height(36.dp)
+                        ) {
                             Icon(
                                 Icons.Default.Done,
                                 contentDescription = null,
                                 modifier = Modifier.size(18.dp)
                             )
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text(stringResource(R.string.mark_as_read))
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                stringResource(R.string.mark_as_read),
+                                style = MaterialTheme.typography.labelMedium
+                            )
                         }
                         Spacer(modifier = Modifier.width(8.dp))
                     }
-                    TextButton(onClick = onDelete) {
+                    OutlinedButton(
+                        onClick = onDelete,
+                        modifier = Modifier.height(36.dp),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = MaterialTheme.colorScheme.error
+                        )
+                    ) {
                         Icon(
                             Icons.Default.Delete,
                             contentDescription = null,
                             modifier = Modifier.size(18.dp)
                         )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(stringResource(R.string.delete_notification))
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            stringResource(R.string.delete_notification),
+                            style = MaterialTheme.typography.labelMedium
+                        )
                     }
                 }
             }

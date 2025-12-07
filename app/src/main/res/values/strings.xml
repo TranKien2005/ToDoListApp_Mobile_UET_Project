@@ -16,11 +16,11 @@
     <string name="minutes">minutes</string>
 
     <!-- Home Screen -->
-    <string name="tasks_for_date">📝 Tasks for %1$d %2$s</string>
+    <string name="tasks_for_date">Tasks for %1$d %2$s</string>
     <string name="no_tasks_for_this_day">No tasks for this day</string>
 
     <!-- Mission Screen -->
-    <string name="missions_title">🎯 Missions</string>
+    <string name="missions_title">Missions</string>
     <string name="no_missions_found">No missions found</string>
 
     <!-- Settings Screen -->
@@ -42,22 +42,32 @@
 
     <!-- Onboarding Screen -->
     <string name="todolist">TodoList</string>
-    <string name="tagline">Organize your life, one task at a time ✨</string>
-    <string name="feature_create_tasks">📝 Create and manage tasks effortlessly</string>
-    <string name="feature_set_goals">🎯 Set goals and track missions</string>
-    <string name="feature_analyze">📊 Analyze your productivity</string>
-    <string name="feature_reminders">🔔 Smart reminders and notifications</string>
-    <string name="lets_start">Let\'s Start! 🚀</string>
+    <string name="tagline">Organize your life, one task at a time</string>
+    <string name="feature_create_tasks">Create and manage tasks effortlessly</string>
+    <string name="feature_set_goals">Set goals and track missions</string>
+    <string name="feature_analyze">Analyze your productivity</string>
+    <string name="feature_reminders">Smart reminders and notifications</string>
+    <string name="lets_start">Let\'s Start!</string>
+
+    <!-- Notification Screen -->
+    <string name="notifications">Notifications</string>
+    <string name="mark_all_as_read">Mark all as read</string>
+    <string name="delete_all">Delete All</string>
+    <string name="delete_all_confirmation">Are you sure you want to delete all notifications?</string>
+    <string name="no_notifications">No Notifications</string>
+    <string name="no_notifications_desc">You\'re all caught up!</string>
+    <string name="mark_as_read">Mark as read</string>
+    <string name="delete_notification">Delete</string>
 
     <!-- Add/Edit Item Dialog -->
-    <string name="edit_task">✏️ Edit Task</string>
-    <string name="edit_mission">✏️ Edit Mission</string>
-    <string name="add_new_task">✨ Add New Task</string>
-    <string name="add_new_mission">🎯 Add New Mission</string>
+    <string name="edit_task">Edit Task</string>
+    <string name="edit_mission">Edit Mission</string>
+    <string name="add_new_task">Add New Task</string>
+    <string name="add_new_mission">Add New Mission</string>
     <string name="update_details">Update the details below</string>
     <string name="fill_details">Fill in the details below</string>
-    <string name="task_label">📝 Task</string>
-    <string name="mission_label">🎯 Mission</string>
+    <string name="task_label">Task</string>
+    <string name="mission_label">Mission</string>
     <string name="title">Title</string>
     <string name="description">Description</string>
     <string name="enter_task_title">Enter task title</string>
@@ -101,7 +111,7 @@
     <string name="add">Add</string>
 
     <!-- Mission Analysis -->
-    <string name="mission_analytics">📊 Mission Analytics</string>
+    <string name="mission_analytics">Mission Analytics</string>
     <string name="track_mission_progress">Track your mission progress over time</string>
     <string name="legend_total">Total</string>
     <string name="legend_completed">Completed</string>
@@ -160,34 +170,28 @@
     <string name="channel_overdue_desc">Notifications for overdue tasks and missions</string>
 
     <!-- Task Notification Messages -->
-    <string name="notification_task_reminder_title">Reminder: %1$s</string>
-    <string name="notification_task_reminder_message">Task will start in %1$d minutes</string>
+    <string name="notification_task_reminder_title">Reminder: %1$s %2$s %3$s</string>
+    <string name="notification_task_reminder_message">%1$s</string>
 
     <!-- Mission Notification Messages -->
-    <string name="notification_mission_warning_title">Deadline Warning: %1$s</string>
-    <string name="notification_mission_warning_message">Mission will expire in %1$d minutes</string>
+    <string name="notification_mission_warning_title">%1$s</string>
+    <string name="notification_mission_warning_message">%1$s</string>
 
     <!-- Mission Summary Notifications -->
-    <string name="notification_daily_summary_title">Missions Today (%1$d)</string>
-    <string name="notification_weekly_summary_title">Missions This Week (%1$d)</string>
-    <string name="notification_monthly_summary_title">Missions This Month (%1$d)</string>
+    <string name="notification_daily_summary_title">Report Today</string>
+    <string name="notification_weekly_summary_title">Report This Week</string>
+    <string name="notification_monthly_summary_title">Report This Month</string>
 
     <!-- Mission Summary Messages -->
     <string name="notification_summary_and_more">… and %1$d more missions</string>
 
     <!-- Mission Overdue Notification -->
-    <string name="notification_mission_overdue_title">Mission Overdue: %1$s</string>
-    <string name="notification_mission_overdue_message">This mission has passed its deadline</string>
+    <string name="notification_mission_overdue_title">%1$s</string>
+    <string name="notification_mission_overdue_message">%1$s</string>
 
-    <!-- Notification Screen -->
-    <string name="notifications">Notifications</string>
-    <string name="mark_all_as_read">Mark all as read</string>
-    <string name="delete_all">Delete All</string>
-    <string name="delete_all_confirmation">Are you sure you want to delete all notifications?</string>
-    <string name="no_notifications">No Notifications</string>
-    <string name="no_notifications_desc">You\'re all caught up!</string>
-    <string name="mark_as_read">Mark as read</string>
-    <string name="delete_notification">Delete</string>
+    <!-- Mission Notification Prefixes -->
+    <string name="notification_prefix_warning">Deadline Warning: </string>
+    <string name="notification_prefix_overdue">Overdue: </string>
 
     <!-- Timestamp Formats -->
     <string name="time_just_now">Just now</string>

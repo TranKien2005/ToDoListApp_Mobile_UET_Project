@@ -90,7 +90,13 @@ class WeeklyMissionSummaryWorker(
     }
 
     private fun buildWeeklySummaryMessage(missions: List<MissionEntity>): String {
-        return missions.take(5).joinToString("\n") { "• ${it.title}" } +
-                if (missions.size > 5) "\n${applicationContext.getString(R.string.notification_summary_and_more, missions.size - 5)}" else ""
+        val dateTimeFormatter = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
+        return missions.take(5).joinToString("\n") {
+            val deadline = Instant.ofEpochMilli(it.deadlineEpoch)
+                .atZone(ZoneId.systemDefault())
+                .toLocalDateTime()
+                .format(dateTimeFormatter)
+            "${it.title}, $deadline"
+        } + if (missions.size > 5) "\n${applicationContext.getString(R.string.notification_summary_and_more, missions.size - 5)}" else ""
     }
 }

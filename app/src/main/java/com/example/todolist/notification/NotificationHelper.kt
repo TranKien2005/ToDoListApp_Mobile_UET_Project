@@ -106,7 +106,7 @@ class NotificationHelper(private val context: Context) {
     }
 
     /**
-     * Hiển thị notification
+     * Hiển thị notification với format đẹp hơn
      */
     fun showNotification(
         notificationId: Long,
@@ -136,7 +136,6 @@ class NotificationHelper(private val context: Context) {
         Log.d(TAG, "Creating notification with channel=$channelId, group=$groupKey")
 
         // Intent để mở app khi click vào notification
-        // Thêm notification ID vào intent để MainActivity biết cần mark as read
         val intent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             putExtra("notification_id", notificationId)
@@ -149,23 +148,142 @@ class NotificationHelper(private val context: Context) {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        val notification = NotificationCompat.Builder(context, channelId)
+        // Tạo notification builder với style phù hợp
+        val builder = NotificationCompat.Builder(context, channelId)
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setContentTitle(title)
-            .setContentText(message)
-            .setStyle(NotificationCompat.BigTextStyle().bigText(message))
             .setPriority(priority)
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
             .setGroup(groupKey)
-            .build()
+
+        // Áp dụng style phù hợp với từng loại notification
+        when (notificationType) {
+            NotificationType.MISSION_DAILY_SUMMARY,
+            NotificationType.MISSION_WEEKLY_SUMMARY,
+            NotificationType.MISSION_MONTHLY_SUMMARY -> {
+                // Sử dụng InboxStyle cho mission summary - hiển thị danh sách đẹp hơn
+                val inboxStyle = NotificationCompat.InboxStyle()
+                    .setBigContentTitle(title)
+
+                // Split message by lines và add từng dòng
+                val lines = message.split("\n")
+                lines.forEach { line ->
+                    if (line.isNotBlank()) {
+                        inboxStyle.addLine(line)
+                    }
+                }
+
+                // Summary text cho số lượng missions
+                if (lines.size > 5) {
+                    inboxStyle.setSummaryText(lines.last())
+                }
+
+                builder.setStyle(inboxStyle)
+                builder.setContentText(lines.firstOrNull() ?: message)
+            }
+
+            NotificationType.TASK_REMINDER -> {
+                // BigTextStyle cho task reminder với message là description
+                val bigTextStyle = NotificationCompat.BigTextStyle()
+                    .setBigContentTitle(title)
+
+                // Format message đẹp hơn
+                val formattedMessage = if (message.isNotBlank()) {
+                    message
+                } else {
+                    "Task reminder"
+                }
+
+                bigTextStyle.bigText(formattedMessage)
+                builder.setStyle(bigTextStyle)
+                builder.setContentText(formattedMessage.split("\n").firstOrNull() ?: formattedMessage)
+            }
+
+            NotificationType.MISSION_DEADLINE_WARNING,
+            NotificationType.MISSION_OVERDUE -> {
+                // BigTextStyle cho mission warning/overdue với description
+                val bigTextStyle = NotificationCompat.BigTextStyle()
+                    .setBigContentTitle(title)
+
+                // Message đã được format sẵn từ use case: "Deadline: dd/MM/yyyy HH:mm\n\ndescription"
+                val formattedMessage = if (message.isNotBlank()) {
+                    message
+                } else {
+                    "Mission notification"
+                }
+
+                bigTextStyle.bigText(formattedMessage)
+                builder.setStyle(bigTextStyle)
+
+                // Content text hiển thị dòng đầu tiên (deadline info)
+                builder.setContentText(formattedMessage.split("\n").firstOrNull() ?: formattedMessage)
+            }
+
+            else -> {
+                // Default BigTextStyle cho các loại khác
+                val bigTextStyle = NotificationCompat.BigTextStyle()
+                    .bigText(message)
+
+                builder.setStyle(bigTextStyle)
+                builder.setContentText(message)
+            }
+        }
 
         try {
             val notificationManager = NotificationManagerCompat.from(context)
-            notificationManager.notify(notificationId.toInt(), notification)
+            notificationManager.notify(notificationId.toInt(), builder.build())
             Log.d(TAG, "Notification shown successfully: $notificationId")
         } catch (e: Exception) {
             Log.e(TAG, "Error showing notification", e)
+        }
+    }
+
+    /**
+     * Tạo notification cho Task với format đẹp
+     */
+    fun createTaskNotification(
+        task: com.example.todolist.core.model.Task
+    ): String {
+        // Message: task description
+        return task.description ?: ""
+    }
+
+    /**
+     * Tạo notification cho Mission Warning với format đẹp
+     */
+    fun createMissionWarningMessage(
+        mission: com.example.todolist.core.model.Mission
+    ): String {
+        val dateTimeFormatter = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
+        val deadlineStr = mission.deadline.format(dateTimeFormatter)
+
+        return buildString {
+            append("Deadline: ")
+            append(deadlineStr)
+            if (!mission.description.isNullOrBlank()) {
+                append("\n")
+                append(mission.description)
+            }
+        }
+    }
+
+    /**
+     * Tạo notification cho Mission Overdue với format đẹp
+     */
+    fun createMissionOverdueMessage(
+        mission: com.example.todolist.core.model.Mission
+    ): String {
+        val dateTimeFormatter = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
+        val deadlineStr = mission.deadline.format(dateTimeFormatter)
+
+        return buildString {
+            append("Deadline was: ")
+            append(deadlineStr)
+            if (!mission.description.isNullOrBlank()) {
+                append("\n")
+                append(mission.description)
+            }
         }
     }
 

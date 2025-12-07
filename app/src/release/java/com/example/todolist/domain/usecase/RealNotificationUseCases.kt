@@ -36,12 +36,31 @@ class RealScheduleTaskNotificationUseCase(
             return
         }
 
+        // Format time: HH:mm
+        val timeFormatter = java.time.format.DateTimeFormatter.ofPattern("HH:mm")
+        val startTimeStr = task.startTime.format(timeFormatter)
+        val endTimeStr = task.durationMinutes?.let {
+            task.startTime.plusMinutes(it).format(timeFormatter)
+        } ?: ""
+
+        // Title: Reminder: task_title starttime endtime
+        val title = context.getString(
+            R.string.notification_task_reminder_title,
+            task.title,
+            startTimeStr,
+            endTimeStr
+        )
+
+        // Message: task description (sử dụng helper)
+        val helper = com.example.todolist.notification.NotificationHelper(context)
+        val message = helper.createTaskNotification(task)
+
         // Tạo notification record
         val notification = Notification(
             type = NotificationType.TASK_REMINDER,
             relatedTaskId = task.id,
-            title = context.getString(R.string.notification_task_reminder_title, task.title),
-            message = context.getString(R.string.notification_task_reminder_message, reminderMinutes),
+            title = title,
+            message = message,
             scheduledTime = scheduledTimeMillis
         )
 
@@ -60,17 +79,25 @@ class RealScheduleMissionNotificationUseCase(
 ) : ScheduleMissionNotificationUseCase {
     override suspend fun invoke(mission: Mission, warningMinutes: Int) {
         val now = System.currentTimeMillis()
+        val helper = com.example.todolist.notification.NotificationHelper(context)
 
         // 1. TẠO NOTIFICATION CẢNH BÁO TRƯỚC DEADLINE
         val warningTime = mission.deadline.minusMinutes(warningMinutes.toLong())
         val warningTimeMillis = warningTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
 
         if (warningTimeMillis > now) {
+            // Title: Deadline Warning: mission_title
+            val prefix = context.getString(R.string.notification_prefix_warning)
+            val title = prefix + mission.title
+
+            // Message: sử dụng helper để format đẹp
+            val message = helper.createMissionWarningMessage(mission)
+
             val warningNotification = Notification(
                 type = NotificationType.MISSION_DEADLINE_WARNING,
                 relatedMissionId = mission.id,
-                title = context.getString(R.string.notification_mission_warning_title, mission.title),
-                message = context.getString(R.string.notification_mission_warning_message, warningMinutes),
+                title = title,
+                message = message,
                 scheduledTime = warningTimeMillis
             )
 
@@ -82,12 +109,19 @@ class RealScheduleMissionNotificationUseCase(
         val deadlineMillis = mission.deadline.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
 
         if (deadlineMillis > now) {
+            // Title: Overdue: mission_title
+            val prefix = context.getString(R.string.notification_prefix_overdue)
+            val title = prefix + mission.title
+
+            // Message: sử dụng helper để format đẹp
+            val message = helper.createMissionOverdueMessage(mission)
+
             val overdueNotification = Notification(
                 type = NotificationType.MISSION_OVERDUE,
                 relatedMissionId = mission.id,
-                title = context.getString(R.string.notification_mission_overdue_title, mission.title),
-                message = context.getString(R.string.notification_mission_overdue_message),
-                scheduledTime = deadlineMillis // Gửi ngay khi deadline
+                title = title,
+                message = message,
+                scheduledTime = deadlineMillis
             )
 
             val overdueNotifId = repository.insertNotification(overdueNotification)
