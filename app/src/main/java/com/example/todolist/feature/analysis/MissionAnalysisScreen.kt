@@ -14,11 +14,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.todolist.R
 import com.example.todolist.ui.common.ViewModelProvider
 
 // extracted analysis components
@@ -118,7 +120,7 @@ fun MissionAnalysisScreen(
                 ) {
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         Text(
-                            text = "📊 Mission Analytics",
+                            text = stringResource(R.string.mission_analytics),
                             style = MaterialTheme.typography.headlineMedium.copy(
                                 fontWeight = FontWeight.ExtraBold,
                                 fontSize = 28.sp
@@ -126,7 +128,7 @@ fun MissionAnalysisScreen(
                             color = primaryColor
                         )
                         Text(
-                            text = "Track your mission progress over time",
+                            text = stringResource(R.string.track_mission_progress),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurface
                         )
@@ -177,9 +179,9 @@ fun MissionAnalysisScreen(
                             horizontalArrangement = Arrangement.SpaceEvenly,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            LegendItem(color = colorTotal, label = "Total")
-                            LegendItem(color = colorCompleted, label = "Completed")
-                            LegendItem(color = colorMissed, label = "Missed")
+                            LegendItem(color = colorTotal, label = stringResource(R.string.legend_total))
+                            LegendItem(color = colorCompleted, label = stringResource(R.string.legend_completed))
+                            LegendItem(color = colorMissed, label = stringResource(R.string.legend_missed))
                         }
                     }
                 }

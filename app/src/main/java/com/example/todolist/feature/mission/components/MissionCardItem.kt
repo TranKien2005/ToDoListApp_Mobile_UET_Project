@@ -10,12 +10,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.todolist.R
 import com.example.todolist.core.model.Mission
 import com.example.todolist.core.model.MissionStatus
+import com.example.todolist.feature.common.DeleteMissionConfirmationDialog
 import java.time.format.DateTimeFormatter
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
@@ -38,6 +41,21 @@ fun MissionCardItem(
     val errorColor = MaterialTheme.colorScheme.error
 
     var expanded by remember { mutableStateOf(false) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
+
+    // Delete confirmation dialog
+    if (showDeleteDialog) {
+        DeleteMissionConfirmationDialog(
+            missionTitle = mission.title,
+            onConfirm = {
+                onDelete(mission.id)
+                showDeleteDialog = false
+            },
+            onDismiss = {
+                showDeleteDialog = false
+            }
+        )
+    }
 
     // Determine colors based on status
     val (statusColor, statusEmoji) = when (mission.status) {
@@ -116,9 +134,9 @@ fun MissionCardItem(
                                 )
                                 Text(
                                     text = when (mission.status) {
-                                        MissionStatus.COMPLETED -> "Done"
-                                        MissionStatus.MISSED -> "Missed"
-                                        MissionStatus.UNSPECIFIED -> "Active"
+                                        MissionStatus.COMPLETED -> stringResource(R.string.status_done)
+                                        MissionStatus.MISSED -> stringResource(R.string.status_missed)
+                                        MissionStatus.UNSPECIFIED -> stringResource(R.string.status_active)
                                     },
                                     style = MaterialTheme.typography.labelSmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -141,7 +159,7 @@ fun MissionCardItem(
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Edit,
-                                    contentDescription = "Edit",
+                                    contentDescription = stringResource(R.string.cd_edit),
                                     tint = primaryColor,
                                     modifier = Modifier.size(20.dp)
                                 )
@@ -159,7 +177,7 @@ fun MissionCardItem(
                                         Icons.Default.CheckCircle
                                     else
                                         Icons.Default.RadioButtonUnchecked,
-                                    contentDescription = "Toggle Complete",
+                                    contentDescription = stringResource(R.string.cd_toggle_complete),
                                     tint = statusColor,
                                     modifier = Modifier.size(20.dp)
                                 )
@@ -167,12 +185,12 @@ fun MissionCardItem(
                         }
 
                         IconButton(
-                            onClick = { onDelete(mission.id) },
+                            onClick = { showDeleteDialog = true },
                             modifier = Modifier.size(32.dp)
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Delete,
-                                contentDescription = "Delete",
+                                contentDescription = stringResource(R.string.cd_delete),
                                 tint = errorColor,
                                 modifier = Modifier.size(20.dp)
                             )
@@ -219,7 +237,7 @@ fun MissionCardItem(
                                     onClick = { expanded = true },
                                     contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
                                 ) {
-                                    Text("More", fontSize = 12.sp, color = statusColor)
+                                    Text(stringResource(R.string.more), fontSize = 12.sp, color = statusColor)
                                 }
                             }
                         }
@@ -239,7 +257,7 @@ fun MissionCardItem(
                                     onClick = { expanded = false },
                                     contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
                                 ) {
-                                    Text("Less", fontSize = 12.sp, color = statusColor)
+                                    Text(stringResource(R.string.less), fontSize = 12.sp, color = statusColor)
                                 }
                             }
                         }

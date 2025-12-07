@@ -5,9 +5,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.todolist.R
 import com.example.todolist.feature.mission.MissionStatusFilter
 
 @Composable
@@ -20,7 +22,7 @@ fun StatusFilterRow(
 
     Column(modifier = modifier.fillMaxWidth()) {
         Text(
-            text = "Filter by Status",
+            text = stringResource(R.string.filter_by_status),
             style = MaterialTheme.typography.titleSmall.copy(
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 14.sp
@@ -36,7 +38,7 @@ fun StatusFilterRow(
             FilterChip(
                 selected = selectedFilter == MissionStatusFilter.ALL,
                 onClick = { onSelect(MissionStatusFilter.ALL) },
-                label = { Text("All", fontSize = 13.sp, fontWeight = FontWeight.Medium) },
+                label = { Text(stringResource(R.string.filter_all), fontSize = 13.sp, fontWeight = FontWeight.Medium) },
                 modifier = Modifier.weight(1f),
                 shape = RoundedCornerShape(12.dp),
                 colors = FilterChipDefaults.filterChipColors(
@@ -49,7 +51,7 @@ fun StatusFilterRow(
             FilterChip(
                 selected = selectedFilter == MissionStatusFilter.COMPLETED,
                 onClick = { onSelect(MissionStatusFilter.COMPLETED) },
-                label = { Text("✓ Done", fontSize = 13.sp, fontWeight = FontWeight.Medium) },
+                label = { Text(stringResource(R.string.filter_done), fontSize = 13.sp, fontWeight = FontWeight.Medium) },
                 modifier = Modifier.weight(1f),
                 shape = RoundedCornerShape(12.dp),
                 colors = FilterChipDefaults.filterChipColors(
@@ -62,7 +64,7 @@ fun StatusFilterRow(
             FilterChip(
                 selected = selectedFilter == MissionStatusFilter.IN_PROGRESS,
                 onClick = { onSelect(MissionStatusFilter.IN_PROGRESS) },
-                label = { Text("○ Active", fontSize = 13.sp, fontWeight = FontWeight.Medium) },
+                label = { Text(stringResource(R.string.filter_active), fontSize = 13.sp, fontWeight = FontWeight.Medium) },
                 modifier = Modifier.weight(1f),
                 shape = RoundedCornerShape(12.dp),
                 colors = FilterChipDefaults.filterChipColors(
@@ -75,7 +77,7 @@ fun StatusFilterRow(
             FilterChip(
                 selected = selectedFilter == MissionStatusFilter.MISSED,
                 onClick = { onSelect(MissionStatusFilter.MISSED) },
-                label = { Text("✗ Missed", fontSize = 13.sp, fontWeight = FontWeight.Medium) },
+                label = { Text(stringResource(R.string.filter_missed), fontSize = 13.sp, fontWeight = FontWeight.Medium) },
                 modifier = Modifier.weight(1f),
                 shape = RoundedCornerShape(12.dp),
                 colors = FilterChipDefaults.filterChipColors(

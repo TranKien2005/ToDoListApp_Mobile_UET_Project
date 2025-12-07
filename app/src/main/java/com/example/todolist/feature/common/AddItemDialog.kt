@@ -16,9 +16,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.todolist.R
 import com.example.todolist.core.model.Mission
 import com.example.todolist.core.model.Task
 import com.example.todolist.core.model.RepeatType
@@ -124,12 +126,12 @@ fun AddItemDialog(
                     }
                     showDatePicker = false
                 }) {
-                    Text("OK")
+                    Text(stringResource(R.string.ok))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showDatePicker = false }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         ) {
@@ -151,12 +153,12 @@ fun AddItemDialog(
                     time = LocalTime.of(timePickerState.hour, timePickerState.minute)
                     showTimePicker = false
                 }) {
-                    Text("OK")
+                    Text(stringResource(R.string.ok))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showTimePicker = false }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.cancel))
                 }
             },
             text = {
@@ -201,9 +203,9 @@ fun AddItemDialog(
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         Text(
                             text = if (isEditMode) {
-                                if (selectedTypeIsTask) "✏️ Edit Task" else "✏️ Edit Mission"
+                                if (selectedTypeIsTask) stringResource(R.string.edit_task) else stringResource(R.string.edit_mission)
                             } else {
-                                if (selectedTypeIsTask) "✨ Add New Task" else "🎯 Add New Mission"
+                                if (selectedTypeIsTask) stringResource(R.string.add_new_task) else stringResource(R.string.add_new_mission)
                             },
                             style = MaterialTheme.typography.headlineSmall.copy(
                                 fontWeight = FontWeight.ExtraBold,
@@ -212,7 +214,7 @@ fun AddItemDialog(
                             color = primaryColor
                         )
                         Text(
-                            text = if (isEditMode) "Update the details below" else "Fill in the details below",
+                            text = if (isEditMode) stringResource(R.string.update_details) else stringResource(R.string.fill_details),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -246,7 +248,7 @@ fun AddItemDialog(
                                 FilterChip(
                                     selected = selectedTypeIsTask,
                                     onClick = { selectedTypeIsTask = true },
-                                    label = { Text("📝 Task") },
+                                    label = { Text(stringResource(R.string.task_label)) },
                                     modifier = Modifier.weight(1f),
                                     colors = FilterChipDefaults.filterChipColors(
                                         selectedContainerColor = primaryColor,
@@ -256,7 +258,7 @@ fun AddItemDialog(
                                 FilterChip(
                                     selected = !selectedTypeIsTask,
                                     onClick = { selectedTypeIsTask = false },
-                                    label = { Text("🎯 Mission") },
+                                    label = { Text(stringResource(R.string.mission_label)) },
                                     modifier = Modifier.weight(1f),
                                     colors = FilterChipDefaults.filterChipColors(
                                         selectedContainerColor = primaryColor,
@@ -284,11 +286,11 @@ fun AddItemDialog(
                                 title = it
                                 titleError = null
                             },
-                            label = { Text("Title") },
+                            label = { Text(stringResource(R.string.title)) },
                             leadingIcon = {
                                 Icon(Icons.Default.Title, contentDescription = null, tint = primaryColor)
                             },
-                            placeholder = { Text("Enter ${if (selectedTypeIsTask) "task" else "mission"} title") },
+                            placeholder = { Text(if (selectedTypeIsTask) stringResource(R.string.enter_task_title) else stringResource(R.string.enter_mission_title)) },
                             modifier = Modifier.fillMaxWidth(),
                             singleLine = true,
                             isError = titleError != null,
@@ -307,11 +309,11 @@ fun AddItemDialog(
                                 description = it
                                 descriptionError = null
                             },
-                            label = { Text("Description") },
+                            label = { Text(stringResource(R.string.description)) },
                             leadingIcon = {
                                 Icon(Icons.Default.Description, contentDescription = null, tint = primaryColor)
                             },
-                            placeholder = { Text("Add details...") },
+                            placeholder = { Text(stringResource(R.string.add_details)) },
                             modifier = Modifier.fillMaxWidth(),
                             minLines = 3,
                             maxLines = 5,
@@ -332,7 +334,7 @@ fun AddItemDialog(
                             OutlinedTextField(
                                 value = date.toString(),
                                 onValueChange = {},
-                                label = { Text("Date") },
+                                label = { Text(stringResource(R.string.date)) },
                                 leadingIcon = {
                                     Icon(Icons.Default.Event, contentDescription = null, tint = primaryColor)
                                 },
@@ -357,7 +359,7 @@ fun AddItemDialog(
                             OutlinedTextField(
                                 value = String.format(Locale.getDefault(), "%02d:%02d", time.hour, time.minute),
                                 onValueChange = {},
-                                label = { Text("Time") },
+                                label = { Text(stringResource(R.string.time)) },
                                 leadingIcon = {
                                     Icon(Icons.Default.Schedule, contentDescription = null, tint = primaryColor)
                                 },
@@ -395,8 +397,8 @@ fun AddItemDialog(
                                             durationError = null
                                         }
                                     },
-                                    label = { Text("Duration (minutes)") },
-                                    placeholder = { Text("e.g., 60") },
+                                    label = { Text(stringResource(R.string.duration_minutes)) },
+                                    placeholder = { Text(stringResource(R.string.duration_placeholder)) },
                                     modifier = Modifier.fillMaxWidth(),
                                     singleLine = true,
                                     isError = durationError != null,

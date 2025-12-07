@@ -47,39 +47,39 @@ class NotificationHelper(private val context: Context) {
             // Channel cho Task Reminder
             val taskReminderChannel = NotificationChannel(
                 CHANNEL_TASK_REMINDER,
-                "Task Reminders",
+                context.getString(R.string.channel_task_reminder_name),
                 NotificationManager.IMPORTANCE_HIGH
             ).apply {
-                description = "Nhắc nhở về các task sắp bắt đầu"
+                description = context.getString(R.string.channel_task_reminder_desc)
                 enableVibration(true)
             }
 
             // Channel cho Mission Summary
             val missionSummaryChannel = NotificationChannel(
                 CHANNEL_MISSION_SUMMARY,
-                "Mission Summary",
+                context.getString(R.string.channel_mission_summary_name),
                 NotificationManager.IMPORTANCE_DEFAULT
             ).apply {
-                description = "Tóm tắt missions hàng ngày/tuần/tháng"
+                description = context.getString(R.string.channel_mission_summary_desc)
             }
 
             // Channel cho Mission Warning
             val missionWarningChannel = NotificationChannel(
                 CHANNEL_MISSION_WARNING,
-                "Mission Warnings",
+                context.getString(R.string.channel_mission_warning_name),
                 NotificationManager.IMPORTANCE_HIGH
             ).apply {
-                description = "Cảnh báo mission sắp đến deadline"
+                description = context.getString(R.string.channel_mission_warning_desc)
                 enableVibration(true)
             }
 
             // Channel cho Overdue
             val overdueChannel = NotificationChannel(
                 CHANNEL_OVERDUE,
-                "Overdue Alerts",
+                context.getString(R.string.channel_overdue_name),
                 NotificationManager.IMPORTANCE_HIGH
             ).apply {
-                description = "Cảnh báo task/mission đã quá hạn"
+                description = context.getString(R.string.channel_overdue_desc)
                 enableVibration(true)
             }
 

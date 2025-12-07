@@ -9,7 +9,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.TaskAlt
 import androidx.compose.material3.*
@@ -18,10 +17,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.todolist.R
 import com.example.todolist.core.model.Gender
 import com.example.todolist.core.model.User
 
@@ -158,7 +159,7 @@ private fun WelcomeScreen(
                     ) {
                         Icon(
                             imageVector = Icons.Default.TaskAlt,
-                            contentDescription = "TodoList",
+                            contentDescription = stringResource(R.string.cd_todolist),
                             modifier = Modifier.size(70.dp),
                             tint = primaryColor
                         )
@@ -177,7 +178,7 @@ private fun WelcomeScreen(
                 ) + fadeIn(animationSpec = tween(800, delayMillis = 300))
             ) {
                 Text(
-                    text = "TodoList",
+                    text = stringResource(R.string.todolist),
                     style = MaterialTheme.typography.displayLarge.copy(
                         fontWeight = FontWeight.ExtraBold,
                         fontSize = 56.sp,
@@ -204,7 +205,7 @@ private fun WelcomeScreen(
                 ) + fadeIn(animationSpec = tween(800, delayMillis = 500))
             ) {
                 Text(
-                    text = "Organize your life, one task at a time ✨",
+                    text = stringResource(R.string.tagline),
                     style = MaterialTheme.typography.titleLarge.copy(
                         fontWeight = FontWeight.Medium,
                         fontSize = 20.sp
@@ -225,10 +226,10 @@ private fun WelcomeScreen(
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                     horizontalAlignment = Alignment.Start
                 ) {
-                    FeatureItem("📝", "Create and manage tasks effortlessly")
-                    FeatureItem("🎯", "Set goals and track missions")
-                    FeatureItem("📊", "Analyze your productivity")
-                    FeatureItem("🔔", "Smart reminders and notifications")
+                    FeatureItem("📝", stringResource(R.string.feature_create_tasks))
+                    FeatureItem("🎯", stringResource(R.string.feature_set_goals))
+                    FeatureItem("📊", stringResource(R.string.feature_analyze))
+                    FeatureItem("🔔", stringResource(R.string.feature_reminders))
                 }
             }
 
@@ -261,14 +262,12 @@ private fun WelcomeScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Let's Start",
+                            text = stringResource(R.string.lets_start),
                             style = MaterialTheme.typography.titleLarge.copy(
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 20.sp
                             )
                         )
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Text(text = "→", fontSize = 24.sp)
                     }
                 }
             }

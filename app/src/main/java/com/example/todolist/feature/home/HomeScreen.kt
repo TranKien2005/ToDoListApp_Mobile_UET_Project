@@ -17,10 +17,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.todolist.R
 import com.example.todolist.feature.home.components.CalendarGrid
 import com.example.todolist.feature.home.components.MonthHeader
 import com.example.todolist.feature.home.components.TaskCardItem
@@ -161,7 +163,11 @@ fun HomeScreen(
                             ) + fadeIn(animationSpec = tween(500, delayMillis = 300))
                         ) {
                             Text(
-                                text = "📝 Tasks for ${uiState.selectedDate.dayOfMonth} ${uiState.selectedDate.month.name.lowercase().replaceFirstChar { it.uppercase() }}",
+                                text = stringResource(
+                                    R.string.tasks_for_date,
+                                    uiState.selectedDate.dayOfMonth,
+                                    uiState.selectedDate.month.name.lowercase().replaceFirstChar { it.uppercase() }
+                                ),
                                 style = MaterialTheme.typography.titleLarge.copy(
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 20.sp
@@ -179,7 +185,7 @@ fun HomeScreen(
                                 enter = fadeIn(animationSpec = tween(600, delayMillis = 400))
                             ) {
                                 Text(
-                                    text = "No tasks for this day",
+                                    text = stringResource(R.string.no_tasks_for_this_day),
                                     style = MaterialTheme.typography.bodyLarge,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     modifier = Modifier.padding(vertical = 24.dp)
@@ -262,7 +268,11 @@ fun HomeScreen(
                         ) + fadeIn(animationSpec = tween(500, delayMillis = 300))
                     ) {
                         Text(
-                            text = "📝 Tasks for ${uiState.selectedDate.dayOfMonth} ${uiState.selectedDate.month.name.lowercase().replaceFirstChar { it.uppercase() }}",
+                            text = stringResource(
+                                R.string.tasks_for_date,
+                                uiState.selectedDate.dayOfMonth,
+                                uiState.selectedDate.month.name.lowercase().replaceFirstChar { it.uppercase() }
+                            ),
                             style = MaterialTheme.typography.titleLarge.copy(
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 20.sp
@@ -280,7 +290,7 @@ fun HomeScreen(
                             enter = fadeIn(animationSpec = tween(600, delayMillis = 400))
                         ) {
                             Text(
-                                text = "No tasks for this day",
+                                text = stringResource(R.string.no_tasks_for_this_day),
                                 style = MaterialTheme.typography.bodyLarge,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.padding(vertical = 24.dp)

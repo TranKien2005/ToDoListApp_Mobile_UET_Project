@@ -11,9 +11,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.todolist.R
 import com.example.todolist.feature.mission.components.MissionCardItem
 import com.example.todolist.feature.mission.components.DateNavigator
 import com.example.todolist.feature.mission.components.StatusFilterRow
@@ -108,7 +110,7 @@ fun MissionScreen(
                     enter = fadeIn(animationSpec = tween(500, delayMillis = 200))
                 ) {
                     Text(
-                        text = "🎯 Missions",
+                        text = stringResource(R.string.missions_title),
                         style = MaterialTheme.typography.titleLarge.copy(
                             fontWeight = FontWeight.Bold,
                             fontSize = 20.sp
@@ -126,7 +128,7 @@ fun MissionScreen(
                         enter = fadeIn(animationSpec = tween(600, delayMillis = 300))
                     ) {
                         Text(
-                            text = "No missions found",
+                            text = stringResource(R.string.no_missions_found),
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.padding(vertical = 24.dp)

@@ -13,6 +13,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
@@ -20,6 +21,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Mic
+import com.example.todolist.R
 
 /**
  * Rounded bottom bar với gradient, 4 icons và centered FAB button đẹp hơn
@@ -94,7 +96,7 @@ fun BottomBar(
                             IconButton(onClick = onHome) {
                                 Icon(
                                     imageVector = Icons.Filled.Home,
-                                    contentDescription = "Home",
+                                    contentDescription = stringResource(R.string.cd_home),
                                     tint = MaterialTheme.colorScheme.primary,
                                     modifier = Modifier.size(smallIconSize)
                                 )
@@ -138,7 +140,7 @@ fun BottomBar(
                         IconButton(onClick = onHome) {
                             Icon(
                                 imageVector = Icons.Filled.Home,
-                                contentDescription = "Home",
+                                contentDescription = stringResource(R.string.cd_home),
                                 tint = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.size(smallIconSize)
                             )

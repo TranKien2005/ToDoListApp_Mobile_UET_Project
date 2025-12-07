@@ -10,11 +10,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.todolist.R
 import com.example.todolist.core.model.Task
+import com.example.todolist.feature.common.DeleteTaskConfirmationDialog
 import java.time.format.DateTimeFormatter
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
@@ -35,6 +38,21 @@ fun TaskCardItem(
     val secondaryColor = MaterialTheme.colorScheme.secondary
 
     var expanded by remember { mutableStateOf(false) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
+
+    // Delete confirmation dialog
+    if (showDeleteDialog) {
+        DeleteTaskConfirmationDialog(
+            taskTitle = task.title,
+            onConfirm = {
+                onDelete(task.id)
+                showDeleteDialog = false
+            },
+            onDismiss = {
+                showDeleteDialog = false
+            }
+        )
+    }
 
     Card(
         colors = CardDefaults.cardColors(
@@ -132,19 +150,19 @@ fun TaskCardItem(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Edit,
-                                contentDescription = "Edit",
+                                contentDescription = stringResource(R.string.cd_edit),
                                 tint = primaryColor,
                                 modifier = Modifier.size(20.dp)
                             )
                         }
 
                         IconButton(
-                            onClick = { onDelete(task.id) },
+                            onClick = { showDeleteDialog = true },
                             modifier = Modifier.size(32.dp)
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Delete,
-                                contentDescription = "Delete",
+                                contentDescription = stringResource(R.string.cd_delete),
                                 tint = MaterialTheme.colorScheme.error,
                                 modifier = Modifier.size(20.dp)
                             )
@@ -191,7 +209,7 @@ fun TaskCardItem(
                                     onClick = { expanded = true },
                                     contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
                                 ) {
-                                    Text("More", fontSize = 12.sp, color = primaryColor)
+                                    Text(stringResource(R.string.more), fontSize = 12.sp, color = primaryColor)
                                 }
                             }
                         }
@@ -211,7 +229,7 @@ fun TaskCardItem(
                                     onClick = { expanded = false },
                                     contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
                                 ) {
-                                    Text("Less", fontSize = 12.sp, color = primaryColor)
+                                    Text(stringResource(R.string.less), fontSize = 12.sp, color = primaryColor)
                                 }
                             }
                         }
@@ -235,7 +253,7 @@ fun TaskCardItem(
                                 fontSize = 14.sp
                             )
                             Text(
-                                text = "$duration minutes",
+                                text = "$duration ${stringResource(R.string.minutes)}",
                                 style = MaterialTheme.typography.labelMedium,
                                 color = MaterialTheme.colorScheme.onSecondaryContainer,
                                 fontWeight = FontWeight.Medium

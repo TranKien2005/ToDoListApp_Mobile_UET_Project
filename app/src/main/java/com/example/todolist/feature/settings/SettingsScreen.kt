@@ -18,9 +18,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.todolist.R
 import com.example.todolist.core.model.Gender
 import com.example.todolist.core.model.User
 import com.example.todolist.feature.user.UserViewModel
@@ -62,7 +64,7 @@ fun SettingsScreen(
             TopAppBar(
                 title = {
                     Text(
-                        "Settings",
+                        stringResource(R.string.settings),
                         style = MaterialTheme.typography.titleLarge.copy(
                             fontWeight = FontWeight.Bold
                         )
@@ -70,7 +72,7 @@ fun SettingsScreen(
                 },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.cd_back))
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -117,7 +119,7 @@ fun SettingsScreen(
                 ) {
                     SectionHeader(
                         icon = Icons.Default.Person,
-                        title = "User Profile",
+                        title = stringResource(R.string.user_profile),
                         primaryColor = primaryColor
                     )
                 }
@@ -149,7 +151,7 @@ fun SettingsScreen(
                 ) {
                     SectionHeader(
                         icon = Icons.Default.Notifications,
-                        title = "Notification Settings",
+                        title = stringResource(R.string.notification_settings),
                         primaryColor = primaryColor
                     )
                 }
@@ -178,32 +180,32 @@ fun SettingsScreen(
                         )
 
                         SwitchSettingItem(
-                            title = "Daily Mission Notifications",
-                            description = "Notify about missions with deadlines today",
+                            title = stringResource(R.string.daily_mission_notifications),
+                            description = stringResource(R.string.daily_mission_notifications_desc),
                             emoji = "📅",
                             checked = settings.notifyDailyMissions,
                             onCheckedChange = { viewModel.updateNotifyDailyMissions(it) }
                         )
 
                         SwitchSettingItem(
-                            title = "Weekly Mission Notifications",
-                            description = "Notify about missions with deadlines this week",
+                            title = stringResource(R.string.weekly_mission_notifications),
+                            description = stringResource(R.string.weekly_mission_notifications_desc),
                             emoji = "📆",
                             checked = settings.notifyWeeklyMissions,
                             onCheckedChange = { viewModel.updateNotifyWeeklyMissions(it) }
                         )
 
                         SwitchSettingItem(
-                            title = "Monthly Mission Notifications",
-                            description = "Notify about missions with deadlines this month",
+                            title = stringResource(R.string.monthly_mission_notifications),
+                            description = stringResource(R.string.monthly_mission_notifications_desc),
                             emoji = "🗓️",
                             checked = settings.notifyMonthlyMissions,
                             onCheckedChange = { viewModel.updateNotifyMonthlyMissions(it) }
                         )
 
                         SwitchSettingItem(
-                            title = "Overdue Notifications",
-                            description = "Notify when tasks/missions are overdue",
+                            title = stringResource(R.string.overdue_notifications),
+                            description = stringResource(R.string.overdue_notifications_desc),
                             emoji = "⏰",
                             checked = settings.overdueNotificationEnabled,
                             onCheckedChange = { viewModel.updateOverdueNotificationEnabled(it) }
@@ -283,14 +285,14 @@ fun UserProfileSection(
             OutlinedTextField(
                 value = editedName,
                 onValueChange = { editedName = it },
-                label = { Text("Full Name") },
+                label = { Text(stringResource(R.string.full_name)) },
                 modifier = Modifier.fillMaxWidth()
             )
 
             OutlinedTextField(
                 value = editedAge,
                 onValueChange = { if (it.all { char -> char.isDigit() }) editedAge = it },
-                label = { Text("Age") },
+                label = { Text(stringResource(R.string.age)) },
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -303,7 +305,7 @@ fun UserProfileSection(
                     value = editedGender.name,
                     onValueChange = {},
                     readOnly = true,
-                    label = { Text("Gender") },
+                    label = { Text(stringResource(R.string.gender)) },
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -341,7 +343,7 @@ fun UserProfileSection(
                 },
                 modifier = Modifier.align(Alignment.End)
             ) {
-                Text("Save Profile")
+                Text(stringResource(R.string.save_profile))
             }
         }
     }
