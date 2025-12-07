@@ -61,8 +61,8 @@ class DomainModule(context: Context) {
 
     val notificationUseCases = NotificationUseCases(
         getNotifications = RealGetNotificationsUseCase(notificationRepository),
-        scheduleTaskNotification = RealScheduleTaskNotificationUseCase(notificationRepository, notificationScheduler),
-        scheduleMissionNotification = RealScheduleMissionNotificationUseCase(notificationRepository, notificationScheduler),
+        scheduleTaskNotification = RealScheduleTaskNotificationUseCase(notificationRepository, notificationScheduler, appContext),
+        scheduleMissionNotification = RealScheduleMissionNotificationUseCase(notificationRepository, notificationScheduler, appContext),
         cancelTaskNotifications = RealCancelTaskNotificationsUseCase(notificationRepository, notificationScheduler),
         cancelMissionNotifications = RealCancelMissionNotificationsUseCase(notificationRepository, notificationScheduler),
         markNotificationAsRead = RealMarkNotificationAsReadUseCase(notificationRepository),

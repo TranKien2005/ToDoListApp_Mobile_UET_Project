@@ -13,10 +13,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.todolist.core.model.User
+import com.example.todolist.feature.notification.components.NotificationIconWithBadge
 
 @Composable
 fun TopBarUser(
     user: User?,
+    unreadNotificationCount: Int = 0,
+    onNotificationClick: () -> Unit = {},
     onSettingsClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -77,17 +80,30 @@ fun TopBarUser(
                     }
                 }
 
-                // Icon Settings bên phải
-                IconButton(
-                    onClick = onSettingsClick,
-                    modifier = Modifier.size(40.dp)
+                // Row chứa Notification Icon và Settings Icon
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Settings,
-                        contentDescription = "Settings",
-                        tint = MaterialTheme.colorScheme.onPrimary,
-                        modifier = Modifier.size(24.dp)
+                    // Icon Notification với badge đỏ
+                    NotificationIconWithBadge(
+                        unreadCount = unreadNotificationCount,
+                        onClick = onNotificationClick,
+                        modifier = Modifier.size(40.dp)
                     )
+
+                    // Icon Settings
+                    IconButton(
+                        onClick = onSettingsClick,
+                        modifier = Modifier.size(40.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Settings,
+                            contentDescription = "Settings",
+                            tint = MaterialTheme.colorScheme.onPrimary,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
                 }
             }
         }

@@ -9,8 +9,11 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
+import com.example.todolist.di.AppModule
 import com.example.todolist.ui.layout.AppNavHost
 import com.example.todolist.ui.theme.TodolistTheme
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
 
@@ -32,9 +35,37 @@ class MainActivity : ComponentActivity() {
         // Request notification permission on Android 13+
         requestNotificationPermission()
 
+        // Handle notification click
+        handleNotificationClick()
+
         setContent {
             TodolistTheme {
                 AppNavHost()
+            }
+        }
+    }
+
+    override fun onNewIntent(intent: android.content.Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handleNotificationClick()
+    }
+
+    private fun handleNotificationClick() {
+        val notificationId = intent.getLongExtra("notification_id", -1L)
+        val shouldMarkAsRead = intent.getBooleanExtra("mark_as_read", false)
+
+        if (notificationId != -1L && shouldMarkAsRead) {
+            android.util.Log.d("MainActivity", "Marking notification $notificationId as read")
+
+            lifecycleScope.launch {
+                try {
+                    val container = AppModule(applicationContext)
+                    container.domainModule.notificationUseCases.markNotificationAsRead(notificationId)
+                    android.util.Log.d("MainActivity", "Notification $notificationId marked as read successfully")
+                } catch (e: Exception) {
+                    android.util.Log.e("MainActivity", "Error marking notification as read", e)
+                }
             }
         }
     }

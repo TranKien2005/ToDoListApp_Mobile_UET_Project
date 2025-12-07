@@ -1,11 +1,13 @@
 package com.example.todolist.domain.usecase
 
+import android.content.Context
 import com.example.todolist.core.model.Mission
 import com.example.todolist.core.model.Notification
 import com.example.todolist.core.model.NotificationType
 import com.example.todolist.core.model.Task
 import com.example.todolist.domain.repository.NotificationRepository
 import com.example.todolist.notification.NotificationScheduler
+import com.example.todolist.R
 import kotlinx.coroutines.flow.Flow
 import java.time.ZoneId
 
@@ -21,7 +23,8 @@ class RealGetNotificationsUseCase(
 // Implementation for ScheduleTaskNotificationUseCase
 class RealScheduleTaskNotificationUseCase(
     private val repository: NotificationRepository,
-    private val scheduler: NotificationScheduler
+    private val scheduler: NotificationScheduler,
+    private val context: Context
 ) : ScheduleTaskNotificationUseCase {
     override suspend fun invoke(task: Task, reminderMinutes: Int) {
         // Tính toán thời gian thông báo = startTime - reminderMinutes
@@ -37,8 +40,8 @@ class RealScheduleTaskNotificationUseCase(
         val notification = Notification(
             type = NotificationType.TASK_REMINDER,
             relatedTaskId = task.id,
-            title = "Nhắc nhở: ${task.title}",
-            message = "Task sẽ bắt đầu trong $reminderMinutes phút",
+            title = context.getString(R.string.notification_task_reminder_title, task.title),
+            message = context.getString(R.string.notification_task_reminder_message, reminderMinutes),
             scheduledTime = scheduledTimeMillis
         )
 
@@ -52,7 +55,8 @@ class RealScheduleTaskNotificationUseCase(
 // Implementation for ScheduleMissionNotificationUseCase
 class RealScheduleMissionNotificationUseCase(
     private val repository: NotificationRepository,
-    private val scheduler: NotificationScheduler
+    private val scheduler: NotificationScheduler,
+    private val context: Context
 ) : ScheduleMissionNotificationUseCase {
     override suspend fun invoke(mission: Mission, warningMinutes: Int) {
         // Tính toán thời gian cảnh báo = deadline - warningMinutes
@@ -68,8 +72,8 @@ class RealScheduleMissionNotificationUseCase(
         val notification = Notification(
             type = NotificationType.MISSION_DEADLINE_WARNING,
             relatedMissionId = mission.id,
-            title = "Cảnh báo deadline: ${mission.title}",
-            message = "Mission sẽ hết hạn trong $warningMinutes phút",
+            title = context.getString(R.string.notification_mission_warning_title, mission.title),
+            message = context.getString(R.string.notification_mission_warning_message, warningMinutes),
             scheduledTime = scheduledTimeMillis
         )
 
@@ -144,4 +148,3 @@ class RealCreateNotificationUseCase(
         return repository.insertNotification(notification)
     }
 }
-

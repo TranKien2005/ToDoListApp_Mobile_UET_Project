@@ -1,5 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Todolist</string>
+    <!-- App Name -->
+    <string name="app_name">ToDoList</string>
 
     <!-- Common -->
     <string name="ok">OK</string>
@@ -131,22 +133,6 @@
     <string name="save_failed">Failed to save. Please try again.</string>
     <string name="delete_failed">Failed to delete. Please try again.</string>
 
-    <!-- Notification Channel Names & Descriptions -->
-    <string name="channel_task_reminder_name">Task Reminders</string>
-    <string name="channel_task_reminder_desc">Reminders for upcoming tasks</string>
-    <string name="channel_mission_summary_name">Mission Summary</string>
-    <string name="channel_mission_summary_desc">Daily, weekly, and monthly mission summaries</string>
-    <string name="channel_mission_warning_name">Mission Warnings</string>
-    <string name="channel_mission_warning_desc">Warnings for approaching mission deadlines</string>
-    <string name="channel_overdue_name">Overdue Alerts</string>
-    <string name="channel_overdue_desc">Alerts for overdue tasks and missions</string>
-
-    <!-- Notification Messages -->
-    <string name="missions_today">Missions today (%1$d)</string>
-    <string name="missions_this_week">Missions this week (%1$d)</string>
-    <string name="missions_this_month">Missions this month (%1$d)</string>
-    <string name="and_more_missions">… and %1$d more missions</string>
-
     <!-- Content Descriptions -->
     <string name="cd_back">Back</string>
     <string name="cd_delete">Delete</string>
@@ -158,4 +144,50 @@
     <string name="cd_add">Add</string>
     <string name="cd_todolist">TodoList</string>
     <string name="cd_toggle_complete">Toggle Complete</string>
+
+
+    <!-- Notification Channel Names -->
+    <string name="channel_task_reminder_name">Task Reminders</string>
+    <string name="channel_task_reminder_desc">Notifications for upcoming tasks</string>
+
+    <string name="channel_mission_summary_name">Mission Summaries</string>
+    <string name="channel_mission_summary_desc">Daily, weekly, and monthly mission summaries</string>
+
+    <string name="channel_mission_warning_name">Mission Warnings</string>
+    <string name="channel_mission_warning_desc">Warnings for mission deadlines</string>
+
+    <string name="channel_overdue_name">Overdue Notifications</string>
+    <string name="channel_overdue_desc">Notifications for overdue tasks and missions</string>
+
+    <!-- Task Notification Messages -->
+    <string name="notification_task_reminder_title">Reminder: %1$s</string>
+    <string name="notification_task_reminder_message">Task will start in %1$d minutes</string>
+
+    <!-- Mission Notification Messages -->
+    <string name="notification_mission_warning_title">Deadline Warning: %1$s</string>
+    <string name="notification_mission_warning_message">Mission will expire in %1$d minutes</string>
+
+    <!-- Mission Summary Notifications -->
+    <string name="notification_daily_summary_title">Missions Today (%1$d)</string>
+    <string name="notification_weekly_summary_title">Missions This Week (%1$d)</string>
+    <string name="notification_monthly_summary_title">Missions This Month (%1$d)</string>
+
+    <!-- Mission Summary Messages -->
+    <string name="notification_summary_and_more">… and %1$d more missions</string>
+
+    <!-- Notification Screen -->
+    <string name="notifications">Notifications</string>
+    <string name="mark_all_as_read">Mark all as read</string>
+    <string name="delete_all">Delete All</string>
+    <string name="delete_all_confirmation">Are you sure you want to delete all notifications?</string>
+    <string name="no_notifications">No Notifications</string>
+    <string name="no_notifications_desc">You\'re all caught up!</string>
+    <string name="mark_as_read">Mark as read</string>
+    <string name="delete_notification">Delete</string>
+
+    <!-- Timestamp Formats -->
+    <string name="time_just_now">Just now</string>
+    <string name="time_minutes_ago">%1$dm ago</string>
+    <string name="time_hours_ago">%1$dh ago</string>
+    <string name="time_days_ago">%1$dd ago</string>
 </resources>

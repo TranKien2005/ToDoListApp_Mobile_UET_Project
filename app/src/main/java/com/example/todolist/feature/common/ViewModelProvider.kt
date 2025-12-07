@@ -1,13 +1,13 @@
-package com.example.todolist.ui.common
+package com.example.todolist.feature.common
 
 import android.content.Context
 import com.example.todolist.di.AppModule
+import com.example.todolist.feature.analysis.MissionAnalysisViewModel
 import com.example.todolist.feature.home.HomeViewModel
 import com.example.todolist.feature.mission.MissionViewModel
-import com.example.todolist.feature.common.AddItemViewModel
-import com.example.todolist.feature.analysis.MissionAnalysisViewModel
-import com.example.todolist.feature.user.UserViewModel
+import com.example.todolist.feature.notification.NotificationViewModel
 import com.example.todolist.feature.settings.SettingsViewModel
+import com.example.todolist.feature.user.UserViewModel
 
 object ViewModelProvider {
 
@@ -55,5 +55,11 @@ object ViewModelProvider {
         val module = getAppModule(context)
         val settingsUseCases = module.domainModule.settingsUseCases
         return SettingsViewModel(settingsUseCases)
+    }
+
+    fun provideNotificationViewModel(context: Context): NotificationViewModel {
+        val module = getAppModule(context)
+        val notificationUseCases = module.domainModule.notificationUseCases
+        return NotificationViewModel(notificationUseCases)
     }
 }

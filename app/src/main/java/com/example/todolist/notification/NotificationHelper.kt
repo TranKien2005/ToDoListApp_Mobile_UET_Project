@@ -42,55 +42,66 @@ class NotificationHelper(private val context: Context) {
      */
     private fun createNotificationChannels() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            Log.d(TAG, "Creating notification channels...")
+            try {
+                val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-            // Channel cho Task Reminder
-            val taskReminderChannel = NotificationChannel(
-                CHANNEL_TASK_REMINDER,
-                context.getString(R.string.channel_task_reminder_name),
-                NotificationManager.IMPORTANCE_HIGH
-            ).apply {
-                description = context.getString(R.string.channel_task_reminder_desc)
-                enableVibration(true)
-            }
+                // Channel cho Task Reminder
+                val taskReminderChannel = NotificationChannel(
+                    CHANNEL_TASK_REMINDER,
+                    context.getString(R.string.channel_task_reminder_name),
+                    NotificationManager.IMPORTANCE_HIGH
+                ).apply {
+                    description = context.getString(R.string.channel_task_reminder_desc)
+                    enableVibration(true)
+                }
+                Log.d(TAG, "Task reminder channel created")
 
-            // Channel cho Mission Summary
-            val missionSummaryChannel = NotificationChannel(
-                CHANNEL_MISSION_SUMMARY,
-                context.getString(R.string.channel_mission_summary_name),
-                NotificationManager.IMPORTANCE_DEFAULT
-            ).apply {
-                description = context.getString(R.string.channel_mission_summary_desc)
-            }
+                // Channel cho Mission Summary
+                val missionSummaryChannel = NotificationChannel(
+                    CHANNEL_MISSION_SUMMARY,
+                    context.getString(R.string.channel_mission_summary_name),
+                    NotificationManager.IMPORTANCE_DEFAULT
+                ).apply {
+                    description = context.getString(R.string.channel_mission_summary_desc)
+                }
+                Log.d(TAG, "Mission summary channel created")
 
-            // Channel cho Mission Warning
-            val missionWarningChannel = NotificationChannel(
-                CHANNEL_MISSION_WARNING,
-                context.getString(R.string.channel_mission_warning_name),
-                NotificationManager.IMPORTANCE_HIGH
-            ).apply {
-                description = context.getString(R.string.channel_mission_warning_desc)
-                enableVibration(true)
-            }
+                // Channel cho Mission Warning
+                val missionWarningChannel = NotificationChannel(
+                    CHANNEL_MISSION_WARNING,
+                    context.getString(R.string.channel_mission_warning_name),
+                    NotificationManager.IMPORTANCE_HIGH
+                ).apply {
+                    description = context.getString(R.string.channel_mission_warning_desc)
+                    enableVibration(true)
+                }
+                Log.d(TAG, "Mission warning channel created")
 
-            // Channel cho Overdue
-            val overdueChannel = NotificationChannel(
-                CHANNEL_OVERDUE,
-                context.getString(R.string.channel_overdue_name),
-                NotificationManager.IMPORTANCE_HIGH
-            ).apply {
-                description = context.getString(R.string.channel_overdue_desc)
-                enableVibration(true)
-            }
+                // Channel cho Overdue
+                val overdueChannel = NotificationChannel(
+                    CHANNEL_OVERDUE,
+                    context.getString(R.string.channel_overdue_name),
+                    NotificationManager.IMPORTANCE_HIGH
+                ).apply {
+                    description = context.getString(R.string.channel_overdue_desc)
+                    enableVibration(true)
+                }
+                Log.d(TAG, "Overdue channel created")
 
-            notificationManager.createNotificationChannels(
-                listOf(
-                    taskReminderChannel,
-                    missionSummaryChannel,
-                    missionWarningChannel,
-                    overdueChannel
+                notificationManager.createNotificationChannels(
+                    listOf(
+                        taskReminderChannel,
+                        missionSummaryChannel,
+                        missionWarningChannel,
+                        overdueChannel
+                    )
                 )
-            )
+                Log.d(TAG, "All notification channels registered successfully")
+            } catch (e: Exception) {
+                Log.e(TAG, "Error creating notification channels", e)
+                throw e
+            }
         }
     }
 
@@ -125,8 +136,11 @@ class NotificationHelper(private val context: Context) {
         Log.d(TAG, "Creating notification with channel=$channelId, group=$groupKey")
 
         // Intent để mở app khi click vào notification
+        // Thêm notification ID vào intent để MainActivity biết cần mark as read
         val intent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            putExtra("notification_id", notificationId)
+            putExtra("mark_as_read", true)
         }
         val pendingIntent = PendingIntent.getActivity(
             context,

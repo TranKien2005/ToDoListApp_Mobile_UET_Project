@@ -12,7 +12,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.currentBackStackEntryAsState
-import com.example.todolist.ui.common.ViewModelProvider
+import com.example.todolist.feature.common.ViewModelProvider
 import com.example.todolist.feature.home.HomeScreen
 import com.example.todolist.feature.mission.MissionScreen
 import com.example.todolist.feature.common.AddItemDialog
@@ -21,6 +21,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.LaunchedEffect
 import com.example.todolist.core.model.Task
 import com.example.todolist.core.model.Mission
+import com.example.todolist.feature.notification.NotificationScreen
 
 @Composable
 fun AppNavHost() {
@@ -32,10 +33,14 @@ fun AppNavHost() {
     val homeViewModel = remember { ViewModelProvider.provideHomeViewModel(context) }
     val missionViewModel = remember { ViewModelProvider.provideMissionViewModel(context) }
     val addItemViewModel = remember { ViewModelProvider.provideAddItemViewModel(context) }
+    val notificationViewModel = remember { ViewModelProvider.provideNotificationViewModel(context) }
 
     // Lấy user data để hiển thị trên TopBar
     val userViewModel = remember { ViewModelProvider.provideUserViewModel(context) }
     val user by userViewModel.user.collectAsState()
+
+    // Lấy số lượng notification chưa đọc
+    val notificationUiState by notificationViewModel.uiState.collectAsState()
 
     var showAddDialog by remember { mutableStateOf(false) }
     var editingTask by remember { mutableStateOf<Task?>(null) }
@@ -55,13 +60,15 @@ fun AppNavHost() {
     }
 
     // Chỉ hiển thị TopBar và BottomBar khi không ở màn hình onboarding
-    val showBars = currentRoute != "onboarding"
+    val showBars = currentRoute != "onboarding" && currentRoute != "notifications"
 
     AppScaffold(
         title = "Todolist",
-        showTopBar = showBars,  // Ẩn TopBar khi ở onboarding
-        showBottomBar = showBars,  // Ẩn BottomBar khi ở onboarding
+        showTopBar = showBars,  // Ẩn TopBar khi ở onboarding hoặc notifications
+        showBottomBar = showBars,  // Ẩn BottomBar khi ở onboarding hoặc notifications
         user = user,  // Truyền user data
+        unreadNotificationCount = notificationUiState.unreadCount,
+        onNotificationClick = { navController.navigate("notifications") },
         onSettingsClick = { navController.navigate("settings") },  // Navigate đến settings
         onHome = { navController.navigate("home") },
         onList = { navController.navigate("missions") },
@@ -128,6 +135,13 @@ fun AppNavHost() {
                     userViewModel = userViewModel,
                     onBackClick = { navController.popBackStack() },
                     modifier = Modifier.padding(padding)
+                )
+            }
+
+            composable("notifications") {
+                NotificationScreen(
+                    viewModel = notificationViewModel,
+                    onBackClick = { navController.popBackStack() }
                 )
             }
         }

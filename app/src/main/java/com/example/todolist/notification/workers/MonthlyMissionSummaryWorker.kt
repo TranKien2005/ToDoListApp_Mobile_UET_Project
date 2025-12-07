@@ -10,6 +10,7 @@ import com.example.todolist.data.local.entity.MissionEntity
 import com.example.todolist.data.repository.RoomNotificationRepositoryImpl
 import com.example.todolist.data.repository.RoomSettingsRepositoryImpl
 import com.example.todolist.notification.NotificationHelper
+import com.example.todolist.R
 import kotlinx.coroutines.flow.first
 import java.time.Instant
 import java.time.LocalDateTime
@@ -55,7 +56,10 @@ class MonthlyMissionSummaryWorker(
 
             if (monthMissions.isNotEmpty()) {
                 val message = buildMonthlySummaryMessage(monthMissions)
-                val title = "Missions tháng này (${monthMissions.size})"
+                val title = applicationContext.getString(
+                    R.string.notification_monthly_summary_title,
+                    monthMissions.size
+                )
 
                 // Tạo notification trong DB
                 val notification = Notification(
@@ -86,6 +90,6 @@ class MonthlyMissionSummaryWorker(
 
     private fun buildMonthlySummaryMessage(missions: List<MissionEntity>): String {
         return missions.take(5).joinToString("\n") { "• ${it.title}" } +
-                if (missions.size > 5) "\n... và ${missions.size - 5} mission khác" else ""
+                if (missions.size > 5) "\n${applicationContext.getString(R.string.notification_summary_and_more, missions.size - 5)}" else ""
     }
 }

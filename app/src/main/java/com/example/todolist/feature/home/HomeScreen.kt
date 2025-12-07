@@ -27,7 +27,7 @@ import com.example.todolist.feature.home.components.CalendarGrid
 import com.example.todolist.feature.home.components.MonthHeader
 import com.example.todolist.feature.home.components.TaskCardItem
 import com.example.todolist.feature.home.components.WeekDaysRow
-import com.example.todolist.ui.common.ViewModelProvider
+import com.example.todolist.feature.common.ViewModelProvider
 import com.example.todolist.core.model.Task
 
 

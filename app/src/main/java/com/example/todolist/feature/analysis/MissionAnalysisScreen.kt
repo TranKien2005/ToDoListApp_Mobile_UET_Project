@@ -21,7 +21,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.todolist.R
-import com.example.todolist.ui.common.ViewModelProvider
+import com.example.todolist.feature.common.ViewModelProvider
 
 // extracted analysis components
 import com.example.todolist.feature.analysis.components.LegendItem

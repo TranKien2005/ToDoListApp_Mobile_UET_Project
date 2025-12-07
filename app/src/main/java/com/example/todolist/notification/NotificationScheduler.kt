@@ -1,6 +1,7 @@
 package com.example.todolist.notification
 
 import android.content.Context
+import android.util.Log
 import androidx.work.*
 import com.example.todolist.notification.workers.*
 import java.time.Duration
@@ -23,33 +24,79 @@ class NotificationScheduler(private val context: Context) {
     /**
      * Lên lịch thông báo cho task
      */
-    fun scheduleTaskNotification(notificationId: Long, scheduledTime: Long) {
+    fun scheduleTaskNotification(notificationId: Long, scheduledTime: Long, additionalDelay: Long = 0L) {
         val delay = calculateDelay(scheduledTime)
-        if (delay < 0) return // Không schedule notification đã quá hạn
+        val currentTime = System.currentTimeMillis()
+        Log.d("NotificationScheduler", "Scheduling task notification $notificationId: scheduledTime=$scheduledTime, currentTime=$currentTime, delay=$delay ms, additionalDelay=$additionalDelay ms")
 
-        val workRequest = OneTimeWorkRequestBuilder<NotificationWorker>()
-            .setInitialDelay(delay, TimeUnit.MILLISECONDS)
-            .setInputData(workDataOf("notification_id" to notificationId))
-            .addTag("$TASK_NOTIFICATION_TAG-$notificationId")
+        // Nếu đã quá hạn nhưng chưa gửi, gửi ngay lập tức (delay = 0)
+        // Nếu chưa đến giờ, schedule với delay time
+        val actualDelay = if (delay < 0) {
+            Log.w("NotificationScheduler", "Notification $notificationId is overdue, sending with offset")
+            additionalDelay // Gửi với delay offset để tránh spam
+        } else {
+            delay + additionalDelay
+        }
+
+        val constraints = Constraints.Builder()
+            .setRequiresBatteryNotLow(false)
             .build()
 
-        WorkManager.getInstance(context).enqueue(workRequest)
+        val workRequest = OneTimeWorkRequestBuilder<NotificationWorker>()
+            .setInitialDelay(actualDelay, TimeUnit.MILLISECONDS)
+            .setInputData(workDataOf("notification_id" to notificationId))
+            .addTag("$TASK_NOTIFICATION_TAG-$notificationId")
+            .setConstraints(constraints)
+            .setBackoffCriteria(
+                BackoffPolicy.LINEAR,
+                WorkRequest.MIN_BACKOFF_MILLIS,
+                TimeUnit.MILLISECONDS
+            )
+            .build()
+
+        WorkManager.getInstance(context).enqueueUniqueWork(
+            "$TASK_NOTIFICATION_TAG-$notificationId",
+            ExistingWorkPolicy.REPLACE,
+            workRequest
+        )
+
+        if (delay < 0) {
+            Log.d("NotificationScheduler", "Task notification $notificationId scheduled to send in ${actualDelay / 1000} seconds (overdue)")
+        } else {
+            Log.d("NotificationScheduler", "Task notification $notificationId scheduled successfully, will fire in ${actualDelay / 1000} seconds")
+        }
     }
 
     /**
      * Lên lịch thông báo cho mission
      */
-    fun scheduleMissionNotification(notificationId: Long, scheduledTime: Long) {
+    fun scheduleMissionNotification(notificationId: Long, scheduledTime: Long, additionalDelay: Long = 0L) {
         val delay = calculateDelay(scheduledTime)
-        if (delay < 0) return
 
-        val workRequest = OneTimeWorkRequestBuilder<NotificationWorker>()
-            .setInitialDelay(delay, TimeUnit.MILLISECONDS)
-            .setInputData(workDataOf("notification_id" to notificationId))
-            .addTag("$MISSION_NOTIFICATION_TAG-$notificationId")
+        // Nếu đã quá hạn, gửi với offset delay
+        val actualDelay = if (delay < 0) additionalDelay else delay + additionalDelay
+
+        val constraints = Constraints.Builder()
+            .setRequiresBatteryNotLow(false)
             .build()
 
-        WorkManager.getInstance(context).enqueue(workRequest)
+        val workRequest = OneTimeWorkRequestBuilder<NotificationWorker>()
+            .setInitialDelay(actualDelay, TimeUnit.MILLISECONDS)
+            .setInputData(workDataOf("notification_id" to notificationId))
+            .addTag("$MISSION_NOTIFICATION_TAG-$notificationId")
+            .setConstraints(constraints)
+            .setBackoffCriteria(
+                BackoffPolicy.LINEAR,
+                WorkRequest.MIN_BACKOFF_MILLIS,
+                TimeUnit.MILLISECONDS
+            )
+            .build()
+
+        WorkManager.getInstance(context).enqueueUniqueWork(
+            "$MISSION_NOTIFICATION_TAG-$notificationId",
+            ExistingWorkPolicy.REPLACE,
+            workRequest
+        )
     }
 
     /**

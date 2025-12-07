@@ -2,6 +2,7 @@ package com.example.todolist
 
 import android.app.Application
 import com.example.todolist.di.AppModule
+import com.example.todolist.notification.NotificationForegroundService
 import com.example.todolist.util.logger.AppLogger
 
 // To enable Hilt, uncomment the annotation below and add Hilt deps in Gradle
@@ -18,5 +19,8 @@ class MyApplication : Application() {
         }
         val container = AppModule(this)
         // App-wide initialization (Logging, Crashlytics, WorkManager setup, etc.)
+
+        // Start foreground service to keep notification system running
+        NotificationForegroundService.start(this)
     }
 }

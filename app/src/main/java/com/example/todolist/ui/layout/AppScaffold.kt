@@ -19,6 +19,8 @@ fun AppScaffold(
     showBottomBar: Boolean = false,
     // Thêm tham số cho TopBarUser
     user: User? = null,
+    unreadNotificationCount: Int = 0,
+    onNotificationClick: () -> Unit = {},
     onSettingsClick: () -> Unit = {},
     // callbacks for bottom bar actions
     onHome: () -> Unit = {},
@@ -34,6 +36,8 @@ fun AppScaffold(
                 // Sử dụng TopBarUser mới thay vì TopAppBar mặc định
                 TopBarUser(
                     user = user,
+                    unreadNotificationCount = unreadNotificationCount,
+                    onNotificationClick = onNotificationClick,
                     onSettingsClick = onSettingsClick
                 )
             }
