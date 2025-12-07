@@ -6,9 +6,6 @@ import com.example.todolist.data.local.dao.TaskDao
 import com.example.todolist.data.local.dao.NotificationDao
 import com.example.todolist.data.local.dao.SettingsDao
 import com.example.todolist.data.local.di.LocalModule
-import com.example.todolist.data.remote.di.NetworkModule
-import com.example.todolist.data.remote.service.AiApiService
-import com.example.todolist.data.repository.RemoteAiRepositoryImpl
 import com.example.todolist.data.repository.RoomMissionRepositoryImpl
 import com.example.todolist.data.repository.RoomTaskRepositoryImpl
 import com.example.todolist.data.repository.RoomNotificationRepositoryImpl
@@ -42,12 +39,4 @@ object RepositoryModule {
     fun provideSettingsRepository(context: Context): SettingsRepository = provideSettingsRepository(LocalModule.provideSettingsDao(context))
 
     /** Provide AiRepository using AiApiService (remote). If you later add local persistence for AI results, change this to compose local+remote */
-    fun provideAiRepository(apiService: AiApiService): AiRepository = RemoteAiRepositoryImpl(apiService)
-
-    fun provideAiRepository(retrofit: Retrofit): AiRepository = provideAiRepository(NetworkModule.provideAiApiService(retrofit))
-
-    fun provideAiRepository(baseUrl: String, apiKey: String? = null): AiRepository {
-        val retrofit = NetworkModule.provideRetrofit(baseUrl, apiKey)
-        return provideAiRepository(retrofit)
-    }
 }

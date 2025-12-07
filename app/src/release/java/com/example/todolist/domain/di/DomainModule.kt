@@ -69,4 +69,7 @@ class DomainModule(context: Context) {
         deleteReadNotifications = RealDeleteReadNotificationsUseCase(notificationRepository),
         createNotification = RealCreateNotificationUseCase(notificationRepository)
     )
+
+    // AI Use Cases - Real implementation using GeminiService
+    val aiUseCases = createAIUseCases(appContext, taskUseCases, missionUseCases)
 }

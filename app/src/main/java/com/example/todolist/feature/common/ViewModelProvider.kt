@@ -63,4 +63,12 @@ object ViewModelProvider {
         val notificationUseCases = module.domainModule.notificationUseCases
         return NotificationViewModel(notificationUseCases)
     }
+
+    fun provideVoiceAssistantViewModel(context: Context): com.example.todolist.feature.voice.VoiceAssistantViewModel {
+        val module = getAppModule(context)
+        val taskUseCases = module.domainModule.taskUseCases
+        val missionUseCases = module.domainModule.missionUseCases
+        val aiUseCases = module.domainModule.aiUseCases
+        return com.example.todolist.feature.voice.VoiceAssistantViewModel(taskUseCases, missionUseCases, aiUseCases, context)
+    }
 }

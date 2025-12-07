@@ -34,6 +34,7 @@ fun AppNavHost() {
     val missionViewModel = remember { ViewModelProvider.provideMissionViewModel(context) }
     val addItemViewModel = remember { ViewModelProvider.provideAddItemViewModel(context) }
     val notificationViewModel = remember { ViewModelProvider.provideNotificationViewModel(context) }
+    val voiceViewModel = remember { ViewModelProvider.provideVoiceAssistantViewModel(context) }
 
     // Lấy user data để hiển thị trên TopBar
     val userViewModel = remember { ViewModelProvider.provideUserViewModel(context) }
@@ -60,7 +61,7 @@ fun AppNavHost() {
     }
 
     // Chỉ hiển thị TopBar và BottomBar khi không ở màn hình onboarding
-    val showBars = currentRoute != "onboarding" && currentRoute != "notifications"
+    val showBars = currentRoute != "onboarding" && currentRoute != "notifications" && currentRoute != "voice"
 
     AppScaffold(
         title = "Todolist",
@@ -73,7 +74,7 @@ fun AppNavHost() {
         onHome = { navController.navigate("home") },
         onList = { navController.navigate("missions") },
         onStats = { navController.navigate("analysis") },
-        onVoice = {},
+        onVoice = { navController.navigate("voice") },
         onAdd = {
             editingTask = null
             editingMission = null
@@ -141,6 +142,13 @@ fun AppNavHost() {
             composable("notifications") {
                 NotificationScreen(
                     viewModel = notificationViewModel,
+                    onBackClick = { navController.popBackStack() }
+                )
+            }
+
+            composable("voice") {
+                com.example.todolist.feature.voice.VoiceAssistantScreen(
+                    viewModel = voiceViewModel,
                     onBackClick = { navController.popBackStack() }
                 )
             }

@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     id("kotlin-kapt")
+    id("org.jetbrains.kotlin.plugin.serialization") version "1.9.0"
 }
 
 android {
@@ -22,6 +23,7 @@ android {
         buildConfigField("String", "TASK_API_KEY", "\"\"")
         buildConfigField("String", "AI_BASE_URL", "\"\"")
         buildConfigField("String", "AI_API_KEY", "\"\"")
+        buildConfigField("String", "GEMINI_API_KEY", "\"AIzaSyBxlkwynx0EzxG55SLjqjtcEo-TuVzEEvg\"")
     }
 
     testOptions {
@@ -85,6 +87,15 @@ dependencies {
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
     // WorkManager for notifications
     implementation("androidx.work:work-runtime-ktx:2.9.0")
+
+    // Gemini AI
+    implementation("com.google.ai.client.generativeai:generativeai:0.1.2")
+
+    // JSON serialization
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
+
+    // Accompanist Permissions
+    implementation("com.google.accompanist:accompanist-permissions:0.32.0")
 
     // Test dependencies
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2")
