@@ -5,7 +5,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.todolist.core.model.Mission
 import com.example.todolist.core.model.MissionStatus
+import com.example.todolist.core.model.MissionStoredStatus
 import com.example.todolist.domain.usecase.MissionUseCases
+import com.example.todolist.domain.usecase.NotificationUseCases
 import com.example.todolist.domain.usecase.StatsGranularity
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,7 +18,8 @@ import java.time.YearMonth
 import java.time.temporal.TemporalAdjusters
 
 class MissionViewModel(
-    private val missionUseCases: MissionUseCases
+    private val missionUseCases: MissionUseCases,
+    private val notificationUseCases: NotificationUseCases
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MissionUiState())
@@ -45,10 +48,7 @@ class MissionViewModel(
     }
 
     private fun missionIsCompleted(mission: Mission): Boolean = mission.status == MissionStatus.COMPLETED
-    private fun missionIsMissed(mission: Mission, today: LocalDate): Boolean {
-        // Consider mission missed if it's explicitly marked MISSED or its deadline is before today
-        return mission.status == MissionStatus.MISSED || mission.deadline.toLocalDate().isBefore(today)
-    }
+    private fun missionIsMissed(mission: Mission): Boolean = mission.status == MissionStatus.MISSED
 
     private fun applyFilters(list: List<Mission>, tag: MissionTag, status: MissionStatusFilter, refDate: LocalDate, gran: StatsGranularity): List<Mission> {
         val today = refDate
@@ -73,8 +73,8 @@ class MissionViewModel(
             val statusOk = when (status) {
                 MissionStatusFilter.ALL -> true
                 MissionStatusFilter.COMPLETED -> missionIsCompleted(mission)
-                MissionStatusFilter.IN_PROGRESS -> !missionIsCompleted(mission) && !missionIsMissed(mission, today)
-                MissionStatusFilter.MISSED -> missionIsMissed(mission, today)
+                MissionStatusFilter.IN_PROGRESS -> !missionIsCompleted(mission) && !missionIsMissed(mission)
+                MissionStatusFilter.MISSED -> missionIsMissed(mission)
             }
             tagOk && statusOk
         }
@@ -142,8 +142,17 @@ class MissionViewModel(
                 // Do not allow toggling for MISSED missions (they should only be deletable)
                 if (mission.status == MissionStatus.MISSED) return@launch
 
-                val newStatus = if (mission.status == MissionStatus.COMPLETED) MissionStatus.UNSPECIFIED else MissionStatus.COMPLETED
-                missionUseCases.setMissionStatus.invoke(id, newStatus)
+                val newStoredStatus = if (mission.storedStatus == MissionStoredStatus.COMPLETED) {
+                    MissionStoredStatus.UNSPECIFIED
+                } else {
+                    MissionStoredStatus.COMPLETED
+                }
+                missionUseCases.setMissionStatus.invoke(id, newStoredStatus)
+
+                // If marking as COMPLETED, cancel all notifications for this mission
+                if (newStoredStatus == MissionStoredStatus.COMPLETED) {
+                    notificationUseCases.cancelMissionNotifications.invoke(id)
+                }
             }
         }
     }

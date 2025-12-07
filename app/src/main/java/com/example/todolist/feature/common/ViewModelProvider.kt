@@ -27,7 +27,8 @@ object ViewModelProvider {
     fun provideMissionViewModel(context: Context): MissionViewModel {
         val module = getAppModule(context)
         val missionUseCases = module.domainModule.missionUseCases
-        return MissionViewModel(missionUseCases)
+        val notificationUseCases = module.domainModule.notificationUseCases
+        return MissionViewModel(missionUseCases, notificationUseCases)
     }
 
     fun provideAddItemViewModel(context: Context): AddItemViewModel {

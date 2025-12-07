@@ -76,6 +76,7 @@ fun AddItemDialog(
     var titleError by remember { mutableStateOf<String?>(null) }
     var descriptionError by remember { mutableStateOf<String?>(null) }
     var durationError by remember { mutableStateOf<String?>(null) }
+    var dateTimeError by remember { mutableStateOf<String?>(null) }
 
     // State for DatePicker and TimePicker dialogs
     var showDatePicker by remember { mutableStateOf(false) }
@@ -88,6 +89,7 @@ fun AddItemDialog(
         titleError = null
         descriptionError = null
         durationError = null
+        dateTimeError = null
 
         var ok = true
         if (title.isBlank()) {
@@ -98,6 +100,17 @@ fun AddItemDialog(
             descriptionError = "Description is required"
             ok = false
         }
+
+        // Validate date/time không được trong quá khứ (chỉ khi tạo mới)
+        if (!isEditMode) {
+            val selectedDateTime = LocalDateTime.of(date, time)
+            val now = LocalDateTime.now()
+            if (selectedDateTime.isBefore(now)) {
+                dateTimeError = "Cannot create task/mission in the past"
+                ok = false
+            }
+        }
+
         if (selectedTypeIsTask) {
             if (durationText.isBlank()) {
                 durationError = "Duration is required"
@@ -327,59 +340,75 @@ fun AddItemDialog(
                         )
 
                         // Date & Time Row - Now clickable with pickers
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
-                            OutlinedTextField(
-                                value = date.toString(),
-                                onValueChange = {},
-                                label = { Text(stringResource(R.string.date)) },
-                                leadingIcon = {
-                                    Icon(Icons.Default.Event, contentDescription = null, tint = primaryColor)
-                                },
-                                readOnly = true,
-                                modifier = Modifier.weight(1f),
-                                shape = RoundedCornerShape(16.dp),
-                                colors = OutlinedTextFieldDefaults.colors(
-                                    focusedBorderColor = primaryColor
-                                ),
-                                interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
-                                    .also { interactionSource ->
-                                        LaunchedEffect(interactionSource) {
-                                            interactionSource.interactions.collect { interaction ->
-                                                if (interaction is androidx.compose.foundation.interaction.PressInteraction.Release) {
-                                                    showDatePicker = true
+                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                OutlinedTextField(
+                                    value = date.toString(),
+                                    onValueChange = {},
+                                    label = { Text(stringResource(R.string.date)) },
+                                    leadingIcon = {
+                                        Icon(Icons.Default.Event, contentDescription = null, tint = primaryColor)
+                                    },
+                                    readOnly = true,
+                                    modifier = Modifier.weight(1f),
+                                    isError = dateTimeError != null,
+                                    shape = RoundedCornerShape(16.dp),
+                                    colors = OutlinedTextFieldDefaults.colors(
+                                        focusedBorderColor = primaryColor
+                                    ),
+                                    interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
+                                        .also { interactionSource ->
+                                            LaunchedEffect(interactionSource) {
+                                                interactionSource.interactions.collect { interaction ->
+                                                    if (interaction is androidx.compose.foundation.interaction.PressInteraction.Release) {
+                                                        showDatePicker = true
+                                                        dateTimeError = null
+                                                    }
                                                 }
                                             }
                                         }
-                                    }
-                            )
+                                )
 
-                            OutlinedTextField(
-                                value = String.format(Locale.getDefault(), "%02d:%02d", time.hour, time.minute),
-                                onValueChange = {},
-                                label = { Text(stringResource(R.string.time)) },
-                                leadingIcon = {
-                                    Icon(Icons.Default.Schedule, contentDescription = null, tint = primaryColor)
-                                },
-                                readOnly = true,
-                                modifier = Modifier.weight(1f),
-                                shape = RoundedCornerShape(16.dp),
-                                colors = OutlinedTextFieldDefaults.colors(
-                                    focusedBorderColor = primaryColor
-                                ),
-                                interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
-                                    .also { interactionSource ->
-                                        LaunchedEffect(interactionSource) {
-                                            interactionSource.interactions.collect { interaction ->
-                                                if (interaction is androidx.compose.foundation.interaction.PressInteraction.Release) {
-                                                    showTimePicker = true
+                                OutlinedTextField(
+                                    value = String.format(Locale.getDefault(), "%02d:%02d", time.hour, time.minute),
+                                    onValueChange = {},
+                                    label = { Text(stringResource(R.string.time)) },
+                                    leadingIcon = {
+                                        Icon(Icons.Default.Schedule, contentDescription = null, tint = primaryColor)
+                                    },
+                                    readOnly = true,
+                                    modifier = Modifier.weight(1f),
+                                    isError = dateTimeError != null,
+                                    shape = RoundedCornerShape(16.dp),
+                                    colors = OutlinedTextFieldDefaults.colors(
+                                        focusedBorderColor = primaryColor
+                                    ),
+                                    interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
+                                        .also { interactionSource ->
+                                            LaunchedEffect(interactionSource) {
+                                                interactionSource.interactions.collect { interaction ->
+                                                    if (interaction is androidx.compose.foundation.interaction.PressInteraction.Release) {
+                                                        showTimePicker = true
+                                                        dateTimeError = null
+                                                    }
                                                 }
                                             }
                                         }
-                                    }
-                            )
+                                )
+                            }
+
+                            // Error message for date/time validation
+                            if (dateTimeError != null) {
+                                Text(
+                                    text = dateTimeError!!,
+                                    color = MaterialTheme.colorScheme.error,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    modifier = Modifier.padding(start = 16.dp)
+                                )
+                            }
                         }
 
                         // Task-specific: Duration & Repeat
@@ -502,7 +531,7 @@ fun AddItemDialog(
                                         title = title.trim(),
                                         description = description.trim().ifBlank { null },
                                         deadline = dateTime,
-                                        status = editMission?.status ?: com.example.todolist.core.model.MissionStatus.UNSPECIFIED
+                                        storedStatus = editMission?.storedStatus ?: com.example.todolist.core.model.MissionStoredStatus.UNSPECIFIED
                                     )
                                     addItemViewModel.saveMission(mission)
                                 }

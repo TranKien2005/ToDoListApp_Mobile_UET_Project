@@ -9,6 +9,6 @@ data class MissionEntity(
     val title: String,
     val description: String?,
     val deadlineEpoch: Long,
-    // store status as string: UNSPECIFIED, COMPLETED, MISSED (MISSED is derived but stored for compatibility)
-    val status: String = "UNSPECIFIED"
+    // Only store UNSPECIFIED or COMPLETED - MISSED is computed based on deadline
+    val status: String = "UNSPECIFIED" // "UNSPECIFIED" or "COMPLETED" only
 )

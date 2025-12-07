@@ -175,6 +175,10 @@
     <!-- Mission Summary Messages -->
     <string name="notification_summary_and_more">… and %1$d more missions</string>
 
+    <!-- Mission Overdue Notification -->
+    <string name="notification_mission_overdue_title">Mission Overdue: %1$s</string>
+    <string name="notification_mission_overdue_message">This mission has passed its deadline</string>
+
     <!-- Notification Screen -->
     <string name="notifications">Notifications</string>
     <string name="mark_all_as_read">Mark all as read</string>

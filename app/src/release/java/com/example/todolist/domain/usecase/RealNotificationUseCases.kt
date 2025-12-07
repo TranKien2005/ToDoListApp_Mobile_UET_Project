@@ -59,28 +59,40 @@ class RealScheduleMissionNotificationUseCase(
     private val context: Context
 ) : ScheduleMissionNotificationUseCase {
     override suspend fun invoke(mission: Mission, warningMinutes: Int) {
-        // Tính toán thời gian cảnh báo = deadline - warningMinutes
-        val warningTime = mission.deadline.minusMinutes(warningMinutes.toLong())
-        val scheduledTimeMillis = warningTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+        val now = System.currentTimeMillis()
 
-        // Không tạo notification nếu đã quá thời gian
-        if (scheduledTimeMillis < System.currentTimeMillis()) {
-            return
+        // 1. TẠO NOTIFICATION CẢNH BÁO TRƯỚC DEADLINE
+        val warningTime = mission.deadline.minusMinutes(warningMinutes.toLong())
+        val warningTimeMillis = warningTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+
+        if (warningTimeMillis > now) {
+            val warningNotification = Notification(
+                type = NotificationType.MISSION_DEADLINE_WARNING,
+                relatedMissionId = mission.id,
+                title = context.getString(R.string.notification_mission_warning_title, mission.title),
+                message = context.getString(R.string.notification_mission_warning_message, warningMinutes),
+                scheduledTime = warningTimeMillis
+            )
+
+            val warningNotifId = repository.insertNotification(warningNotification)
+            scheduler.scheduleMissionNotification(warningNotifId, warningTimeMillis)
         }
 
-        // Tạo notification record
-        val notification = Notification(
-            type = NotificationType.MISSION_DEADLINE_WARNING,
-            relatedMissionId = mission.id,
-            title = context.getString(R.string.notification_mission_warning_title, mission.title),
-            message = context.getString(R.string.notification_mission_warning_message, warningMinutes),
-            scheduledTime = scheduledTimeMillis
-        )
+        // 2. TẠO NOTIFICATION OVERDUE (khi qua deadline)
+        val deadlineMillis = mission.deadline.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
 
-        val notificationId = repository.insertNotification(notification)
+        if (deadlineMillis > now) {
+            val overdueNotification = Notification(
+                type = NotificationType.MISSION_OVERDUE,
+                relatedMissionId = mission.id,
+                title = context.getString(R.string.notification_mission_overdue_title, mission.title),
+                message = context.getString(R.string.notification_mission_overdue_message),
+                scheduledTime = deadlineMillis // Gửi ngay khi deadline
+            )
 
-        // Lên lịch với WorkManager
-        scheduler.scheduleMissionNotification(notificationId, scheduledTimeMillis)
+            val overdueNotifId = repository.insertNotification(overdueNotification)
+            scheduler.scheduleMissionNotification(overdueNotifId, deadlineMillis)
+        }
     }
 }
 

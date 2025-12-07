@@ -61,7 +61,7 @@ fun MissionCardItem(
     val (statusColor, statusEmoji) = when (mission.status) {
         MissionStatus.COMPLETED -> Pair(primaryColor, "✓")
         MissionStatus.MISSED -> Pair(errorColor, "✗")
-        MissionStatus.UNSPECIFIED -> Pair(primaryColor, "○")
+        MissionStatus.ACTIVE -> Pair(primaryColor, "○")
     }
 
     Card(
@@ -136,7 +136,7 @@ fun MissionCardItem(
                                     text = when (mission.status) {
                                         MissionStatus.COMPLETED -> stringResource(R.string.status_done)
                                         MissionStatus.MISSED -> stringResource(R.string.status_missed)
-                                        MissionStatus.UNSPECIFIED -> stringResource(R.string.status_active)
+                                        MissionStatus.ACTIVE -> stringResource(R.string.status_active)
                                     },
                                     style = MaterialTheme.typography.labelSmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -151,8 +151,8 @@ fun MissionCardItem(
                         horizontalArrangement = Arrangement.spacedBy(4.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        // Edit button (only if UNSPECIFIED - chưa hoàn thành và chưa miss)
-                        if (mission.status == MissionStatus.UNSPECIFIED) {
+                        // Edit button (only if ACTIVE - chưa hoàn thành và chưa miss)
+                        if (mission.status == MissionStatus.ACTIVE) {
                             IconButton(
                                 onClick = { onEdit(mission) },
                                 modifier = Modifier.size(32.dp)
@@ -166,22 +166,29 @@ fun MissionCardItem(
                             }
                         }
 
-                        // Toggle complete button (only if not missed)
-                        if (mission.status != MissionStatus.MISSED) {
+                        // Toggle complete button (only if ACTIVE - không cho unmark completed)
+                        if (mission.status == MissionStatus.ACTIVE) {
                             IconButton(
                                 onClick = { onToggleCompleted(mission.id) },
                                 modifier = Modifier.size(32.dp)
                             ) {
                                 Icon(
-                                    imageVector = if (mission.status == MissionStatus.COMPLETED)
-                                        Icons.Default.CheckCircle
-                                    else
-                                        Icons.Default.RadioButtonUnchecked,
+                                    imageVector = Icons.Default.RadioButtonUnchecked,
                                     contentDescription = stringResource(R.string.cd_toggle_complete),
                                     tint = statusColor,
                                     modifier = Modifier.size(20.dp)
                                 )
                             }
+                        }
+
+                        // Show completed icon (read-only) if COMPLETED
+                        if (mission.status == MissionStatus.COMPLETED) {
+                            Icon(
+                                imageVector = Icons.Default.CheckCircle,
+                                contentDescription = stringResource(R.string.status_done),
+                                tint = primaryColor,
+                                modifier = Modifier.size(28.dp).padding(2.dp)
+                            )
                         }
 
                         IconButton(

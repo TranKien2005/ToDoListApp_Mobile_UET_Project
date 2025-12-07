@@ -1,7 +1,7 @@
 package com.example.todolist.domain.usecase
 
 import com.example.todolist.core.model.Mission
-import com.example.todolist.core.model.MissionStatus
+import com.example.todolist.core.model.MissionStoredStatus
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
 
@@ -11,20 +11,20 @@ interface GetMissionsUseCase {
 
 // Split save into create/update
 interface CreateMissionUseCase {
-    suspend operator fun invoke(mission: Mission)
+    suspend operator fun invoke(mission: Mission): Int  // Return mission ID
 }
 
 interface UpdateMissionUseCase {
-    suspend operator fun invoke(mission: Mission)
+    suspend operator fun invoke(mission: Mission): Int  // Return mission ID
 }
 
 interface DeleteMissionUseCase {
     suspend operator fun invoke(missionId: Int)
 }
 
-// Set mission status (COMPLETED/UNSPECIFIED). MISSED is derived from deadline and stored status.
+// Set mission stored status (COMPLETED/UNSPECIFIED only - MISSED is computed)
 interface SetMissionStatusUseCase {
-    suspend operator fun invoke(missionId: Int, status: MissionStatus)
+    suspend operator fun invoke(missionId: Int, status: MissionStoredStatus)
 }
 
 interface GetMissionsByDateUseCase {
@@ -67,6 +67,5 @@ data class MissionUseCases(
     val setMissionStatus: SetMissionStatusUseCase,
     val getMissionsByDate: GetMissionsByDateUseCase,
     val getMissionsByMonth: GetMissionsByMonthUseCase,
-    // new
     val getMissionStats: GetMissionStatsUseCase
 )

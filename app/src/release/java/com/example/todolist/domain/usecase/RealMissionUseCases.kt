@@ -2,6 +2,7 @@ package com.example.todolist.domain.usecase
 
 import com.example.todolist.core.model.Mission
 import com.example.todolist.core.model.MissionStatus
+import com.example.todolist.core.model.MissionStoredStatus
 import com.example.todolist.domain.repository.MissionRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -21,16 +22,16 @@ class RealGetMissionsUseCase(
 class RealCreateMissionUseCase(
     private val repository: MissionRepository
 ) : CreateMissionUseCase {
-    override suspend operator fun invoke(mission: Mission) {
-        repository.saveMission(mission)
+    override suspend operator fun invoke(mission: Mission): Int {
+        return repository.saveMission(mission)
     }
 }
 
 class RealUpdateMissionUseCase(
     private val repository: MissionRepository
 ) : UpdateMissionUseCase {
-    override suspend operator fun invoke(mission: Mission) {
-        repository.saveMission(mission)
+    override suspend operator fun invoke(mission: Mission): Int {
+        return repository.saveMission(mission)
     }
 }
 
@@ -45,7 +46,7 @@ class RealDeleteMissionUseCase(
 class RealSetMissionStatusUseCase(
     private val repository: MissionRepository
 ) : SetMissionStatusUseCase {
-    override suspend operator fun invoke(missionId: Int, status: MissionStatus) {
+    override suspend operator fun invoke(missionId: Int, status: MissionStoredStatus) {
         repository.setMissionStatus(missionId, status)
     }
 }
@@ -86,7 +87,7 @@ class RealGetMissionStatsUseCase(
                         val missionsIn = list.filter { it.deadline.toLocalDate().isEqual(day) }
                         val completed = missionsIn.count { it.status == MissionStatus.COMPLETED }
                         val missed = missionsIn.count { it.status == MissionStatus.MISSED }
-                        val inProgress = missionsIn.count { it.status != MissionStatus.COMPLETED && it.status != MissionStatus.MISSED }
+                        val inProgress = missionsIn.count { it.status == MissionStatus.ACTIVE }
                         val label = day.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.getDefault())
                         MissionStatsEntry(label, day, completed, missed, inProgress)
                     }
@@ -109,7 +110,7 @@ class RealGetMissionStatsUseCase(
                         }
                         val completed = missionsIn.count { it.status == MissionStatus.COMPLETED }
                         val missed = missionsIn.count { it.status == MissionStatus.MISSED }
-                        val inProgress = missionsIn.count { it.status != MissionStatus.COMPLETED && it.status != MissionStatus.MISSED }
+                        val inProgress = missionsIn.count { it.status == MissionStatus.ACTIVE }
                         val label = "W$weekIndex"
                         weeks.add(MissionStatsEntry(label, startDate, completed, missed, inProgress))
                         weekIndex++
@@ -128,7 +129,7 @@ class RealGetMissionStatsUseCase(
                         }
                         val completed = missionsIn.count { it.status == MissionStatus.COMPLETED }
                         val missed = missionsIn.count { it.status == MissionStatus.MISSED }
-                        val inProgress = missionsIn.count { it.status != MissionStatus.COMPLETED && it.status != MissionStatus.MISSED }
+                        val inProgress = missionsIn.count { it.status == MissionStatus.ACTIVE }
                         val label = start.month.getDisplayName(TextStyle.SHORT, Locale.getDefault())
                         MissionStatsEntry(label, start, completed, missed, inProgress)
                     }
@@ -136,4 +137,3 @@ class RealGetMissionStatsUseCase(
             }
         }
 }
-

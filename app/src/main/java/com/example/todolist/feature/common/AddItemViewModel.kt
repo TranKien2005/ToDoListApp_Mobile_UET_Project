@@ -48,18 +48,21 @@ class AddItemViewModel(
     fun saveMission(mission: Mission) {
         viewModelScope.launch {
             try {
-                // Save mission to database first
-                if (mission.id == 0) {
+                val settings = settingsUseCases.getSettings.invoke().first()
+
+                // Save mission to database first and get the actual mission ID
+                val missionId = if (mission.id == 0) {
                     missionUseCases.createMission.invoke(mission)
                 } else {
-                    missionUseCases.updateMission.invoke(mission)
                     // Cancel old notifications when updating
                     notificationUseCases.cancelMissionNotifications.invoke(mission.id)
+                    missionUseCases.updateMission.invoke(mission)
                 }
 
-                // Lên lịch thông báo cho mission
-                val settings = settingsUseCases.getSettings.invoke().first()
-                notificationUseCases.scheduleMissionNotification.invoke(mission, settings.missionDeadlineWarningMinutes)
+                // Lên lịch thông báo cho mission với ID thực tế
+                // Tạo mission object mới với ID đúng để lên lịch notification
+                val missionWithId = mission.copy(id = missionId)
+                notificationUseCases.scheduleMissionNotification.invoke(missionWithId, settings.missionDeadlineWarningMinutes)
             } catch (e: Throwable) {
                 e.printStackTrace() // Log error để debug
             }
