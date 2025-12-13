@@ -13,7 +13,8 @@ object TaskEntityMapper {
             description = entity.description,
             startTime = DateExt.toLocalDateTime(entity.startTimeEpoch),
             durationMinutes = entity.durationMinutes,
-            repeatType = try { RepeatType.valueOf(entity.repeatType) } catch (_: Exception) { RepeatType.NONE }
+            repeatType = try { RepeatType.valueOf(entity.repeatType) } catch (_: Exception) { RepeatType.NONE },
+            googleCalendarEventId = entity.googleCalendarEventId
         )
     }
 
@@ -24,7 +25,8 @@ object TaskEntityMapper {
             description = task.description,
             startTimeEpoch = DateExt.toEpochMillis(task.startTime),
             durationMinutes = task.durationMinutes,
-            repeatType = task.repeatType.name
+            repeatType = task.repeatType.name,
+            googleCalendarEventId = task.googleCalendarEventId
         )
     }
 }

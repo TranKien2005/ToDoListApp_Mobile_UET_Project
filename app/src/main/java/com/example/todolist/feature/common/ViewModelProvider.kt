@@ -3,11 +3,16 @@ package com.example.todolist.feature.common
 import android.content.Context
 import com.example.todolist.di.AppModule
 import com.example.todolist.feature.analysis.MissionAnalysisViewModel
+import com.example.todolist.feature.auth.GoogleAuthViewModel
+import com.example.todolist.feature.calendar.CalendarSyncViewModel
 import com.example.todolist.feature.home.HomeViewModel
 import com.example.todolist.feature.mission.MissionViewModel
 import com.example.todolist.feature.notification.NotificationViewModel
 import com.example.todolist.feature.settings.SettingsViewModel
 import com.example.todolist.feature.user.UserViewModel
+import com.example.todolist.feature.voice.VoiceAssistantViewModel
+import com.example.todolist.BuildConfig
+import com.example.todolist.data.repository.GoogleSignInRepository
 
 object ViewModelProvider {
 
@@ -64,11 +69,33 @@ object ViewModelProvider {
         return NotificationViewModel(notificationUseCases)
     }
 
-    fun provideVoiceAssistantViewModel(context: Context): com.example.todolist.feature.voice.VoiceAssistantViewModel {
+    fun provideVoiceAssistantViewModel(context: Context): VoiceAssistantViewModel {
         val module = getAppModule(context)
         val taskUseCases = module.domainModule.taskUseCases
         val missionUseCases = module.domainModule.missionUseCases
         val aiUseCases = module.domainModule.aiUseCases
-        return com.example.todolist.feature.voice.VoiceAssistantViewModel(taskUseCases, missionUseCases, aiUseCases, context)
+        return VoiceAssistantViewModel(taskUseCases, missionUseCases, aiUseCases, context)
+    }
+
+    fun provideGoogleAuthViewModel(context: Context): GoogleAuthViewModel {
+        val module = getAppModule(context)
+        return GoogleAuthViewModel(
+            googleAuthRepository = module.domainModule.googleAuthRepository,
+            googleCalendarRepository = module.domainModule.googleCalendarRepository,
+            taskRepository = module.domainModule.taskRepository
+        )
+    }
+
+    fun provideCalendarSyncViewModel(context: Context): CalendarSyncViewModel {
+        val module = getAppModule(context)
+        val signInRepository = GoogleSignInRepository(
+            context = context.applicationContext,
+            webClientId = BuildConfig.GOOGLE_WEB_CLIENT_ID
+        )
+        return CalendarSyncViewModel(
+            signInRepository = signInRepository,
+            calendarRepository = module.domainModule.googleCalendarRepository,
+            taskRepository = module.domainModule.taskRepository
+        )
     }
 }

@@ -15,7 +15,10 @@ object UserEntityMapper {
             } catch (_: Exception) {
                 Gender.OTHER
             },
-            avatarUrl = entity.avatarUrl
+            avatarUrl = entity.avatarUrl,
+            googleId = entity.googleId,
+            email = entity.email,
+            isCalendarSyncEnabled = entity.isCalendarSyncEnabled
         )
     }
 
@@ -25,7 +28,10 @@ object UserEntityMapper {
             fullName = user.fullName,
             age = user.age,
             gender = user.gender.name,
-            avatarUrl = user.avatarUrl
+            avatarUrl = user.avatarUrl,
+            googleId = user.googleId,
+            email = user.email,
+            isCalendarSyncEnabled = user.isCalendarSyncEnabled
         )
     }
 }

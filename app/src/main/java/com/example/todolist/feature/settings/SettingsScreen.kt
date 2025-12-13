@@ -1,5 +1,10 @@
 package com.example.todolist.feature.settings
 
+import android.app.Activity
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.IntentSenderRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
@@ -10,6 +15,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Cloud
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
@@ -18,6 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -25,23 +32,47 @@ import androidx.compose.ui.unit.sp
 import com.example.todolist.R
 import com.example.todolist.core.model.Gender
 import com.example.todolist.core.model.User
+import com.example.todolist.feature.auth.CalendarSyncSection
+import com.example.todolist.feature.auth.GoogleAccountCard
+import com.example.todolist.feature.auth.GoogleAuthViewModel
+import com.example.todolist.feature.auth.GoogleSignInButton
 import com.example.todolist.feature.user.UserViewModel
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
     viewModel: SettingsViewModel,
     userViewModel: UserViewModel,
+    googleAuthViewModel: GoogleAuthViewModel? = null, // Optional: for Google Sign-In feature
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val settings by viewModel.settings.collectAsState()
     val user by userViewModel.user.collectAsState()
+    val googleAuthState = googleAuthViewModel?.uiState?.collectAsState()?.value
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
 
     var isVisible by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         isVisible = true
+    }
+    
+    // Calendar Permission Launcher using StartIntentSenderForResult for PendingIntent
+    val calendarPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartIntentSenderForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+             // Pass the result back to ViewModel to handle token retrieval
+             result.data?.let { intent ->
+                 googleAuthViewModel?.handleAuthorizationResult(context, intent)
+             }
+             Toast.makeText(context, "Authorization granted. Syncing...", Toast.LENGTH_SHORT).show()
+        } else {
+             Toast.makeText(context, "Authorization cancelled", Toast.LENGTH_SHORT).show()
+        }
     }
 
     val primaryColor = MaterialTheme.colorScheme.primary
@@ -137,6 +168,137 @@ fun SettingsScreen(
                             userViewModel.updateUser(updatedUser)
                         }
                     )
+                }
+
+                // Google Account & Sync Section (only show if GoogleAuthViewModel is provided)
+                if (googleAuthViewModel != null && googleAuthState != null) {
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    AnimatedVisibility(
+                        visible = isVisible,
+                        enter = slideInVertically(
+                            initialOffsetY = { -it },
+                            animationSpec = tween(600, delayMillis = 150)
+                        ) + fadeIn(animationSpec = tween(600, delayMillis = 150))
+                    ) {
+                        SectionHeader(
+                            icon = Icons.Default.Cloud,
+                            title = "Tài khoản & Đồng bộ",
+                            primaryColor = primaryColor
+                        )
+                    }
+
+                    AnimatedVisibility(
+                        visible = isVisible,
+                        enter = slideInVertically(
+                            initialOffsetY = { it },
+                            animationSpec = tween(600, delayMillis = 200)
+                        ) + fadeIn(animationSpec = tween(600, delayMillis = 200))
+                    ) {
+                        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                            // Show sign-in button or account card
+                            if (googleAuthState.isSignedIn && googleAuthState.currentUser != null) {
+                                GoogleAccountCard(
+                                    user = googleAuthState.currentUser,
+                                    onSignOut = { googleAuthViewModel.signOut() }
+                                )
+                            } else {
+                                GoogleSignInButton(
+                                    onClick = { 
+                                        (context as? Activity)?.let { activity ->
+                                            googleAuthViewModel.signIn(activity)
+                                        }
+                                    },
+                                    isLoading = googleAuthState.isLoading,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            }
+
+                            // Calendar sync toggle
+                            CalendarSyncSection(
+                                isEnabled = user?.isCalendarSyncEnabled == true,
+                                isSignedIn = googleAuthState.isSignedIn,
+                                isSyncing = googleAuthState.isSyncingCalendar, // Pass new loading state
+                                onToggle = { enabled ->
+                                    user?.let { currentUser ->
+                                        // 1. Update local user setting
+                                        userViewModel.updateUser(
+                                            currentUser.copy(isCalendarSyncEnabled = enabled)
+                                        )
+                                        // 2. Orchestrate sync/import via GoogleAuthViewModel
+                                        googleAuthViewModel.toggleCalendarSync(context, enabled)
+                                    }
+                                }
+                            )
+
+                            // Determine which error to show (Sign-in error or Calendar Sync error)
+                            val displayError = googleAuthState.error ?: googleAuthState.calendarSyncError
+
+                            // Error message
+                            displayError?.let { error ->
+                                Card(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    colors = CardDefaults.cardColors(
+                                        containerColor = MaterialTheme.colorScheme.errorContainer
+                                    )
+                                ) {
+                                    Column(
+                                        modifier = Modifier.padding(16.dp),
+                                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                                    ) {
+                                        Text(
+                                            text = error,
+                                            color = MaterialTheme.colorScheme.onErrorContainer,
+                                            style = MaterialTheme.typography.bodySmall
+                                        )
+                                        
+                                        // If error is about missing token, show fix button
+                                        if (error.contains("Access Token is missing") || error.contains("Authorization requires")) {
+                                            Button(
+                                                onClick = {
+                                                    scope.launch {
+                                                        val pendingIntent = googleAuthViewModel.getCalendarPermissionIntent(context)
+                                                        if (pendingIntent != null) {
+                                                            calendarPermissionLauncher.launch(
+                                                                IntentSenderRequest.Builder(pendingIntent).build()
+                                                            )
+                                                        } else {
+                                                            // If null returned, it means permission might already be granted
+                                                            // Retry sync directly
+                                                            googleAuthViewModel.toggleCalendarSync(context, true)
+                                                        }
+                                                    }
+                                                },
+                                                colors = ButtonDefaults.buttonColors(
+                                                    containerColor = MaterialTheme.colorScheme.error
+                                                ),
+                                                modifier = Modifier.align(Alignment.End)
+                                            ) {
+                                                Text("Cấp quyền Calendar")
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            
+                            // Success/Result message
+                            googleAuthState.lastSyncResult?.let { result ->
+                                Card(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    colors = CardDefaults.cardColors(
+                                        containerColor = MaterialTheme.colorScheme.primaryContainer
+                                    )
+                                ) {
+                                    Text(
+                                        text = result,
+                                        modifier = Modifier.padding(16.dp),
+                                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                        style = MaterialTheme.typography.bodySmall
+                                    )
+                                }
+                            }
+                        }
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -336,7 +498,8 @@ fun UserProfileSection(
                             fullName = editedName,
                             age = age,
                             gender = editedGender,
-                            avatarUrl = user?.avatarUrl
+                            avatarUrl = user?.avatarUrl,
+                            isCalendarSyncEnabled = user?.isCalendarSyncEnabled ?: false // Preserve existing setting
                         )
                         onUpdateUser(updatedUser)
                     }

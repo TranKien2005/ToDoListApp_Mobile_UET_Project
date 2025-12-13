@@ -12,5 +12,9 @@ data class User(
     val fullName: String,
     val age: Int,
     val gender: Gender,
-    val avatarUrl: String? = null // URL hoặc path đến avatar, null = dùng icon mặc định
+    val avatarUrl: String? = null, // URL hoặc path đến avatar, null = dùng icon mặc định
+    // Google Sign-In fields
+    val googleId: String? = null,
+    val email: String? = null,
+    val isCalendarSyncEnabled: Boolean = false
 )

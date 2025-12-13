@@ -24,12 +24,12 @@ android {
         buildConfigField("String", "AI_BASE_URL", "\"\"")
         buildConfigField("String", "AI_API_KEY", "\"\"")
         buildConfigField("String", "GEMINI_API_KEY", "\"AIzaSyBxlkwynx0EzxG55SLjqjtcEo-TuVzEEvg\"")
+        buildConfigField("String", "GOOGLE_WEB_CLIENT_ID", "\"821871972466-31dinbckig324gchs57r8a9n9lqm6nsu.apps.googleusercontent.com\"")
     }
 
     testOptions {
         unitTests.isIncludeAndroidResources = true
     }
-
 
     buildTypes {
         release {
@@ -54,6 +54,15 @@ android {
         compose = true
         // Enable generation of BuildConfig fields declared in defaultConfig
         buildConfig = true
+    }
+    packaging {
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += "/META-INF/INDEX.LIST"
+            excludes += "/META-INF/DEPENDENCIES"
+            excludes += "/META-INF/LICENSE.md"
+            excludes += "/META-INF/NOTICE.md"
+        }
     }
 }
 
@@ -96,6 +105,32 @@ dependencies {
 
     // Accompanist Permissions
     implementation("com.google.accompanist:accompanist-permissions:0.32.0")
+
+    // Google Sign-In (Credential Manager)
+    implementation("androidx.credentials:credentials:1.3.0")
+    implementation("androidx.credentials:credentials-play-services-auth:1.3.0")
+    implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1")
+
+    // Google Play Services Auth (for OAuth with scopes)
+    implementation("com.google.android.gms:play-services-auth:21.0.0")
+
+    // Coroutines Play Services (for await() on Tasks)
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
+
+    // Google API Client for Calendar
+    implementation("com.google.api-client:google-api-client-android:2.2.0") {
+        exclude(group = "org.apache.httpcomponents")
+    }
+    implementation("com.google.apis:google-api-services-calendar:v3-rev20231123-2.0.0") {
+        exclude(group = "org.apache.httpcomponents")
+    }
+    implementation("com.google.auth:google-auth-library-oauth2-http:1.23.0")
+    implementation("com.google.android.gms:play-services-auth:21.2.0")
+
+    // Google Calendar API
+    implementation("com.google.api-client:google-api-client-android:2.2.0")
+    implementation("com.google.apis:google-api-services-calendar:v3-rev20220715-2.0.0")
+
 
     // Test dependencies
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2")

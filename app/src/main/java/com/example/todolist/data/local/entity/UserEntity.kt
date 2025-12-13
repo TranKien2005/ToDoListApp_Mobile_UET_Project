@@ -9,5 +9,9 @@ data class UserEntity(
     val fullName: String,
     val age: Int,
     val gender: String, // Lưu dạng String: "MALE", "FEMALE", "OTHER"
-    val avatarUrl: String? = null
+    val avatarUrl: String? = null,
+    // Google Sign-In fields
+    val googleId: String? = null,
+    val email: String? = null,
+    val isCalendarSyncEnabled: Boolean = false
 )

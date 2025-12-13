@@ -114,3 +114,24 @@ val fakeTaskUseCases = TaskUseCases(
     getTasksByDay = FakeGetTasksByDayUseCase(),
     getTasksByMonth = FakeGetTasksByMonthUseCase()
 )
+
+// Fake TaskRepository for Calendar Sync
+val fakeTaskRepository = object : com.example.todolist.domain.repository.TaskRepository {
+    override fun getTasks(): Flow<List<Task>> = _tasksState
+    
+    override suspend fun saveTask(task: Task) {
+        val current = _tasksState.value.toMutableList()
+        val existingIdx = current.indexOfFirst { it.id == task.id }
+        if (existingIdx >= 0) {
+            current[existingIdx] = task
+        } else {
+            val nextId = (current.maxOfOrNull { it.id } ?: 0) + 1
+            current.add(task.copy(id = nextId))
+        }
+        _tasksState.value = current
+    }
+    
+    override suspend fun deleteTask(taskId: Int) {
+        _tasksState.value = _tasksState.value.filterNot { it.id == taskId }
+    }
+}

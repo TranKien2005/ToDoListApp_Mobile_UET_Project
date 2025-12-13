@@ -35,6 +35,8 @@ fun AppNavHost() {
     val addItemViewModel = remember { ViewModelProvider.provideAddItemViewModel(context) }
     val notificationViewModel = remember { ViewModelProvider.provideNotificationViewModel(context) }
     val voiceViewModel = remember { ViewModelProvider.provideVoiceAssistantViewModel(context) }
+    val googleAuthViewModel = remember { ViewModelProvider.provideGoogleAuthViewModel(context) }
+
 
     // Lấy user data để hiển thị trên TopBar
     val userViewModel = remember { ViewModelProvider.provideUserViewModel(context) }
@@ -134,6 +136,7 @@ fun AppNavHost() {
                 com.example.todolist.feature.settings.SettingsScreen(
                     viewModel = settingsVm,
                     userViewModel = userViewModel,
+                    googleAuthViewModel = googleAuthViewModel,
                     onBackClick = { navController.popBackStack() },
                     modifier = Modifier.padding(padding)
                 )
