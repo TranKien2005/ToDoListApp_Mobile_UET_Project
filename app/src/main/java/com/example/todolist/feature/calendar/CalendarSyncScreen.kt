@@ -1,7 +1,6 @@
 package com.example.todolist.feature.calendar
 
 import android.app.Activity
-import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.animateContentSize
@@ -369,16 +368,11 @@ private fun InfoSection() {
                 fontWeight = FontWeight.Bold
             )
             Text(
-                text = "• Sync All: Uploads all local tasks to Google Calendar",
-                style = MaterialTheme.typography.bodySmall
-            )
-            Text(
-                text = "• Import: Downloads events from Google Calendar as tasks",
-                style = MaterialTheme.typography.bodySmall
-            )
-            Text(
-                text = "• Tasks with sync enabled will auto-sync when created/updated",
-                style = MaterialTheme.typography.bodySmall
+                text = "• Sync All: Sends your local tasks to Google Calendar.\n" +
+                        "• Import: Downloads events from Google Calendar to your task list.\n" +
+                        "• Tasks are synced based on their title and time.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }

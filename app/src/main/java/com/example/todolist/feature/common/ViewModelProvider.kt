@@ -16,7 +16,7 @@ import com.example.todolist.data.repository.GoogleSignInRepository
 
 object ViewModelProvider {
 
-    // Cache AppModule để tránh tạo mới nhiều lần
+
     private var appModule: AppModule? = null
 
     private fun getAppModule(context: Context): AppModule {
@@ -82,7 +82,7 @@ object ViewModelProvider {
         return GoogleAuthViewModel(
             googleAuthRepository = module.domainModule.googleAuthRepository,
             googleCalendarRepository = module.domainModule.googleCalendarRepository,
-            taskRepository = module.domainModule.taskRepository
+            taskUseCases = module.domainModule.taskUseCases
         )
     }
 
@@ -95,7 +95,7 @@ object ViewModelProvider {
         return CalendarSyncViewModel(
             signInRepository = signInRepository,
             calendarRepository = module.domainModule.googleCalendarRepository,
-            taskRepository = module.domainModule.taskRepository
+            taskUseCases = module.domainModule.taskUseCases
         )
     }
 }

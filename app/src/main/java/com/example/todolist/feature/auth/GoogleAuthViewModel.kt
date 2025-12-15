@@ -8,7 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.todolist.data.repository.GoogleAuthRepository
 import com.example.todolist.data.repository.GoogleCalendarRepository
 import com.example.todolist.data.repository.GoogleUser
-import com.example.todolist.domain.repository.TaskRepository
+import com.example.todolist.domain.usecase.TaskUseCases
 import com.example.todolist.core.model.User
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -37,7 +37,7 @@ data class GoogleAuthUiState(
 class GoogleAuthViewModel(
     private val googleAuthRepository: GoogleAuthRepository,
     private val googleCalendarRepository: GoogleCalendarRepository,
-    private val taskRepository: TaskRepository
+    private val taskUseCases: TaskUseCases
 ) : ViewModel() {
     
     companion object {
@@ -117,36 +117,77 @@ class GoogleAuthViewModel(
      */
     fun toggleCalendarSync(context: Context, enabled: Boolean) {
         if (!enabled) return // Only handle the enable case for initial integration
-        
+        performFullSync(context)
+    }
+
+    /**
+     * Manually trigger a full sync (Import + Push)
+     */
+    fun syncNow(context: Context) {
+        performFullSync(context)
+    }
+
+    /**
+     * Manually import events only
+     */
+    fun importEvents(context: Context) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isSyncingCalendar = true, calendarSyncError = null) }
+            val accessToken = googleAuthRepository.getCalendarAccessToken(context)
+            
+            if (accessToken == null) {
+                handleMissingToken()
+                return@launch
+            }
+
+            val startDate = LocalDate.now().minusDays(30)
+            val endDate = LocalDate.now().plusMonths(6)
+            
+            googleCalendarRepository.importEventsFromCalendar(startDate, endDate, accessToken)
+                .onSuccess { importedTasks ->
+                    importedTasks.forEach { task ->
+                        taskUseCases.createTask(task)
+                    }
+                    _uiState.update { 
+                        it.copy(
+                            isSyncingCalendar = false,
+                            lastSyncResult = "Successfully imported ${importedTasks.size} tasks."
+                        )
+                    }
+                }
+                .onFailure { e ->
+                    _uiState.update { 
+                        it.copy(
+                            isSyncingCalendar = false,
+                            calendarSyncError = "Failed to import tasks: ${e.message}"
+                        )
+                    }
+                }
+        }
+    }
+
+    private fun performFullSync(context: Context) {
         viewModelScope.launch {
             _uiState.update { it.copy(isSyncingCalendar = true, calendarSyncError = null) }
             
             val accessToken = googleAuthRepository.getCalendarAccessToken(context)
             
             if (accessToken == null) {
-                _uiState.update { 
-                    it.copy(
-                        isSyncingCalendar = false,
-                        calendarSyncError = "Cannot sync: Google Access Token is missing. Please re-sign in or check token implementation."
-                    )
-                }
-                Log.e(TAG, "Failed to get access token for calendar sync.")
+                handleMissingToken()
                 return@launch
             }
             
-            // 1. Import events from Calendar (last 30 days and next 6 months)
+            // 1. Import
             val startDate = LocalDate.now().minusDays(30)
             val endDate = LocalDate.now().plusMonths(6)
             
             var importSuccess = false
             googleCalendarRepository.importEventsFromCalendar(startDate, endDate, accessToken)
                 .onSuccess { importedTasks ->
-                    // Logic to save imported tasks locally (e.g., using taskRepository.insertTasks(importedTasks))
                     importedTasks.forEach { task ->
-                        taskRepository.saveTask(task)
+                        taskUseCases.createTask(task)
                     }
                     importSuccess = true
-                    Log.d(TAG, "Successfully imported ${importedTasks.size} tasks from Google Calendar.")
                 }
                 .onFailure { e ->
                     _uiState.update { 
@@ -154,18 +195,16 @@ class GoogleAuthViewModel(
                             calendarSyncError = "Failed to import tasks: ${e.message}"
                         )
                     }
-                    Log.e(TAG, "Calendar import failed", e)
                 }
             
-            // If import failed, stop here
             if (!importSuccess && _uiState.value.calendarSyncError != null) {
                  _uiState.update { it.copy(isSyncingCalendar = false) }
                  return@launch
             }
 
-            // 2. Sync local tasks to Calendar (Push)
+            // 2. Push
             try {
-                val tasks = taskRepository.getTasks().first()
+                val tasks = taskUseCases.getTasks().first()
                 var pushSuccessCount = 0
                 var pushFailCount = 0
                 
@@ -174,13 +213,11 @@ class GoogleAuthViewModel(
                          googleCalendarRepository.syncTaskToCalendar(task, accessToken)
                              .onSuccess { eventId ->
                                  val updatedTask = task.copy(googleCalendarEventId = eventId)
-                                 taskRepository.saveTask(updatedTask)
+                                 taskUseCases.updateTask(updatedTask)
                                  pushSuccessCount++
                              }
                              .onFailure { pushFailCount++ }
                      } else {
-                         // Update existing?
-                         // For now, we only push new ones or update if logic permits
                          googleCalendarRepository.updateEventInCalendar(task, accessToken)
                              .onSuccess { pushSuccessCount++ }
                              .onFailure { pushFailCount++ }
@@ -195,7 +232,6 @@ class GoogleAuthViewModel(
                  }
                  
             } catch (e: Exception) {
-                Log.e(TAG, "Sync to calendar failed", e)
                  _uiState.update { 
                     it.copy(
                         isSyncingCalendar = false,
@@ -203,6 +239,15 @@ class GoogleAuthViewModel(
                     )
                  }
             }
+        }
+    }
+
+    private fun handleMissingToken() {
+        _uiState.update { 
+            it.copy(
+                isSyncingCalendar = false,
+                calendarSyncError = "Cannot sync: Google Access Token is missing. Please re-sign in or check token implementation."
+            )
         }
     }
     
@@ -221,9 +266,7 @@ class GoogleAuthViewModel(
             val success = googleAuthRepository.handleAuthorizationResult(context, data)
             if (success) {
                 _uiState.update { it.copy(calendarSyncError = null) }
-                // Retry sync/import logic if needed, strictly we might want to re-trigger toggleCalendarSync
-                // But for now, just clearing error is enough, user can toggle again
-                toggleCalendarSync(context, true)
+                performFullSync(context)
             } else {
                  _uiState.update { 
                     it.copy(calendarSyncError = "Failed to obtain calendar permission.") 

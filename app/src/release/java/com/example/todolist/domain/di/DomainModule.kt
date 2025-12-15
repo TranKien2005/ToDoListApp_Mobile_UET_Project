@@ -1,7 +1,12 @@
 package com.example.todolist.domain.di
-
+import com.example.todolist.BuildConfig
 import android.content.Context
+import androidx.credentials.CredentialManager
 import com.example.todolist.data.local.database.AppDatabase
+import com.example.todolist.data.repository.GoogleAuthRepository
+import com.example.todolist.data.repository.GoogleAuthRepositoryImpl
+import com.example.todolist.data.repository.GoogleCalendarRepository
+import com.example.todolist.data.repository.GoogleCalendarRepositoryImpl
 import com.example.todolist.data.repository.RoomUserRepositoryImpl
 import com.example.todolist.data.repository.RoomSettingsRepositoryImpl
 import com.example.todolist.data.repository.RoomTaskRepositoryImpl
@@ -69,6 +74,14 @@ class DomainModule(context: Context) {
         deleteReadNotifications = RealDeleteReadNotificationsUseCase(notificationRepository),
         createNotification = RealCreateNotificationUseCase(notificationRepository)
     )
+
+    val googleAuthRepository: GoogleAuthRepository = GoogleAuthRepositoryImpl(
+        credentialManager = CredentialManager.create(appContext),
+        webClientId = BuildConfig.GOOGLE_WEB_CLIENT_ID
+    )
+
+    // Google Calendar Repository
+    val googleCalendarRepository: GoogleCalendarRepository = GoogleCalendarRepositoryImpl()
 
     // AI Use Cases - Real implementation using GeminiService
     val aiUseCases = createAIUseCases(appContext, taskUseCases, missionUseCases)

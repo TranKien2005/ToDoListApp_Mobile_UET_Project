@@ -16,6 +16,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Cloud
+import androidx.compose.material.icons.filled.CloudDownload
+import androidx.compose.material.icons.filled.CloudUpload
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
@@ -230,6 +232,15 @@ fun SettingsScreen(
                                     }
                                 }
                             )
+
+                            // Manual Sync Buttons (Only visible if enabled and signed in)
+                            if (googleAuthState.isSignedIn && user?.isCalendarSyncEnabled == true) {
+                                SyncActionsSection(
+                                    isSyncing = googleAuthState.isSyncingCalendar,
+                                    onSyncAll = { googleAuthViewModel.syncNow(context) },
+                                    onImportEvents = { googleAuthViewModel.importEvents(context) }
+                                )
+                            }
 
                             // Determine which error to show (Sign-in error or Calendar Sync error)
                             val displayError = googleAuthState.error ?: googleAuthState.calendarSyncError
@@ -507,6 +518,66 @@ fun UserProfileSection(
                 modifier = Modifier.align(Alignment.End)
             ) {
                 Text(stringResource(R.string.save_profile))
+            }
+        }
+    }
+}
+
+@Composable
+private fun SyncActionsSection(
+    isSyncing: Boolean,
+    onSyncAll: () -> Unit,
+    onImportEvents: () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
+        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+                .animateContentSize(),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Text(
+                text = "Hành động đồng bộ",
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.primary
+            )
+
+            Button(
+                onClick = onSyncAll,
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !isSyncing,
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                if (isSyncing) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(20.dp),
+                        strokeWidth = 2.dp,
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
+                } else {
+                    Icon(Icons.Default.CloudUpload, contentDescription = null)
+                }
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(if (isSyncing) "Đang đồng bộ..." else "Đồng bộ tất cả công việc")
+            }
+
+            OutlinedButton(
+                onClick = onImportEvents,
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !isSyncing,
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Icon(Icons.Default.CloudDownload, contentDescription = null)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Nhập sự kiện từ Calendar")
             }
         }
     }

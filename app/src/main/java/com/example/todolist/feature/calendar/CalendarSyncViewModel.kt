@@ -7,7 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.todolist.core.model.Task
 import com.example.todolist.data.repository.GoogleCalendarRepository
 import com.example.todolist.data.repository.GoogleSignInRepository
-import com.example.todolist.domain.repository.TaskRepository
+import com.example.todolist.domain.usecase.TaskUseCases
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -37,7 +37,7 @@ data class CalendarSyncUiState(
 class CalendarSyncViewModel(
     private val signInRepository: GoogleSignInRepository,
     private val calendarRepository: GoogleCalendarRepository,
-    private val taskRepository: TaskRepository,
+    private val taskUseCases: TaskUseCases,
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : ViewModel() {
 
@@ -152,7 +152,7 @@ class CalendarSyncViewModel(
                         .onSuccess { eventId ->
                             // Update task with event ID in database
                             val updatedTask = task.copy(googleCalendarEventId = eventId)
-                            taskRepository.saveTask(updatedTask)
+                            taskUseCases.updateTask(updatedTask)
                         }
                 } else {
                     calendarRepository.updateEventInCalendar(task, accessToken)
@@ -203,7 +203,7 @@ class CalendarSyncViewModel(
                     return@launch
                 }
 
-                val tasks = taskRepository.getTasks().first()
+                val tasks = taskUseCases.getTasks().first()
                 var successCount = 0
                 var failCount = 0
 
@@ -213,7 +213,7 @@ class CalendarSyncViewModel(
                             calendarRepository.syncTaskToCalendar(task, accessToken)
                                 .onSuccess { eventId ->
                                     val updatedTask = task.copy(googleCalendarEventId = eventId)
-                                    taskRepository.saveTask(updatedTask)
+                                    taskUseCases.updateTask(updatedTask)
                                     successCount++
                                 }
                         } else {
@@ -290,7 +290,7 @@ class CalendarSyncViewModel(
                     .onSuccess { tasks ->
                         // Save imported tasks
                         tasks.forEach { task ->
-                            taskRepository.saveTask(task)
+                            taskUseCases.createTask(task)
                         }
                         _uiState.update {
                             it.copy(
