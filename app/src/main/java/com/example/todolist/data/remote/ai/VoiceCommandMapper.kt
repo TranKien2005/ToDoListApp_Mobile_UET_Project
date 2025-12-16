@@ -1,20 +1,18 @@
-package com.example.todolist.domain.ai
+package com.example.todolist.data.remote.ai
 
 import android.util.Log
-import com.example.todolist.domain.ai.models.CommandParams
-import com.example.todolist.domain.ai.models.VoiceAction
-import com.example.todolist.domain.ai.models.VoiceCommand
-import com.example.todolist.domain.ai.models.VoiceResponse
+import com.example.todolist.core.model.VoiceAction
+import com.example.todolist.core.model.VoiceCommand
+import com.example.todolist.core.model.VoiceResponse
 import kotlinx.serialization.json.Json
 
 /**
- * Parser để chuyển đổi JSON response từ Gemini thành VoiceCommand
+ * Mapper để chuyển đổi JSON response từ Gemini thành VoiceCommand
+ * Được đặt ở data layer vì chịu trách nhiệm parse external data format
  */
-class VoiceCommandParser {
+object VoiceCommandMapper {
 
-    companion object {
-        private const val TAG = "VoiceCommandParser"
-    }
+    private const val TAG = "VoiceCommandMapper"
 
     private val json = Json {
         ignoreUnknownKeys = true
@@ -23,9 +21,9 @@ class VoiceCommandParser {
     }
 
     /**
-     * Parse JSON response từ Gemini
+     * Parse JSON response từ AI thành VoiceCommand
      */
-    fun parseResponse(jsonResponse: String): Result<VoiceCommand> {
+    fun fromJsonResponse(jsonResponse: String): Result<VoiceCommand> {
         return try {
             // Clean response (remove markdown code blocks if any)
             val cleanedJson = cleanJsonResponse(jsonResponse)
@@ -50,6 +48,43 @@ class VoiceCommandParser {
         } catch (e: Exception) {
             Log.e(TAG, "Failed to parse response: $jsonResponse", e)
             Result.failure(e)
+        }
+    }
+
+    /**
+     * Validate command có đủ params không
+     */
+    fun validateCommand(command: VoiceCommand): Result<Unit> {
+        return when (command.action) {
+            VoiceAction.CREATE_TASK -> {
+                if (command.params.title.isNullOrBlank()) {
+                    Result.failure(Exception("Task title is required"))
+                } else {
+                    Result.success(Unit)
+                }
+            }
+            VoiceAction.CREATE_MISSION -> {
+                if (command.params.title.isNullOrBlank()) {
+                    Result.failure(Exception("Mission title is required"))
+                } else {
+                    Result.success(Unit)
+                }
+            }
+            VoiceAction.DELETE_TASK -> {
+                if (command.params.title.isNullOrBlank() && command.params.taskId == null) {
+                    Result.failure(Exception("Task title or ID is required"))
+                } else {
+                    Result.success(Unit)
+                }
+            }
+            VoiceAction.COMPLETE_MISSION, VoiceAction.DELETE_MISSION -> {
+                if (command.params.title.isNullOrBlank() && command.params.missionId == null) {
+                    Result.failure(Exception("Mission title or ID is required"))
+                } else {
+                    Result.success(Unit)
+                }
+            }
+            else -> Result.success(Unit)
         }
     }
 
@@ -84,42 +119,4 @@ class VoiceCommandParser {
             VoiceAction.UNKNOWN
         }
     }
-
-    /**
-     * Validate command có đủ params không
-     */
-    fun validateCommand(command: VoiceCommand): Result<Unit> {
-        return when (command.action) {
-            VoiceAction.CREATE_TASK -> {
-                if (command.params.title.isNullOrBlank()) {
-                    Result.failure(Exception("Task title is required"))
-                } else {
-                    Result.success(Unit)
-                }
-            }
-            VoiceAction.CREATE_MISSION -> {
-                if (command.params.title.isNullOrBlank()) {
-                    Result.failure(Exception("Mission title is required"))
-                } else {
-                    Result.success(Unit)
-                }
-            }
-            VoiceAction.COMPLETE_TASK, VoiceAction.DELETE_TASK -> {
-                if (command.params.title.isNullOrBlank() && command.params.taskId == null) {
-                    Result.failure(Exception("Task title or ID is required"))
-                } else {
-                    Result.success(Unit)
-                }
-            }
-            VoiceAction.COMPLETE_MISSION, VoiceAction.DELETE_MISSION -> {
-                if (command.params.title.isNullOrBlank() && command.params.missionId == null) {
-                    Result.failure(Exception("Mission title or ID is required"))
-                } else {
-                    Result.success(Unit)
-                }
-            }
-            else -> Result.success(Unit)
-        }
-    }
 }
-

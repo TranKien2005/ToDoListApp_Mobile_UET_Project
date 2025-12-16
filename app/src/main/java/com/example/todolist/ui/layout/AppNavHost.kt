@@ -1,10 +1,12 @@
 package com.example.todolist.ui.layout
 
+import android.app.Activity
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -12,6 +14,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.example.todolist.data.local.database.AppDatabase
 import com.example.todolist.feature.common.ViewModelProvider
 import com.example.todolist.feature.home.HomeScreen
 import com.example.todolist.feature.mission.MissionScreen
@@ -22,6 +25,9 @@ import androidx.compose.runtime.LaunchedEffect
 import com.example.todolist.core.model.Task
 import com.example.todolist.core.model.Mission
 import com.example.todolist.feature.notification.NotificationScreen
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlin.system.exitProcess
 
 @Composable
 fun AppNavHost() {
@@ -131,11 +137,23 @@ fun AppNavHost() {
 
             composable("settings") {
                 val settingsVm = ViewModelProvider.provideSettingsViewModel(context)
+                val coroutineScope = rememberCoroutineScope()
                 com.example.todolist.feature.settings.SettingsScreen(
                     viewModel = settingsVm,
                     userViewModel = userViewModel,
                     onBackClick = { navController.popBackStack() },
-                    modifier = Modifier.padding(padding)
+                    modifier = Modifier.padding(padding),
+                    onDeleteAccount = {
+                        coroutineScope.launch(Dispatchers.IO) {
+                            // Clear all database tables
+                            val database = AppDatabase.getInstance(context)
+                            database.clearAllTables()
+                            
+                            // Exit the app
+                            (context as? Activity)?.finishAffinity()
+                            exitProcess(0)
+                        }
+                    }
                 )
             }
 

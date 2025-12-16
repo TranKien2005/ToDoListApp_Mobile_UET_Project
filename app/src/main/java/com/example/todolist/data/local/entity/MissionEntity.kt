@@ -10,5 +10,8 @@ data class MissionEntity(
     val description: String?,
     val deadlineEpoch: Long,
     // Only store UNSPECIFIED or COMPLETED - MISSED is computed based on deadline
-    val status: String = "UNSPECIFIED" // "UNSPECIFIED" or "COMPLETED" only
+    val status: String = "UNSPECIFIED", // "UNSPECIFIED" or "COMPLETED" only
+    // images stored as JSON array of URIs
+    val images: String? = null
 )
+

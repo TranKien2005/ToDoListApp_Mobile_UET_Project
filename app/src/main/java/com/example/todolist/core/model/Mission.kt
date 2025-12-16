@@ -21,7 +21,9 @@ data class Mission(
     val description: String? = null,
     val deadline: LocalDateTime,
     // Only store UNSPECIFIED or COMPLETED in database
-    val storedStatus: MissionStoredStatus = MissionStoredStatus.UNSPECIFIED
+    val storedStatus: MissionStoredStatus = MissionStoredStatus.UNSPECIFIED,
+    // List of image URIs attached to this mission
+    val images: List<String> = emptyList()
 ) {
     // Computed property - NEVER stored in database
     val status: MissionStatus

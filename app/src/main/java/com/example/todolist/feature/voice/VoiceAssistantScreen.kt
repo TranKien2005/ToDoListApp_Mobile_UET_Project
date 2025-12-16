@@ -51,18 +51,18 @@ fun VoiceAssistantScreen(
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         Icon(Icons.Default.Mic, contentDescription = null)
-                        Text("Voice Assistant")
+                        Text(stringResource(R.string.voice_assistant))
                     }
                 },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.Default.ArrowBack, contentDescription = stringResource(R.string.cd_back))
                     }
                 },
                 actions = {
                     if (uiState.conversationHistory.isNotEmpty()) {
                         IconButton(onClick = { viewModel.clearConversation() }) {
-                            Icon(Icons.Default.Delete, contentDescription = "Clear")
+                            Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.cd_clear_conversation))
                         }
                     }
                 },
@@ -86,6 +86,8 @@ fun VoiceAssistantScreen(
                     )
                 )
         ) {
+            var textInput by remember { mutableStateOf("") }
+
             Column(
                 modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -104,26 +106,90 @@ fun VoiceAssistantScreen(
                     modifier = Modifier.padding(horizontal = 16.dp)
                 )
 
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-                // Voice Control Button
-                VoiceControlButton(
-                    isListening = uiState.isListening,
-                    isSpeaking = uiState.isSpeaking,
-                    isProcessing = uiState.isProcessing,
-                    hasPermission = micPermissionState.status.isGranted,
-                    onStartListening = {
-                        if (micPermissionState.status.isGranted) {
-                            viewModel.startListening()
-                        } else {
-                            micPermissionState.launchPermissionRequest()
+                // Text Input Row
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    // Text Field
+                    OutlinedTextField(
+                        value = textInput,
+                        onValueChange = { textInput = it },
+                        modifier = Modifier.weight(1f),
+                        placeholder = { Text(stringResource(R.string.voice_input_placeholder)) },
+                        singleLine = true,
+                        enabled = !uiState.isProcessing && !uiState.isListening,
+                        shape = RoundedCornerShape(24.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outline
+                        ),
+                        trailingIcon = {
+                            if (textInput.isNotBlank()) {
+                                IconButton(
+                                    onClick = {
+                                        viewModel.processTextInput(textInput)
+                                        textInput = ""
+                                    },
+                                    enabled = !uiState.isProcessing
+                                ) {
+                                    Icon(
+                                        Icons.Default.Send,
+                                        contentDescription = stringResource(R.string.cd_send),
+                                        tint = MaterialTheme.colorScheme.primary
+                                    )
+                                }
+                            }
                         }
-                    },
-                    onStopListening = { viewModel.stopListening() },
-                    onStopSpeaking = { viewModel.stopSpeaking() }
-                )
+                    )
 
-                Spacer(modifier = Modifier.height(32.dp))
+                    // Voice Button (smaller)
+                    FloatingActionButton(
+                        onClick = {
+                            when {
+                                uiState.isListening -> viewModel.stopListening()
+                                uiState.isSpeaking -> viewModel.stopSpeaking()
+                                else -> {
+                                    if (micPermissionState.status.isGranted) {
+                                        viewModel.startListening()
+                                    } else {
+                                        micPermissionState.launchPermissionRequest()
+                                    }
+                                }
+                            }
+                        },
+                        modifier = Modifier.size(56.dp),
+                        containerColor = when {
+                            uiState.isListening -> MaterialTheme.colorScheme.primary
+                            uiState.isSpeaking -> MaterialTheme.colorScheme.secondary
+                            uiState.isProcessing -> MaterialTheme.colorScheme.tertiary
+                            else -> MaterialTheme.colorScheme.primaryContainer
+                        }
+                    ) {
+                        Icon(
+                            imageVector = when {
+                                uiState.isListening -> Icons.Default.Stop
+                                uiState.isSpeaking -> Icons.Default.VolumeOff
+                                uiState.isProcessing -> Icons.Default.HourglassEmpty
+                                !micPermissionState.status.isGranted -> Icons.Default.MicOff
+                                else -> Icons.Default.Mic
+                            },
+                            contentDescription = stringResource(R.string.cd_voice_input),
+                            tint = if (uiState.isListening || uiState.isSpeaking || uiState.isProcessing) {
+                                MaterialTheme.colorScheme.onPrimary
+                            } else {
+                                MaterialTheme.colorScheme.onPrimaryContainer
+                            }
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
             }
         }
     }
@@ -160,12 +226,12 @@ fun ConversationHistory(
                     tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
                 )
                 Text(
-                    text = "Press the mic button to start",
+                    text = stringResource(R.string.voice_assistant_hint),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                 )
                 Text(
-                    text = "Try: \"Tạo task họp team lúc 2 giờ chiều\"",
+                    text = stringResource(R.string.voice_assistant_example),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
                 )
@@ -245,7 +311,7 @@ fun StatusSection(
                     strokeWidth = 2.dp
                 )
                 Text(
-                    text = "Processing with AI...",
+                    text = stringResource(R.string.voice_processing),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.primary
                 )
@@ -255,7 +321,7 @@ fun StatusSection(
         // Listening indicator
         if (uiState.isListening) {
             Text(
-                text = "🎤 Listening...",
+                text = "🎤 " + stringResource(R.string.voice_listening),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.primary,
                 fontWeight = FontWeight.Bold
@@ -265,7 +331,7 @@ fun StatusSection(
         // Speaking indicator
         if (uiState.isSpeaking) {
             Text(
-                text = "🔊 Speaking...",
+                text = "🔊 " + stringResource(R.string.voice_speaking),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.secondary,
                 fontWeight = FontWeight.Bold

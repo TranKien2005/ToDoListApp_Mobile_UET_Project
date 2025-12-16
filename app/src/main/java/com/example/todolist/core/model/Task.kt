@@ -19,6 +19,9 @@ data class Task(
     // Duration of the task in minutes. Null means no specified duration.
     val durationMinutes: Long? = null,
     // Repeat type. NONE means single occurrence on startTime date.
-    val repeatType: RepeatType = RepeatType.NONE
+    val repeatType: RepeatType = RepeatType.NONE,
+    // List of image URIs attached to this task
+    val images: List<String> = emptyList()
     // Note: tasks are schedule-only and do NOT have completion state
 )
+

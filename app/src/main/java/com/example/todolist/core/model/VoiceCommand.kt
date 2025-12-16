@@ -1,4 +1,4 @@
-package com.example.todolist.domain.ai.models
+package com.example.todolist.core.model
 
 import kotlinx.serialization.Serializable
 
@@ -6,16 +6,24 @@ import kotlinx.serialization.Serializable
  * Voice command action types
  */
 enum class VoiceAction {
+    // Task operations
     CREATE_TASK,
-    CREATE_MISSION,
-    LIST_TASKS,
-    LIST_MISSIONS,
-    COMPLETE_TASK,
-    COMPLETE_MISSION,
     DELETE_TASK,
-    DELETE_MISSION,
     UPDATE_TASK,
+    
+    // Mission operations
+    CREATE_MISSION,
+    DELETE_MISSION,
     UPDATE_MISSION,
+    COMPLETE_MISSION,
+    
+    // Query - để app xử lý và lấy data
+    QUERY,
+    
+    // Chat - trò chuyện thông thường
+    CHAT,
+    
+    // Unknown - không hiểu yêu cầu
     UNKNOWN
 }
 
@@ -31,7 +39,7 @@ data class CommandParams(
     val duration: Int? = null,          // In minutes (for tasks only)
     val taskId: Int? = null,            // For update/complete/delete operations
     val missionId: Int? = null,         // For update/complete/delete operations
-    val filter: String? = null          // For list operations: "today", "week", "month", "all"
+    val query: String? = null           // For QUERY action: "tasks_today", "missions_week", etc.
 )
 
 /**
@@ -52,4 +60,3 @@ data class VoiceCommand(
     val params: CommandParams,
     val responseText: String
 )
-

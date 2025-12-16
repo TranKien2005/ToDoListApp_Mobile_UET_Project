@@ -1,13 +1,15 @@
 package com.example.todolist.domain.di
 
+import android.content.Context
+import com.example.todolist.data.remote.ai.GeminiAiRepositoryImpl
 import com.example.todolist.domain.usecase.fakeMissionUseCases
 import com.example.todolist.domain.usecase.fakeTaskUseCases
 import com.example.todolist.domain.usecase.fakeUserUseCases
 import com.example.todolist.domain.usecase.fakeSettingsUseCases
 import com.example.todolist.domain.usecase.fakeNotificationUseCases
-import com.example.todolist.domain.usecase.createAIUseCases
+import com.example.todolist.domain.usecase.createFakeAIUseCases
 
-class DomainModule (context: android.content.Context) {
+class DomainModule(context: Context) {
     val appContext = context.applicationContext
     val taskUseCases = fakeTaskUseCases
     val missionUseCases = fakeMissionUseCases
@@ -15,6 +17,6 @@ class DomainModule (context: android.content.Context) {
     val settingsUseCases = fakeSettingsUseCases
     val notificationUseCases = fakeNotificationUseCases
 
-    // AI Use Cases - Mock implementation for debug
-    val aiUseCases = createAIUseCases(appContext, taskUseCases, missionUseCases)
+    // AI Use Cases - Fake implementation for debug
+    val aiUseCases = createFakeAIUseCases()
 }

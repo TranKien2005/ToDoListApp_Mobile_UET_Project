@@ -198,4 +198,44 @@
     <string name="time_minutes_ago">%1$dm ago</string>
     <string name="time_hours_ago">%1$dh ago</string>
     <string name="time_days_ago">%1$dd ago</string>
+
+    <!-- Voice Assistant Screen -->
+    <string name="voice_assistant">Voice Assistant</string>
+    <string name="voice_assistant_hint">Press the mic button to start</string>
+    <string name="voice_assistant_example">Try: \"Create a task meeting at 2pm\"</string>
+    <string name="voice_input_placeholder">Type a message…</string>
+    <string name="voice_processing">Processing with AI…</string>
+    <string name="voice_listening">Listening…</string>
+    <string name="voice_speaking">Speaking…</string>
+    <string name="voice_error_recording">Cannot start audio recording</string>
+    <string name="voice_error_audio">Cannot get audio data</string>
+    <string name="voice_error_processing">Processing error: %1$s</string>
+    <string name="voice_error_execute">Execution error: %1$s</string>
+    <string name="voice_error_tts">Text-to-speech error</string>
+    <string name="voice_error_unknown">Sorry, I didn\'t understand your request.</string>
+    <string name="voice_error_failed">An error occurred while processing your request.</string>
+    <string name="cd_send">Send</string>
+    <string name="cd_voice_input">Voice input</string>
+    <string name="cd_stop_listening">Stop listening</string>
+    <string name="cd_stop_speaking">Stop speaking</string>
+    <string name="cd_start_voice_input">Start voice input</string>
+    <string name="cd_clear_conversation">Clear conversation</string>
+
+    <!-- Delete Account -->
+    <string name="delete_account">Delete Account</string>
+    <string name="delete_account_title">Delete Account?</string>
+    <string name="delete_account_message">Are you sure you want to delete your account?\n\nThis will permanently delete all your data including tasks, missions, and settings.\n\nThis action cannot be undone.</string>
+    <string name="delete_account_confirm">Delete Everything</string>
+
+    <!-- Onboarding Profile Form -->
+    <string name="create_your_profile">Create Your Profile</string>
+    <string name="tell_us_about_yourself">Tell us about yourself</string>
+    <string name="enter_full_name">Enter your full name</string>
+    <string name="enter_age">Enter your age</string>
+    <string name="gender_male">👨 Male</string>
+    <string name="gender_female">👩 Female</string>
+    <string name="gender_other">🧑 Other</string>
+    <string name="validation_error">Please fill in all required fields correctly</string>
+    <string name="button_back">Back</string>
+    <string name="button_start">Start 🚀</string>
 </resources>

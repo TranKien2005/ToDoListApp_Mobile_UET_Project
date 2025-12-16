@@ -400,7 +400,7 @@ private fun ProfileFormScreen(
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
-                        text = "Create Your Profile",
+                        text = stringResource(R.string.create_your_profile),
                         style = MaterialTheme.typography.headlineLarge.copy(
                             fontWeight = FontWeight.ExtraBold,
                             fontSize = 32.sp
@@ -422,7 +422,7 @@ private fun ProfileFormScreen(
                 ) + fadeIn(animationSpec = tween(600, delayMillis = 400))
             ) {
                 Text(
-                    text = "Tell us about yourself",
+                    text = stringResource(R.string.tell_us_about_yourself),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
                     textAlign = TextAlign.Center
@@ -460,8 +460,8 @@ private fun ProfileFormScreen(
                                 fullName = it
                                 showError = false
                             },
-                            label = { Text("Full Name") },
-                            placeholder = { Text("Enter your full name") },
+                            label = { Text(stringResource(R.string.full_name)) },
+                            placeholder = { Text(stringResource(R.string.enter_full_name)) },
                             modifier = Modifier.fillMaxWidth(),
                             singleLine = true,
                             isError = showError && fullName.isBlank(),
@@ -481,8 +481,8 @@ private fun ProfileFormScreen(
                                     showError = false
                                 }
                             },
-                            label = { Text("Age") },
-                            placeholder = { Text("Enter your age") },
+                            label = { Text(stringResource(R.string.age)) },
+                            placeholder = { Text(stringResource(R.string.enter_age)) },
                             modifier = Modifier.fillMaxWidth(),
                             singleLine = true,
                             isError = showError && (age.isBlank() || age.toIntOrNull() == null || age.toIntOrNull()!! <= 0),
@@ -496,23 +496,23 @@ private fun ProfileFormScreen(
                         // Gender Dropdown
                         ExposedDropdownMenuBox(
                             expanded = expanded,
-                            onExpandedChange = { expanded = !expanded }
+                            onExpandedChange = { expanded = it }
                         ) {
                             OutlinedTextField(
                                 value = when (gender) {
-                                    Gender.MALE -> "👨 Male"
-                                    Gender.FEMALE -> "👩 Female"
-                                    Gender.OTHER -> "🧑 Other"
+                                    Gender.MALE -> stringResource(R.string.gender_male)
+                                    Gender.FEMALE -> stringResource(R.string.gender_female)
+                                    Gender.OTHER -> stringResource(R.string.gender_other)
                                 },
                                 onValueChange = {},
                                 readOnly = true,
-                                label = { Text("Gender") },
+                                label = { Text(stringResource(R.string.gender)) },
                                 trailingIcon = {
                                     ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
                                 },
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .menuAnchor(MenuAnchorType.PrimaryNotEditable),
+                                    .menuAnchor(),
                                 shape = RoundedCornerShape(16.dp),
                                 colors = OutlinedTextFieldDefaults.colors(
                                     focusedBorderColor = primaryColor,
@@ -524,21 +524,21 @@ private fun ProfileFormScreen(
                                 onDismissRequest = { expanded = false }
                             ) {
                                 DropdownMenuItem(
-                                    text = { Text("👨 Male") },
+                                    text = { Text(stringResource(R.string.gender_male)) },
                                     onClick = {
                                         gender = Gender.MALE
                                         expanded = false
                                     }
                                 )
                                 DropdownMenuItem(
-                                    text = { Text("👩 Female") },
+                                    text = { Text(stringResource(R.string.gender_female)) },
                                     onClick = {
                                         gender = Gender.FEMALE
                                         expanded = false
                                     }
                                 )
                                 DropdownMenuItem(
-                                    text = { Text("🧑 Other") },
+                                    text = { Text(stringResource(R.string.gender_other)) },
                                     onClick = {
                                         gender = Gender.OTHER
                                         expanded = false
@@ -559,7 +559,7 @@ private fun ProfileFormScreen(
                                 shape = RoundedCornerShape(12.dp)
                             ) {
                                 Text(
-                                    text = "⚠️ Please fill in all required fields correctly",
+                                    text = "⚠️ " + stringResource(R.string.validation_error),
                                     color = MaterialTheme.colorScheme.onErrorContainer,
                                     style = MaterialTheme.typography.bodyMedium.copy(
                                         fontWeight = FontWeight.Medium
@@ -588,7 +588,7 @@ private fun ProfileFormScreen(
                                 )
                             ) {
                                 Text(
-                                    text = "← Back",
+                                    text = "← " + stringResource(R.string.button_back),
                                     style = MaterialTheme.typography.titleMedium.copy(
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 16.sp
@@ -626,7 +626,7 @@ private fun ProfileFormScreen(
                                 )
                             ) {
                                 Text(
-                                    text = "Start 🚀",
+                                    text = stringResource(R.string.button_start),
                                     style = MaterialTheme.typography.titleMedium.copy(
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 16.sp

@@ -17,7 +17,7 @@ import com.example.todolist.data.local.entity.NotificationEntity
 
 @Database(
     entities = [TaskEntity::class, MissionEntity::class, UserEntity::class, SettingsEntity::class, NotificationEntity::class],
-    version = 4,
+    version = 5,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {

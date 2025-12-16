@@ -24,11 +24,13 @@ import com.example.todolist.R
 import com.example.todolist.core.model.Mission
 import com.example.todolist.core.model.Task
 import com.example.todolist.core.model.RepeatType
+import com.example.todolist.core.model.MissionStoredStatus
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.LocalDate
 import java.util.Locale
 import com.example.todolist.feature.common.AddItemViewModel
+import android.net.Uri
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -77,6 +79,13 @@ fun AddItemDialog(
     var descriptionError by remember { mutableStateOf<String?>(null) }
     var durationError by remember { mutableStateOf<String?>(null) }
     var dateTimeError by remember { mutableStateOf<String?>(null) }
+
+    // Images state
+    var images by remember { 
+        mutableStateOf(editTask?.images ?: editMission?.images ?: emptyList<String>()) 
+    }
+    var showImagePicker by remember { mutableStateOf(false) }
+    var showImageViewer by remember { mutableStateOf(false) }
 
     // State for DatePicker and TimePicker dialogs
     var showDatePicker by remember { mutableStateOf(false) }
@@ -176,6 +185,30 @@ fun AddItemDialog(
             },
             text = {
                 TimePicker(state = timePickerState)
+            }
+        )
+    }
+
+    // Image Picker Dialog
+    if (showImagePicker) {
+        ImagePickerDialog(
+            onDismiss = { showImagePicker = false },
+            onImageSelected = { uri ->
+                images = images + uri.toString()
+            }
+        )
+    }
+
+    // Image Viewer
+    if (showImageViewer && images.isNotEmpty()) {
+        ImageViewerScreen(
+            images = images,
+            onDismiss = { showImageViewer = false },
+            onDeleteImage = { index ->
+                images = images.toMutableList().apply { removeAt(index) }
+                if (images.isEmpty()) {
+                    showImageViewer = false
+                }
             }
         )
     }
@@ -482,6 +515,33 @@ fun AddItemDialog(
                                 }
                             }
                         }
+
+                        // Images Section
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(16.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceVariant
+                            )
+                        ) {
+                            Column(modifier = Modifier.padding(16.dp)) {
+                                Text(
+                                    "📷 Images",
+                                    style = MaterialTheme.typography.titleSmall.copy(
+                                        fontWeight = FontWeight.Bold
+                                    ),
+                                    color = primaryColor
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+                                ImageCountPreview(
+                                    images = images,
+                                    onImageClick = { showImageViewer = true },
+                                    onAddClick = { showImagePicker = true }
+                                )
+                            }
+                        }
                     }
                 }
 
@@ -522,7 +582,8 @@ fun AddItemDialog(
                                         description = description.trim().ifBlank { null },
                                         startTime = dateTime,
                                         durationMinutes = durationText.toLongOrNull(),
-                                        repeatType = repeatType
+                                        repeatType = repeatType,
+                                        images = images
                                     )
                                     addItemViewModel.saveTask(task)
                                 } else {
@@ -531,7 +592,8 @@ fun AddItemDialog(
                                         title = title.trim(),
                                         description = description.trim().ifBlank { null },
                                         deadline = dateTime,
-                                        storedStatus = editMission?.storedStatus ?: com.example.todolist.core.model.MissionStoredStatus.UNSPECIFIED
+                                        storedStatus = editMission?.storedStatus ?: MissionStoredStatus.UNSPECIFIED,
+                                        images = images
                                     )
                                     addItemViewModel.saveMission(mission)
                                 }

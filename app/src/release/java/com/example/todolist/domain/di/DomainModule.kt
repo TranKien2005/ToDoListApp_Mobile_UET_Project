@@ -2,6 +2,7 @@ package com.example.todolist.domain.di
 
 import android.content.Context
 import com.example.todolist.data.local.database.AppDatabase
+import com.example.todolist.data.remote.ai.GeminiAiRepositoryImpl
 import com.example.todolist.data.repository.RoomUserRepositoryImpl
 import com.example.todolist.data.repository.RoomSettingsRepositoryImpl
 import com.example.todolist.data.repository.RoomTaskRepositoryImpl
@@ -22,6 +23,7 @@ class DomainModule(context: Context) {
     private val taskRepository = RoomTaskRepositoryImpl(database.taskDao())
     private val missionRepository = RoomMissionRepositoryImpl(database.missionDao())
     private val notificationRepository = RoomNotificationRepositoryImpl(database.notificationDao())
+    private val aiRepository = GeminiAiRepositoryImpl(appContext)
 
     // Notification Scheduler
     private val notificationScheduler = NotificationScheduler(appContext)
@@ -70,6 +72,7 @@ class DomainModule(context: Context) {
         createNotification = RealCreateNotificationUseCase(notificationRepository)
     )
 
-    // AI Use Cases - Real implementation using GeminiService
-    val aiUseCases = createAIUseCases(appContext, taskUseCases, missionUseCases)
+    // AI Use Cases - Real implementation using AiRepository
+    val aiUseCases = createAIUseCases(aiRepository, taskUseCases, missionUseCases)
 }
+

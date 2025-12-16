@@ -1,6 +1,6 @@
 package com.example.todolist.domain.usecase
 
-import com.example.todolist.domain.ai.models.VoiceCommand
+import com.example.todolist.core.model.VoiceCommand
 
 /**
  * Interface for AI-related use cases

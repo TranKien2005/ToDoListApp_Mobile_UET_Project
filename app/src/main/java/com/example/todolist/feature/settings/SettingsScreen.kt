@@ -10,8 +10,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -33,12 +35,14 @@ fun SettingsScreen(
     viewModel: SettingsViewModel,
     userViewModel: UserViewModel,
     onBackClick: () -> Unit,
+    onDeleteAccount: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val settings by viewModel.settings.collectAsState()
     val user by userViewModel.user.collectAsState()
 
     var isVisible by remember { mutableStateOf(false) }
+    var showDeleteAccountDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         isVisible = true
@@ -58,6 +62,52 @@ fun SettingsScreen(
         ),
         label = "offset"
     )
+
+    // Delete Account Confirmation Dialog
+    if (showDeleteAccountDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteAccountDialog = false },
+            icon = {
+                Icon(
+                    imageVector = Icons.Default.Warning,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.size(48.dp)
+                )
+            },
+            title = {
+                Text(
+                    text = stringResource(R.string.delete_account_title),
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            text = {
+                Text(
+                    text = stringResource(R.string.delete_account_message),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showDeleteAccountDialog = false
+                        onDeleteAccount()
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error
+                    )
+                ) {
+                    Text(stringResource(R.string.delete_account_confirm))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteAccountDialog = false }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
+        )
+    }
 
     Scaffold(
         topBar = {
@@ -212,6 +262,39 @@ fun SettingsScreen(
                         )
                     }
                 }
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                // Delete Account Button
+                AnimatedVisibility(
+                    visible = isVisible,
+                    enter = slideInVertically(
+                        initialOffsetY = { it },
+                        animationSpec = tween(600, delayMillis = 400)
+                    ) + fadeIn(animationSpec = tween(600, delayMillis = 400))
+                ) {
+                    Button(
+                        onClick = { showDeleteAccountDialog = true },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.error
+                        ),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = null,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = stringResource(R.string.delete_account),
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
             }
         }
     }

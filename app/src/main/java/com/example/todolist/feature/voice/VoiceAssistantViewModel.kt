@@ -145,6 +145,56 @@ class VoiceAssistantViewModel(
     }
 
     /**
+     * Xử lý text input từ người dùng (thay vì voice)
+     */
+    fun processTextInput(text: String) {
+        if (text.isBlank()) return
+
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isProcessing = true, error = null)
+
+            // Thêm user input vào conversation
+            addToConversation(text, isUser = true)
+
+            // Step 1: Gửi text đến AI
+            val commandResult = aiUseCases.processVoiceCommand(text)
+            if (commandResult.isFailure) {
+                _uiState.value = _uiState.value.copy(
+                    isProcessing = false,
+                    error = "Lỗi xử lý: ${commandResult.exceptionOrNull()?.message}"
+                )
+                addToConversation("Xin lỗi, tôi không hiểu yêu cầu của bạn.", isUser = false)
+                return@launch
+            }
+
+            val command = commandResult.getOrNull()!!
+
+            // Step 2: Thực thi command
+            val executeResult = aiUseCases.executeVoiceCommand(command)
+            if (executeResult.isFailure) {
+                _uiState.value = _uiState.value.copy(
+                    isProcessing = false,
+                    error = "Lỗi thực thi: ${executeResult.exceptionOrNull()?.message}"
+                )
+                addToConversation("Có lỗi xảy ra khi thực hiện yêu cầu.", isUser = false)
+                return@launch
+            }
+
+            // Step 3: Phản hồi
+            val responseText = executeResult.getOrNull() ?: command.responseText
+            addToConversation(responseText, isUser = false)
+
+            // Có thể đọc phản hồi bằng TTS (tùy chọn)
+            // speakResponse(responseText)
+
+            _uiState.value = _uiState.value.copy(
+                isProcessing = false,
+                aiResponse = responseText
+            )
+        }
+    }
+
+    /**
      * Đọc phản hồi bằng TTS
      */
     private fun speakResponse(text: String) {

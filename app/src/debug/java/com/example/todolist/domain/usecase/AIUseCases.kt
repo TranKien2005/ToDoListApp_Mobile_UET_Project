@@ -1,11 +1,9 @@
 package com.example.todolist.domain.usecase
 
-import android.content.Context
 import android.util.Log
-import com.example.todolist.domain.ai.VoiceCommandExecutor
-import com.example.todolist.domain.ai.models.CommandParams
-import com.example.todolist.domain.ai.models.VoiceAction
-import com.example.todolist.domain.ai.models.VoiceCommand
+import com.example.todolist.core.model.CommandParams
+import com.example.todolist.core.model.VoiceAction
+import com.example.todolist.core.model.VoiceCommand
 
 /**
  * Mock implementation of AI use cases for debug builds
@@ -14,7 +12,7 @@ import com.example.todolist.domain.ai.models.VoiceCommand
 class MockProcessVoiceCommandUseCase : ProcessVoiceCommandUseCase {
 
     companion object {
-        private const val TAG = "MockProcessVoiceCommand"
+        private const val TAG = "MockProcessVoiceCmd"
     }
 
     override suspend fun invoke(userInput: String): Result<VoiceCommand> {
@@ -32,7 +30,7 @@ class MockProcessVoiceCommandUseCase : ProcessVoiceCommandUseCase {
                         description = "Created from mock AI",
                         duration = 60
                     ),
-                    responseText = "Đã tạo task mới trong chế độ debug"
+                    responseText = "Mock: Created a new task"
                 )
             }
 
@@ -43,33 +41,27 @@ class MockProcessVoiceCommandUseCase : ProcessVoiceCommandUseCase {
                         title = extractTitle(userInput) ?: "Mock Mission",
                         description = "Created from mock AI"
                     ),
-                    responseText = "Đã tạo mission mới trong chế độ debug"
+                    responseText = "Mock: Created a new mission"
                 )
             }
 
-            lowerInput.contains("danh sách task") || lowerInput.contains("list task") -> {
+            lowerInput.contains("xóa task") || lowerInput.contains("delete task") -> {
                 VoiceCommand(
-                    action = VoiceAction.LIST_TASKS,
-                    params = CommandParams(filter = "all"),
-                    responseText = "Hiển thị danh sách tasks (mock)"
-                )
-            }
-
-            lowerInput.contains("danh sách mission") || lowerInput.contains("list mission") -> {
-                VoiceCommand(
-                    action = VoiceAction.LIST_MISSIONS,
-                    params = CommandParams(filter = "all"),
-                    responseText = "Hiển thị danh sách missions (mock)"
-                )
-            }
-
-            lowerInput.contains("hoàn thành task") || lowerInput.contains("complete task") -> {
-                VoiceCommand(
-                    action = VoiceAction.COMPLETE_TASK,
+                    action = VoiceAction.DELETE_TASK,
                     params = CommandParams(
                         title = extractTitle(userInput) ?: "Task"
                     ),
-                    responseText = "Đã đánh dấu task hoàn thành (mock)"
+                    responseText = "Mock: Task deleted"
+                )
+            }
+
+            lowerInput.contains("xóa mission") || lowerInput.contains("delete mission") -> {
+                VoiceCommand(
+                    action = VoiceAction.DELETE_MISSION,
+                    params = CommandParams(
+                        title = extractTitle(userInput) ?: "Mission"
+                    ),
+                    responseText = "Mock: Mission deleted"
                 )
             }
 
@@ -79,15 +71,23 @@ class MockProcessVoiceCommandUseCase : ProcessVoiceCommandUseCase {
                     params = CommandParams(
                         title = extractTitle(userInput) ?: "Mission"
                     ),
-                    responseText = "Đã đánh dấu mission hoàn thành (mock)"
+                    responseText = "Mock: Mission completed"
+                )
+            }
+
+            lowerInput.contains("task") || lowerInput.contains("mission") -> {
+                VoiceCommand(
+                    action = VoiceAction.QUERY,
+                    params = CommandParams(query = "tasks_today"),
+                    responseText = "Mock: Here are your items"
                 )
             }
 
             else -> {
                 VoiceCommand(
-                    action = VoiceAction.UNKNOWN,
+                    action = VoiceAction.CHAT,
                     params = CommandParams(),
-                    responseText = "Xin lỗi, tôi chưa hiểu lệnh này trong chế độ debug. Thử: 'tạo task', 'tạo mission', 'danh sách task'"
+                    responseText = "Mock: Hello! I'm the debug assistant. Try: 'create task meeting'"
                 )
             }
         }
@@ -96,8 +96,9 @@ class MockProcessVoiceCommandUseCase : ProcessVoiceCommandUseCase {
     }
 
     private fun extractTitle(input: String): String? {
-        // Simple extraction - get text after common keywords
-        val keywords = listOf("tạo task", "create task", "tạo mission", "create mission", "hoàn thành", "complete")
+        val keywords = listOf("tạo task", "create task", "tạo mission", "create mission", 
+            "xóa task", "delete task", "xóa mission", "delete mission", 
+            "hoàn thành", "complete")
         for (keyword in keywords) {
             val index = input.lowercase().indexOf(keyword)
             if (index >= 0) {
@@ -123,7 +124,6 @@ class MockProcessAudioCommandUseCase : ProcessAudioCommandUseCase {
     override suspend fun invoke(audioBytes: ByteArray, mimeType: String): Result<VoiceCommand> {
         Log.d(TAG, "Mock processing audio: ${audioBytes.size} bytes")
 
-        // Mock: giả lập transcribe
         return Result.success(
             VoiceCommand(
                 action = VoiceAction.CREATE_TASK,
@@ -131,7 +131,7 @@ class MockProcessAudioCommandUseCase : ProcessAudioCommandUseCase {
                     title = "Mock Task from Audio",
                     duration = 60
                 ),
-                responseText = "Debug: Đã xử lý audio mock (không có Gemini API)"
+                responseText = "Mock: Created task from audio (debug mode - no Gemini API)"
             )
         )
     }
@@ -139,31 +139,27 @@ class MockProcessAudioCommandUseCase : ProcessAudioCommandUseCase {
 
 /**
  * Mock execute voice command for debug builds
- * Uses real executor but with mock data
  */
-class MockExecuteVoiceCommandUseCase(
-    private val taskUseCases: TaskUseCases,
-    private val missionUseCases: MissionUseCases
-) : ExecuteVoiceCommandUseCase {
+class MockExecuteVoiceCommandUseCase : ExecuteVoiceCommandUseCase {
 
-    private val executor = VoiceCommandExecutor(taskUseCases, missionUseCases)
+    companion object {
+        private const val TAG = "MockExecuteVoiceCmd"
+    }
 
     override suspend fun invoke(command: VoiceCommand): Result<String> {
-        return executor.execute(command)
+        Log.d(TAG, "Mock executing command: ${command.action}")
+        // Just return the response text - no actual execution in debug
+        return Result.success(command.responseText)
     }
 }
 
 /**
- * Factory function to create AIUseCases for debug builds
+ * Factory function to create fake AIUseCases for debug builds
  */
-fun createAIUseCases(
-    context: Context,
-    taskUseCases: TaskUseCases,
-    missionUseCases: MissionUseCases
-): AIUseCases {
+fun createFakeAIUseCases(): AIUseCases {
     return AIUseCases(
         processVoiceCommand = MockProcessVoiceCommandUseCase(),
         processAudioCommand = MockProcessAudioCommandUseCase(),
-        executeVoiceCommand = MockExecuteVoiceCommandUseCase(taskUseCases, missionUseCases)
+        executeVoiceCommand = MockExecuteVoiceCommandUseCase()
     )
 }
