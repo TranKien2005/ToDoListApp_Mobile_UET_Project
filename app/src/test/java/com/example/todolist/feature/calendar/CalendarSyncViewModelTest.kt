@@ -5,7 +5,7 @@ import com.example.todolist.core.model.RepeatType
 import com.example.todolist.core.model.Task
 import com.example.todolist.data.repository.GoogleCalendarRepository
 import com.example.todolist.data.repository.GoogleSignInRepository
-import com.example.todolist.domain.repository.TaskRepository
+import com.example.todolist.domain.usecase.TaskUseCases
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import io.mockk.*
 import kotlinx.coroutines.Dispatchers
@@ -35,7 +35,7 @@ class CalendarSyncViewModelTest {
     private lateinit var viewModel: CalendarSyncViewModel
     private lateinit var signInRepository: GoogleSignInRepository
     private lateinit var calendarRepository: GoogleCalendarRepository
-    private lateinit var taskRepository: TaskRepository
+    private lateinit var taskUseCases: TaskUseCases
 
     private val testDispatcher = StandardTestDispatcher()
 
@@ -57,7 +57,7 @@ class CalendarSyncViewModelTest {
         
         signInRepository = mockk()
         calendarRepository = mockk()
-        taskRepository = mockk()
+        taskUseCases = mockk()
 
         // Default stubs
         every { signInRepository.getCurrentAccount() } returns null
@@ -67,9 +67,9 @@ class CalendarSyncViewModelTest {
         coEvery { signInRepository.signOut() } returns Result.success(Unit)
         coEvery { signInRepository.handleSignInResult(any()) } returns Result.failure(Exception("Not stubbed"))
         
-        every { taskRepository.getTasks() } returns flowOf(listOf(testTask))
-        coEvery { taskRepository.saveTask(any()) } just Runs
-        coEvery { taskRepository.deleteTask(any()) } just Runs
+        every { taskUseCases.getTasks() } returns flowOf(listOf(testTask))
+        coEvery { taskUseCases.updateTask(any()) } returns Unit
+        coEvery { taskUseCases.createTask(any()) } returns Unit
         
         coEvery { calendarRepository.syncTaskToCalendar(any(), any()) } returns Result.failure(Exception("Not stubbed"))
         coEvery { calendarRepository.updateEventInCalendar(any(), any()) } returns Result.failure(Exception("Not stubbed"))
@@ -80,7 +80,7 @@ class CalendarSyncViewModelTest {
         viewModel = CalendarSyncViewModel(
             signInRepository = signInRepository,
             calendarRepository = calendarRepository,
-            taskRepository = taskRepository,
+            taskUseCases = taskUseCases,
             ioDispatcher = testDispatcher  // <-- This is the fix!
         )
     }
@@ -191,7 +191,7 @@ class CalendarSyncViewModelTest {
         coEvery { 
             calendarRepository.syncTaskToCalendar(testTask, testAccessToken) 
         } returns Result.success(eventId)
-        coEvery { taskRepository.saveTask(any()) } just Runs
+        coEvery { taskUseCases.createTask(any()) } just Runs
 
         viewModel.syncTask(testTask)
         testDispatcher.scheduler.advanceUntilIdle()
@@ -202,7 +202,7 @@ class CalendarSyncViewModelTest {
         assertNull("error should be null on success", state.error)
         
         coVerify { calendarRepository.syncTaskToCalendar(testTask, testAccessToken) }
-        coVerify { taskRepository.saveTask(match { it.googleCalendarEventId == eventId }) }
+        coVerify { taskUseCases.updateTask(match { it.googleCalendarEventId == eventId }) }
     }
 
     @Test
@@ -281,12 +281,12 @@ class CalendarSyncViewModelTest {
             testTask,
             testTask.copy(id = 2, title = "Task 2")
         )
-        every { taskRepository.getTasks() } returns flowOf(tasks)
+        every { taskUseCases.getTasks() } returns flowOf(tasks)
         coEvery { signInRepository.getAccessToken() } returns testAccessToken
         coEvery { 
             calendarRepository.syncTaskToCalendar(any(), testAccessToken) 
         } returns Result.success("event_id")
-        coEvery { taskRepository.saveTask(any()) } just Runs
+        coEvery { taskUseCases.updateTask(any()) } returns Unit
 
         viewModel.syncAllTasks()
         testDispatcher.scheduler.advanceUntilIdle()
@@ -303,7 +303,7 @@ class CalendarSyncViewModelTest {
             testTask,
             testTask.copy(id = 2, title = "Task 2")
         )
-        every { taskRepository.getTasks() } returns flowOf(tasks)
+        every { taskUseCases.getTasks() } returns flowOf(tasks)
         coEvery { signInRepository.getAccessToken() } returns testAccessToken
         coEvery { 
             calendarRepository.syncTaskToCalendar(match { it.id == 1 }, testAccessToken) 
@@ -311,7 +311,7 @@ class CalendarSyncViewModelTest {
         coEvery { 
             calendarRepository.syncTaskToCalendar(match { it.id == 2 }, testAccessToken) 
         } returns Result.failure(Exception("API error"))
-        coEvery { taskRepository.saveTask(any()) } just Runs
+        coEvery { taskUseCases.updateTask(any()) } returns Unit
 
         viewModel.syncAllTasks()
         testDispatcher.scheduler.advanceUntilIdle()
@@ -365,7 +365,7 @@ class CalendarSyncViewModelTest {
         coEvery { 
             calendarRepository.importEventsFromCalendar(startDate, endDate, testAccessToken) 
         } returns Result.success(importedTasks)
-        coEvery { taskRepository.saveTask(any()) } just Runs
+        coEvery { taskUseCases.createTask(any()) } returns Unit
 
         viewModel.importFromCalendar(startDate, endDate)
         testDispatcher.scheduler.advanceUntilIdle()
@@ -373,7 +373,7 @@ class CalendarSyncViewModelTest {
         val state = viewModel.uiState.value
         assertFalse("isSyncing should be false", state.isSyncing)
         assertTrue("Should report 1 imported event", state.lastSyncResult?.contains("Imported 1 events") == true)
-        coVerify { taskRepository.saveTask(any()) }
+        coVerify { taskUseCases.createTask(any()) }
     }
 
     @Test
@@ -418,7 +418,7 @@ class CalendarSyncViewModelTest {
         coEvery { 
             calendarRepository.syncTaskToCalendar(testTask, testAccessToken) 
         } returns Result.success("event_id")
-        coEvery { taskRepository.saveTask(any()) } just Runs
+        coEvery { taskUseCases.updateTask(any()) } returns Unit
         
         viewModel.syncTask(testTask)
         testDispatcher.scheduler.advanceUntilIdle()

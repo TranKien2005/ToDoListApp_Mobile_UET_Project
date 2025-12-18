@@ -5,6 +5,7 @@ import com.example.todolist.data.repository.GoogleAuthRepository
 import com.example.todolist.data.repository.GoogleCalendarRepository
 import com.example.todolist.data.repository.GoogleUser
 import com.example.todolist.domain.repository.TaskRepository
+import com.example.todolist.domain.usecase.TaskUseCases
 import io.mockk.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -28,7 +29,7 @@ class GoogleAuthViewModelTest {
     private lateinit var viewModel: GoogleAuthViewModel
     private lateinit var authRepository: GoogleAuthRepository
     private lateinit var calendarRepository: GoogleCalendarRepository
-    private lateinit var taskRepository: TaskRepository
+    private lateinit var taskUseCases: TaskUseCases
     private lateinit var mockContext: Context
 
     private val testDispatcher = StandardTestDispatcher()
@@ -46,18 +47,18 @@ class GoogleAuthViewModelTest {
 
         authRepository = mockk(relaxed = true)
         calendarRepository = mockk(relaxed = true)
-        taskRepository = mockk(relaxed = true)
+        taskUseCases = mockk(relaxed = true)
         mockContext = mockk(relaxed = true)
 
         // Default mocks
         every { authRepository.isSignedIn() } returns false
         every { authRepository.getCurrentUser() } returns null
-        every { taskRepository.getTasks() } returns flowOf(emptyList())
+        every { taskUseCases.getTasks() } returns flowOf(emptyList())
 
         viewModel = GoogleAuthViewModel(
             googleAuthRepository = authRepository,
             googleCalendarRepository = calendarRepository,
-            taskRepository = taskRepository
+            taskUseCases
         )
     }
 
@@ -87,7 +88,7 @@ class GoogleAuthViewModelTest {
         every { authRepository.getCurrentUser() } returns testGoogleUser
 
         // When - create new ViewModel
-        viewModel = GoogleAuthViewModel(authRepository, calendarRepository, taskRepository)
+        viewModel = GoogleAuthViewModel(authRepository, calendarRepository, taskUseCases)
 
         // Then
         val state = viewModel.uiState.value
@@ -161,7 +162,7 @@ class GoogleAuthViewModelTest {
         // Given - simulate signed in state first
         every { authRepository.isSignedIn() } returns true
         every { authRepository.getCurrentUser() } returns testGoogleUser
-        viewModel = GoogleAuthViewModel(authRepository, calendarRepository, taskRepository)
+        viewModel = GoogleAuthViewModel(authRepository, calendarRepository, taskUseCases)
         assertTrue(viewModel.uiState.value.isSignedIn)
 
         coEvery { authRepository.signOut() } just Runs

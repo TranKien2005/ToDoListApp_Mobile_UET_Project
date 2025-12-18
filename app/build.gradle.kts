@@ -77,45 +77,49 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
     // Material extended icons (managed by Compose BOM)
-    implementation("androidx.compose.material:material-icons-extended")
+    implementation(libs.androidx.compose.material.material.icons.extended13)
     // Google Fonts for Jetpack Compose
-    implementation("androidx.compose.ui:ui-text-google-fonts:1.6.0")
+    implementation(libs.androidx.compose.ui.ui.text.google.fonts17)
     // Navigation for Compose
-    implementation("androidx.navigation:navigation-compose:2.7.3")
+    implementation(libs.androidx.navigation.navigation.compose12)
     // Coil for image loading in Compose
-    implementation("io.coil-kt:coil-compose:2.5.0")
+    implementation(libs.io.coil.kt.coil.compose13)
     // Network: Retrofit + Gson + OkHttp
-    implementation("com.squareup.retrofit2:retrofit:2.9.0")
-    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
-    implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")
+    implementation(libs.com.squareup.retrofit2.retrofit10)
+    implementation(libs.com.squareup.retrofit2.converter.gson9)
+    implementation(libs.com.squareup.okhttp3.logging.interceptor8)
     // Room
-    implementation("androidx.room:room-ktx:2.8.4")
-    implementation("androidx.room:room-runtime:2.8.4")
+    implementation(libs.androidx.room.room.ktx8)
+    implementation(libs.androidx.room.room.runtime21)
     kapt("androidx.room:room-compiler:2.8.4")
     // Desugaring libs for java.time on older devices
-    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
+    coreLibraryDesugaring(libs.com.android.tools.desugar.jdk.libs6)
     // WorkManager for notifications
-    implementation("androidx.work:work-runtime-ktx:2.9.0")
+    implementation(libs.androidx.work.work.runtime.ktx6)
 
     // Gemini AI
-    implementation("com.google.ai.client.generativeai:generativeai:0.1.2")
+    implementation(libs.google.generativeai)
+
+    // PyTorch Mobile for ML inference (Translation model - 11M params)
+    implementation(libs.pytorch.android)
+    implementation(libs.pytorch.pytorch.android.torchvision)
 
     // JSON serialization
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
+    implementation(libs.org.jetbrains.kotlinx.kotlinx.serialization.json5)
 
     // Accompanist Permissions
-    implementation("com.google.accompanist:accompanist-permissions:0.32.0")
+    implementation(libs.com.google.accompanist.accompanist.permissions)
 
     // Google Sign-In (Credential Manager)
-    implementation("androidx.credentials:credentials:1.3.0")
-    implementation("androidx.credentials:credentials-play-services-auth:1.3.0")
-    implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1")
+    implementation(libs.androidx.credentials.credentials2)
+    implementation(libs.androidx.credentials.credentials.play.services.auth28)
+    implementation(libs.com.google.android.libraries.identity.googleid.googleid3)
 
     // Google Play Services Auth (for OAuth with scopes)
-    implementation("com.google.android.gms:play-services-auth:21.0.0")
+    implementation(libs.com.google.android.gms.play.services.auth16)
 
     // Coroutines Play Services (for await() on Tasks)
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
+    implementation(libs.org.jetbrains.kotlinx.kotlinx.coroutines.play.services4)
 
     // Google API Client for Calendar
     implementation("com.google.api-client:google-api-client-android:2.2.0") {
