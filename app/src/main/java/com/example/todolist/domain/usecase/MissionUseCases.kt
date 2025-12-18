@@ -40,8 +40,7 @@ enum class StatsGranularity {
     DAY,             // Single day - shows missions for that specific day
     DAY_OF_WEEK,     // Week view - shows missions grouped by day of week
     WEEK_OF_MONTH,   // Month view - shows missions grouped by week
-    MONTH_OF_YEAR,   // Year view - shows missions grouped by month
-    YEAR             // Multi-year view - shows missions grouped by year
+    MONTH_OF_YEAR,   // Year view - shows missions grouped by month // Multi-year view - shows missions grouped by year
 }
 
 /**

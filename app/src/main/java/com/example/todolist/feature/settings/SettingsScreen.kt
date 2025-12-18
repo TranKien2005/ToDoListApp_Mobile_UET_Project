@@ -53,17 +53,6 @@ fun SettingsScreen(
     val secondaryColor = MaterialTheme.colorScheme.secondary
     val tertiaryColor = MaterialTheme.colorScheme.tertiary
 
-    val infiniteTransition = rememberInfiniteTransition(label = "background")
-    val animatedOffset by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1000f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(20000, easing = LinearEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "offset"
-    )
-
     // Delete Account Confirmation Dialog
     if (showDeleteAccountDialog) {
         AlertDialog(
@@ -134,6 +123,7 @@ fun SettingsScreen(
             )
         }
     ) { padding ->
+        // Static gradient - no animation for better scroll performance
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -143,11 +133,6 @@ fun SettingsScreen(
                             primaryColor.copy(alpha = 0.08f),
                             secondaryColor.copy(alpha = 0.04f),
                             tertiaryColor.copy(alpha = 0.06f)
-                        ),
-                        start = androidx.compose.ui.geometry.Offset(animatedOffset, animatedOffset),
-                        end = androidx.compose.ui.geometry.Offset(
-                            animatedOffset + 1000f,
-                            animatedOffset + 1000f
                         )
                     )
                 )
@@ -386,14 +371,24 @@ fun UserProfileSection(
                 value = editedName,
                 onValueChange = { editedName = it },
                 label = { Text(stringResource(R.string.full_name)) },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    focusedLabelColor = MaterialTheme.colorScheme.primary
+                )
             )
 
             OutlinedTextField(
                 value = editedAge,
                 onValueChange = { if (it.all { char -> char.isDigit() }) editedAge = it },
                 label = { Text(stringResource(R.string.age)) },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    focusedLabelColor = MaterialTheme.colorScheme.primary
+                )
             )
 
             // Gender Dropdown
@@ -402,28 +397,49 @@ fun UserProfileSection(
                 onExpandedChange = { expanded = !expanded }
             ) {
                 OutlinedTextField(
-                    value = editedGender.name,
+                    value = when (editedGender) {
+                        Gender.MALE -> stringResource(R.string.gender_male)
+                        Gender.FEMALE -> stringResource(R.string.gender_female)
+                        Gender.OTHER -> stringResource(R.string.gender_other)
+                    },
                     onValueChange = {},
                     readOnly = true,
                     label = { Text(stringResource(R.string.gender)) },
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .menuAnchor(MenuAnchorType.PrimaryNotEditable)
+                        .menuAnchor(MenuAnchorType.PrimaryNotEditable),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        focusedLabelColor = MaterialTheme.colorScheme.primary
+                    )
                 )
                 ExposedDropdownMenu(
                     expanded = expanded,
                     onDismissRequest = { expanded = false }
                 ) {
-                    Gender.entries.forEach { gender ->
-                        DropdownMenuItem(
-                            text = { Text(gender.name) },
-                            onClick = {
-                                editedGender = gender
-                                expanded = false
-                            }
-                        )
-                    }
+                    DropdownMenuItem(
+                        text = { Text(stringResource(R.string.gender_male)) },
+                        onClick = {
+                            editedGender = Gender.MALE
+                            expanded = false
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = { Text(stringResource(R.string.gender_female)) },
+                        onClick = {
+                            editedGender = Gender.FEMALE
+                            expanded = false
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = { Text(stringResource(R.string.gender_other)) },
+                        onClick = {
+                            editedGender = Gender.OTHER
+                            expanded = false
+                        }
+                    )
                 }
             }
 

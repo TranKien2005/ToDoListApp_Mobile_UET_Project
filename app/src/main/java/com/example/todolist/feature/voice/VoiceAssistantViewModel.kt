@@ -59,7 +59,7 @@ class VoiceAssistantViewModel(
     private var cachedUser: User? = null
     private var cachedTasks: List<Task> = emptyList()
     private var cachedMissions: List<Mission> = emptyList()
-    private var cachedLanguage: AppLanguage = AppLanguage.VIETNAMESE
+    private var cachedLanguage: AppLanguage = AppLanguage.ENGLISH
 
     init {
         // Load initial context

@@ -81,18 +81,23 @@
     <string name="description_required">Mô tả là bắt buộc</string>
     <string name="duration_required">Thời lượng là bắt buộc</string>
     <string name="must_be_number">Phải là số</string>
+    <string name="repeat_label">Lặp lại</string>
+    <string name="repeat_none">Không</string>
+    <string name="repeat_daily">Ngày</string>
+    <string name="repeat_weekly">Tuần</string>
+    <string name="repeat_monthly">Tháng</string>
 
     <!-- Mission Status -->
-    <string name="status_done">Hoàn thành</string>
+    <string name="status_done">Xong</string>
     <string name="status_missed">Bỏ lỡ</string>
-    <string name="status_active">Đang thực hiện</string>
+    <string name="status_active">Đang làm</string>
 
     <!-- Filter -->
     <string name="filter_by_status">Lọc theo trạng thái</string>
     <string name="filter_all">Tất cả</string>
-    <string name="filter_done">✓ Hoàn thành</string>
-    <string name="filter_active">○ Đang làm</string>
-    <string name="filter_missed">✗ Bỏ lỡ</string>
+    <string name="filter_done">Xong</string>
+    <string name="filter_active">Đang làm</string>
+    <string name="filter_missed">Bỏ lỡ</string>
 
     <!-- Week Days -->
     <string name="monday">T2</string>
@@ -120,15 +125,15 @@
     <string name="no_data_available">Không có dữ liệu</string>
     <string name="summary">Tóm tắt</string>
     <string name="total_count">Tổng: %1$d</string>
-    <string name="in_progress">Đang thực hiện</string>
+    <string name="in_progress">Đang làm</string>
 
     <!-- Date Navigator -->
     <string name="nav_previous">Trước</string>
     <string name="nav_next">Sau</string>
-    <string name="granularity_day">📅 Ngày</string>
-    <string name="granularity_week">📆 Tuần</string>
-    <string name="granularity_month">🗓️ Tháng</string>
-    <string name="granularity_year">📊 Năm</string>
+    <string name="granularity_day">Ngày</string>
+    <string name="granularity_week">Tuần</string>
+    <string name="granularity_month">Tháng</string>
+    <string name="granularity_year">Năm</string>
 
     <!-- Dialog Strings -->
     <string name="delete_task_title">Xóa lịch trình?</string>

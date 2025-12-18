@@ -1,5 +1,6 @@
 package com.example.todolist.feature.mission.components
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -38,52 +39,56 @@ fun StatusFilterRow(
             FilterChip(
                 selected = selectedFilter == MissionStatusFilter.ALL,
                 onClick = { onSelect(MissionStatusFilter.ALL) },
-                label = { Text(stringResource(R.string.filter_all), fontSize = 13.sp, fontWeight = FontWeight.Medium) },
+                label = { Text(stringResource(R.string.filter_all), fontSize = 12.sp, fontWeight = FontWeight.Medium) },
                 modifier = Modifier.weight(1f),
                 shape = RoundedCornerShape(12.dp),
+                border = BorderStroke(1.dp, primaryColor.copy(alpha = 0.5f)),
                 colors = FilterChipDefaults.filterChipColors(
                     selectedContainerColor = primaryColor,
                     selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
-                    labelColor = MaterialTheme.colorScheme.onSurface
+                    labelColor = primaryColor
                 )
             )
 
             FilterChip(
                 selected = selectedFilter == MissionStatusFilter.COMPLETED,
                 onClick = { onSelect(MissionStatusFilter.COMPLETED) },
-                label = { Text(stringResource(R.string.filter_done), fontSize = 13.sp, fontWeight = FontWeight.Medium) },
+                label = { Text(stringResource(R.string.filter_done), fontSize = 12.sp, fontWeight = FontWeight.Medium) },
                 modifier = Modifier.weight(1f),
                 shape = RoundedCornerShape(12.dp),
+                border = BorderStroke(1.dp, primaryColor.copy(alpha = 0.5f)),
                 colors = FilterChipDefaults.filterChipColors(
                     selectedContainerColor = primaryColor,
                     selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
-                    labelColor = MaterialTheme.colorScheme.onSurface
+                    labelColor = primaryColor
                 )
             )
 
             FilterChip(
                 selected = selectedFilter == MissionStatusFilter.IN_PROGRESS,
                 onClick = { onSelect(MissionStatusFilter.IN_PROGRESS) },
-                label = { Text(stringResource(R.string.filter_active), fontSize = 13.sp, fontWeight = FontWeight.Medium) },
+                label = { Text(stringResource(R.string.filter_active), fontSize = 12.sp, fontWeight = FontWeight.Medium) },
                 modifier = Modifier.weight(1f),
                 shape = RoundedCornerShape(12.dp),
+                border = BorderStroke(1.dp, primaryColor.copy(alpha = 0.5f)),
                 colors = FilterChipDefaults.filterChipColors(
                     selectedContainerColor = primaryColor,
                     selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
-                    labelColor = MaterialTheme.colorScheme.onSurface
+                    labelColor = primaryColor
                 )
             )
 
             FilterChip(
                 selected = selectedFilter == MissionStatusFilter.MISSED,
                 onClick = { onSelect(MissionStatusFilter.MISSED) },
-                label = { Text(stringResource(R.string.filter_missed), fontSize = 13.sp, fontWeight = FontWeight.Medium) },
+                label = { Text(stringResource(R.string.filter_missed), fontSize = 12.sp, fontWeight = FontWeight.Medium) },
                 modifier = Modifier.weight(1f),
                 shape = RoundedCornerShape(12.dp),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.error.copy(alpha = 0.5f)),
                 colors = FilterChipDefaults.filterChipColors(
                     selectedContainerColor = MaterialTheme.colorScheme.error,
                     selectedLabelColor = MaterialTheme.colorScheme.onError,
-                    labelColor = MaterialTheme.colorScheme.onSurface
+                    labelColor = MaterialTheme.colorScheme.error
                 )
             )
         }

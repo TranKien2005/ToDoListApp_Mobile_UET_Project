@@ -143,23 +143,7 @@ class RealGetMissionStatsUseCase(
                         MissionStatsEntry(label, start, completed, missed, inProgress)
                     }
                 }
-                StatsGranularity.YEAR -> {
-                    // Multi-year view - show stats for 5 years
-                    val centerYear = referenceDate.year
-                    (-2..2).map { offset ->
-                        val year = centerYear + offset
-                        val start = LocalDate.of(year, 1, 1)
-                        val end = LocalDate.of(year, 12, 31)
-                        val missionsIn = list.filter { d ->
-                            val ld = d.deadline.toLocalDate()
-                            (ld.isEqual(start) || ld.isAfter(start)) && (ld.isEqual(end) || ld.isBefore(end))
-                        }
-                        val completed = missionsIn.count { it.status == MissionStatus.COMPLETED }
-                        val missed = missionsIn.count { it.status == MissionStatus.MISSED }
-                        val inProgress = missionsIn.count { it.status == MissionStatus.ACTIVE }
-                        MissionStatsEntry(year.toString(), start, completed, missed, inProgress)
-                    }
-                }
+
             }
         }
 }

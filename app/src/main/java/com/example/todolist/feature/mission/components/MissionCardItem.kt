@@ -26,6 +26,7 @@ import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.RadioButtonUnchecked
 import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.foundation.clickable
 
 private val DATE_FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern("dd MMM yyyy HH:mm")
 
@@ -70,9 +71,9 @@ fun MissionCardItem(
         ),
         modifier = modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(20.dp)),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-        shape = RoundedCornerShape(20.dp)
+            .clip(RoundedCornerShape(20.dp))
+            .clickable { expanded = !expanded },
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Box(
             modifier = Modifier
@@ -217,55 +218,21 @@ fun MissionCardItem(
                     color = MaterialTheme.colorScheme.onSurface
                 )
 
-                // Description với expand/collapse
+                // Description - chỉ hiện khi expanded
                 mission.description?.let { desc ->
                     if (desc.isNotBlank()) {
-                        Spacer(modifier = Modifier.height(8.dp))
-
-                        AnimatedVisibility(
-                            visible = !expanded,
-                            enter = fadeIn(),
-                            exit = fadeOut()
-                        ) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = desc,
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                    modifier = Modifier.weight(1f)
-                                )
-                                TextButton(
-                                    onClick = { expanded = true },
-                                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
-                                ) {
-                                    Text(stringResource(R.string.more), fontSize = 12.sp, color = statusColor)
-                                }
-                            }
-                        }
-
                         AnimatedVisibility(
                             visible = expanded,
                             enter = expandVertically() + fadeIn(),
                             exit = shrinkVertically() + fadeOut()
                         ) {
                             Column {
+                                Spacer(modifier = Modifier.height(8.dp))
                                 Text(
                                     text = desc,
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
-                                TextButton(
-                                    onClick = { expanded = false },
-                                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
-                                ) {
-                                    Text(stringResource(R.string.less), fontSize = 12.sp, color = statusColor)
-                                }
                             }
                         }
                     }

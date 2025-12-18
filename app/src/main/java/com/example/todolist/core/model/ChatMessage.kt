@@ -86,5 +86,5 @@ data class UserContext(
     val user: User,
     val tasks: List<Task>,
     val missions: List<Mission>,
-    val preferredLanguage: AppLanguage = AppLanguage.VIETNAMESE
+    val preferredLanguage: AppLanguage = AppLanguage.ENGLISH
 )

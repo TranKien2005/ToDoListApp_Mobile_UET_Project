@@ -9,8 +9,8 @@ enum class AppLanguage {
 // Shared core business model for App Settings
 data class Settings(
     val id: Int = 1, // Usually only one settings record
-    // Ngôn ngữ ứng dụng (mặc định tiếng Việt)
-    val language: AppLanguage = AppLanguage.VIETNAMESE,
+    // Default language: English
+    val language: AppLanguage = AppLanguage.ENGLISH,
     // Thời gian báo trước khi bắt đầu task (phút)
     val taskReminderMinutes: Int = 15,
     // Thông báo mission vào đầu ngày nếu có deadline trong ngày

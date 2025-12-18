@@ -11,7 +11,7 @@ object SettingsEntityMapper {
             language = try { 
                 AppLanguage.valueOf(entity.language) 
             } catch (e: Exception) { 
-                AppLanguage.VIETNAMESE 
+                AppLanguage.ENGLISH 
             },
             taskReminderMinutes = entity.taskReminderMinutes,
             notifyDailyMissions = entity.notifyDailyMissions,

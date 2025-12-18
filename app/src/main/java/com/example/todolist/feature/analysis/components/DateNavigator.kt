@@ -104,7 +104,6 @@ private fun formatReferenceTitle(ref: LocalDate, gran: StatsGranularity): String
             "$month ${ref.year}"
         }
         StatsGranularity.MONTH_OF_YEAR -> ref.year.toString()
-        StatsGranularity.YEAR -> "${ref.year - 2} - ${ref.year + 2}"
     }
 }
 

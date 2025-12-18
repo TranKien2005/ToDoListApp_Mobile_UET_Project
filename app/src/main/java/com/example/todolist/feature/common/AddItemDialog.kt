@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.filled.Schedule
@@ -29,10 +30,15 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.LocalDate
 import java.util.Locale
-import com.example.todolist.feature.common.AddItemViewModel
 import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.ui.platform.LocalContext
+import java.io.File
+import java.text.SimpleDateFormat
+import java.util.Date
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun AddItemDialog(
     onDismissRequest: () -> Unit,
@@ -84,8 +90,21 @@ fun AddItemDialog(
     var images by remember { 
         mutableStateOf(editTask?.images ?: editMission?.images ?: emptyList<String>()) 
     }
-    var showImagePicker by remember { mutableStateOf(false) }
     var showImageViewer by remember { mutableStateOf(false) }
+    
+    // Native gallery picker launcher
+    val context = LocalContext.current
+    val galleryLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetMultipleContents()
+    ) { uris ->
+        uris.forEach { uri ->
+            // Copy to app's internal storage for persistence
+            val persistedUri = copyImageToInternalStorage(context, uri)
+            if (persistedUri != null) {
+                images = images + persistedUri.toString()
+            }
+        }
+    }
 
     // State for DatePicker and TimePicker dialogs
     var showDatePicker by remember { mutableStateOf(false) }
@@ -189,15 +208,7 @@ fun AddItemDialog(
         )
     }
 
-    // Image Picker Dialog
-    if (showImagePicker) {
-        ImagePickerDialog(
-            onDismiss = { showImagePicker = false },
-            onImageSelected = { uri ->
-                images = images + uri.toString()
-            }
-        )
-    }
+
 
     // Image Viewer
     if (showImageViewer && images.isNotEmpty()) {
@@ -379,7 +390,7 @@ fun AddItemDialog(
                                 horizontalArrangement = Arrangement.spacedBy(12.dp)
                             ) {
                                 OutlinedTextField(
-                                    value = date.toString(),
+                                    value = String.format(Locale.getDefault(), "%02d/%02d", date.dayOfMonth, date.monthValue),
                                     onValueChange = {},
                                     label = { Text(stringResource(R.string.date)) },
                                     leadingIcon = {
@@ -390,7 +401,8 @@ fun AddItemDialog(
                                     isError = dateTimeError != null,
                                     shape = RoundedCornerShape(16.dp),
                                     colors = OutlinedTextFieldDefaults.colors(
-                                        focusedBorderColor = primaryColor
+                                        focusedBorderColor = primaryColor,
+                                        unfocusedBorderColor = primaryColor.copy(alpha = 0.5f)
                                     ),
                                     interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
                                         .also { interactionSource ->
@@ -417,7 +429,8 @@ fun AddItemDialog(
                                     isError = dateTimeError != null,
                                     shape = RoundedCornerShape(16.dp),
                                     colors = OutlinedTextFieldDefaults.colors(
-                                        focusedBorderColor = primaryColor
+                                        focusedBorderColor = primaryColor,
+                                        unfocusedBorderColor = primaryColor.copy(alpha = 0.5f)
                                     ),
                                     interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
                                         .also { interactionSource ->
@@ -482,34 +495,58 @@ fun AddItemDialog(
                                 ) {
                                     Column(modifier = Modifier.padding(16.dp)) {
                                         Text(
-                                            "Repeat",
+                                            stringResource(R.string.repeat_label),
                                             style = MaterialTheme.typography.titleSmall.copy(
                                                 fontWeight = FontWeight.Bold
                                             ),
                                             color = primaryColor
                                         )
                                         Spacer(modifier = Modifier.height(8.dp))
-                                        Row(
+                                        FlowRow(
                                             modifier = Modifier.fillMaxWidth(),
-                                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                            verticalArrangement = Arrangement.spacedBy(8.dp)
                                         ) {
-                                            listOf(
-                                                RepeatType.NONE to "None",
-                                                RepeatType.DAILY to "Daily",
-                                                RepeatType.WEEKLY to "Weekly",
-                                                RepeatType.MONTHLY to "Monthly"
-                                            ).forEach { (type, label) ->
-                                                FilterChip(
-                                                    selected = repeatType == type,
-                                                    onClick = { repeatType = type },
-                                                    label = { Text(label, fontSize = 12.sp) },
-                                                    modifier = Modifier.weight(1f),
-                                                    colors = FilterChipDefaults.filterChipColors(
-                                                        selectedContainerColor = primaryColor,
-                                                        selectedLabelColor = MaterialTheme.colorScheme.onPrimary
-                                                    )
+                                            // None
+                                            FilterChip(
+                                                selected = repeatType == RepeatType.NONE,
+                                                onClick = { repeatType = RepeatType.NONE },
+                                                label = { Text(stringResource(R.string.repeat_none), fontSize = 12.sp) },
+                                                colors = FilterChipDefaults.filterChipColors(
+                                                    selectedContainerColor = primaryColor,
+                                                    selectedLabelColor = MaterialTheme.colorScheme.onPrimary
                                                 )
-                                            }
+                                            )
+                                            // Daily
+                                            FilterChip(
+                                                selected = repeatType == RepeatType.DAILY,
+                                                onClick = { repeatType = RepeatType.DAILY },
+                                                label = { Text(stringResource(R.string.repeat_daily), fontSize = 12.sp) },
+                                                colors = FilterChipDefaults.filterChipColors(
+                                                    selectedContainerColor = primaryColor,
+                                                    selectedLabelColor = MaterialTheme.colorScheme.onPrimary
+                                                )
+                                            )
+                                            // Weekly
+                                            FilterChip(
+                                                selected = repeatType == RepeatType.WEEKLY,
+                                                onClick = { repeatType = RepeatType.WEEKLY },
+                                                label = { Text(stringResource(R.string.repeat_weekly), fontSize = 12.sp) },
+                                                colors = FilterChipDefaults.filterChipColors(
+                                                    selectedContainerColor = primaryColor,
+                                                    selectedLabelColor = MaterialTheme.colorScheme.onPrimary
+                                                )
+                                            )
+                                            // Monthly
+                                            FilterChip(
+                                                selected = repeatType == RepeatType.MONTHLY,
+                                                onClick = { repeatType = RepeatType.MONTHLY },
+                                                label = { Text(stringResource(R.string.repeat_monthly), fontSize = 12.sp) },
+                                                colors = FilterChipDefaults.filterChipColors(
+                                                    selectedContainerColor = primaryColor,
+                                                    selectedLabelColor = MaterialTheme.colorScheme.onPrimary
+                                                )
+                                            )
                                         }
                                     }
                                 }
@@ -538,7 +575,7 @@ fun AddItemDialog(
                                 ImageCountPreview(
                                     images = images,
                                     onImageClick = { showImageViewer = true },
-                                    onAddClick = { showImagePicker = true }
+                                    onAddClick = { galleryLauncher.launch("image/*") }
                                 )
                             }
                         }
@@ -613,5 +650,31 @@ fun AddItemDialog(
                 }
             }
         }
+    }
+}
+
+/**
+ * Copy image from external source to internal storage for persistence
+ */
+private fun copyImageToInternalStorage(context: android.content.Context, sourceUri: Uri): Uri? {
+    return try {
+        val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
+        val imageFileName = "IMG_${timeStamp}_${System.currentTimeMillis()}.jpg"
+        val storageDir = File(context.filesDir, "images")
+        if (!storageDir.exists()) {
+            storageDir.mkdirs()
+        }
+        val destFile = File(storageDir, imageFileName)
+
+        context.contentResolver.openInputStream(sourceUri)?.use { input ->
+            destFile.outputStream().use { output ->
+                input.copyTo(output)
+            }
+        }
+
+        Uri.fromFile(destFile)
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
     }
 }

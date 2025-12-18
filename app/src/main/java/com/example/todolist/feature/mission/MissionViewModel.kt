@@ -30,7 +30,7 @@ class MissionViewModel(
 
     // reference date and granularity for navigation
     private val _referenceDate = MutableStateFlow(LocalDate.now())
-    private val _granularity = MutableStateFlow(StatsGranularity.DAY)
+    private val _granularity = MutableStateFlow(StatsGranularity.DAY_OF_WEEK)
 
     init {
         // initialize base state
@@ -65,7 +65,6 @@ class MissionViewModel(
                         StatsGranularity.DAY_OF_WEEK -> (d.isEqual(weekStart) || (d.isAfter(weekStart) && d.isBefore(weekEnd))) || d.isEqual(weekEnd)
                         StatsGranularity.WEEK_OF_MONTH -> YearMonth.from(d) == thisMonth
                         StatsGranularity.MONTH_OF_YEAR -> d.year == today.year
-                        StatsGranularity.YEAR -> true // Show all missions for multi-year view
                     }
                 }
                 MissionTag.TODAY -> d.isEqual(today)
@@ -98,10 +97,12 @@ class MissionViewModel(
 
     fun setGranularity(g: StatsGranularity) {
         _granularity.value = g
+        // Reset reference date to today when changing granularity
+        _referenceDate.value = LocalDate.now()
         // recompute missions for the current reference date using the new granularity
         val filtered = applyFilters(_allMissions.value, _uiState.value.selectedTag, _uiState.value.statusFilter, _referenceDate.value, g)
         Log.d("MissionViewModel", "setGranularity=$g filtered=${filtered.size} ref=${_referenceDate.value}")
-        _uiState.value = _uiState.value.copy(granularity = g, missions = filtered)
+        _uiState.value = _uiState.value.copy(granularity = g, referenceDate = _referenceDate.value, missions = filtered)
     }
 
     fun prev() {
@@ -111,7 +112,6 @@ class MissionViewModel(
             StatsGranularity.DAY_OF_WEEK -> ref.minusWeeks(1)
             StatsGranularity.WEEK_OF_MONTH -> ref.minusMonths(1)
             StatsGranularity.MONTH_OF_YEAR -> ref.minusYears(1)
-            StatsGranularity.YEAR -> ref.minusYears(5)
         }
         val filtered = applyFilters(_allMissions.value, _uiState.value.selectedTag, _uiState.value.statusFilter, newRef, _granularity.value)
         Log.d("MissionViewModel", "prev newRef=$newRef filtered=${filtered.size} gran=${_granularity.value}")
@@ -126,7 +126,6 @@ class MissionViewModel(
             StatsGranularity.DAY_OF_WEEK -> ref.plusWeeks(1)
             StatsGranularity.WEEK_OF_MONTH -> ref.plusMonths(1)
             StatsGranularity.MONTH_OF_YEAR -> ref.plusYears(1)
-            StatsGranularity.YEAR -> ref.plusYears(5)
         }
         val filtered = applyFilters(_allMissions.value, _uiState.value.selectedTag, _uiState.value.statusFilter, newRef, _granularity.value)
         Log.d("MissionViewModel", "next newRef=$newRef filtered=${filtered.size} gran=${_granularity.value}")

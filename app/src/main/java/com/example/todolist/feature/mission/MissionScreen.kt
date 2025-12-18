@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.sp
 import com.example.todolist.R
 import com.example.todolist.feature.mission.components.MissionCardItem
 import com.example.todolist.feature.mission.components.DateNavigator
-import com.example.todolist.feature.mission.components.StatusFilterRow
+import com.example.todolist.feature.mission.components.CompactFilterRow
 import com.example.todolist.core.model.Mission
 import com.example.todolist.ui.common.rememberBounceOverscrollEffect
 import com.example.todolist.ui.common.bounceOverscroll
@@ -45,17 +45,7 @@ fun MissionScreen(
     
     val bounceState = rememberBounceOverscrollEffect()
 
-    val infiniteTransition = rememberInfiniteTransition(label = "background")
-    val animatedOffset by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1000f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(25000, easing = LinearEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "offset"
-    )
-
+    // Static gradient - no animation for better scroll performance
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -65,11 +55,6 @@ fun MissionScreen(
                         primaryColor.copy(alpha = 0.06f),
                         secondaryColor.copy(alpha = 0.03f),
                         tertiaryColor.copy(alpha = 0.04f)
-                    ),
-                    start = androidx.compose.ui.geometry.Offset(animatedOffset, animatedOffset),
-                    end = androidx.compose.ui.geometry.Offset(
-                        animatedOffset + 1000f,
-                        animatedOffset + 1000f
                     )
                 )
             )
@@ -87,28 +72,27 @@ fun MissionScreen(
                         animationSpec = tween(500)
                     ) + fadeIn(animationSpec = tween(500))
                 ) {
-                    DateNavigator(
-                        referenceDate = uiState.referenceDate,
-                        granularity = uiState.granularity,
-                        onPrev = { missionViewModel.prev() },
-                        onNext = { missionViewModel.next() },
-                        onSetGranularity = { g -> missionViewModel.setGranularity(g) }
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                AnimatedVisibility(
-                    visible = isVisible,
-                    enter = slideInVertically(
-                        initialOffsetY = { it },
-                        animationSpec = tween(500, delayMillis = 100)
-                    ) + fadeIn(animationSpec = tween(500, delayMillis = 100))
-                ) {
-                    StatusFilterRow(
-                        selectedFilter = uiState.statusFilter,
-                        onSelect = { f -> missionViewModel.setStatusFilter(f) }
-                    )
+                    Column {
+                        // Date navigation (prev/next only)
+                        DateNavigator(
+                            referenceDate = uiState.referenceDate,
+                            granularity = uiState.granularity,
+                            onPrev = { missionViewModel.prev() },
+                            onNext = { missionViewModel.next() },
+                            onSetGranularity = { g -> missionViewModel.setGranularity(g) },
+                            showGranularityChips = false
+                        )
+                        
+                        Spacer(modifier = Modifier.height(12.dp))
+                        
+                        // Compact filter dropdowns (granularity + status)
+                        CompactFilterRow(
+                            granularity = uiState.granularity,
+                            statusFilter = uiState.statusFilter,
+                            onSetGranularity = { g -> missionViewModel.setGranularity(g) },
+                            onSetStatusFilter = { f -> missionViewModel.setStatusFilter(f) }
+                        )
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(20.dp))

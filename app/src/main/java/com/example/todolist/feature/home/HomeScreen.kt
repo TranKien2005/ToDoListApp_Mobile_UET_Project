@@ -65,17 +65,7 @@ fun HomeScreen(
     val secondaryColor = MaterialTheme.colorScheme.secondary
     val tertiaryColor = MaterialTheme.colorScheme.tertiary
 
-    val infiniteTransition = rememberInfiniteTransition(label = "background")
-    val animatedOffset by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1000f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(25000, easing = LinearEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "offset"
-    )
-
+    // Static gradient - no animation for better scroll performance
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -85,11 +75,6 @@ fun HomeScreen(
                         primaryColor.copy(alpha = 0.06f),
                         secondaryColor.copy(alpha = 0.03f),
                         tertiaryColor.copy(alpha = 0.04f)
-                    ),
-                    start = androidx.compose.ui.geometry.Offset(animatedOffset, animatedOffset),
-                    end = androidx.compose.ui.geometry.Offset(
-                        animatedOffset + 1000f,
-                        animatedOffset + 1000f
                     )
                 )
             )

@@ -19,5 +19,5 @@ data class MissionUiState(
     val isLoading: Boolean = true,
     val error: String? = null,
     val referenceDate: LocalDate = LocalDate.now(),
-    val granularity: StatsGranularity = StatsGranularity.WEEK_OF_MONTH
+    val granularity: StatsGranularity = StatsGranularity.DAY_OF_WEEK
 )

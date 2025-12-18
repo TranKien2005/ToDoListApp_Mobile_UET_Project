@@ -26,6 +26,7 @@ import androidx.compose.material.icons.filled.Repeat
 import androidx.compose.material.icons.filled.Edit
 import com.example.todolist.ui.common.bounceLightClick
 import com.example.todolist.ui.common.bounceClick
+import androidx.compose.foundation.clickable
 
 private val TIME_FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
 
@@ -63,6 +64,7 @@ fun TaskCardItem(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(20.dp))
+            .clickable { expanded = !expanded }
             .bounceLightClick(),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         shape = RoundedCornerShape(20.dp)
@@ -189,55 +191,21 @@ fun TaskCardItem(
                     color = MaterialTheme.colorScheme.onSurface
                 )
 
-                // Description với expand/collapse
+                // Description - chỉ hiện khi expanded
                 task.description?.let { desc ->
                     if (desc.isNotBlank()) {
-                        Spacer(modifier = Modifier.height(8.dp))
-
-                        AnimatedVisibility(
-                            visible = !expanded,
-                            enter = fadeIn(),
-                            exit = fadeOut()
-                        ) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = desc,
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                    modifier = Modifier.weight(1f)
-                                )
-                                TextButton(
-                                    onClick = { expanded = true },
-                                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
-                                ) {
-                                    Text(stringResource(R.string.more), fontSize = 12.sp, color = primaryColor)
-                                }
-                            }
-                        }
-
                         AnimatedVisibility(
                             visible = expanded,
                             enter = expandVertically() + fadeIn(),
                             exit = shrinkVertically() + fadeOut()
                         ) {
                             Column {
+                                Spacer(modifier = Modifier.height(8.dp))
                                 Text(
                                     text = desc,
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
-                                TextButton(
-                                    onClick = { expanded = false },
-                                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
-                                ) {
-                                    Text(stringResource(R.string.less), fontSize = 12.sp, color = primaryColor)
-                                }
                             }
                         }
                     }

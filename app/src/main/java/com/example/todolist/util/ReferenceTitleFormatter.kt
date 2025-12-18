@@ -34,10 +34,6 @@ fun formatReferenceTitle(ref: LocalDate, gran: StatsGranularity): String {
         StatsGranularity.MONTH_OF_YEAR -> {
             ref.year.toString()
         }
-        StatsGranularity.YEAR -> {
-            // Multi-year view - show decade or range
-            "${ref.year - 2} - ${ref.year + 2}"
-        }
     }
 }
 

@@ -9,8 +9,11 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.TaskAlt
+import androidx.compose.foundation.clickable
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -25,6 +28,8 @@ import androidx.compose.ui.unit.sp
 import com.example.todolist.R
 import com.example.todolist.core.model.Gender
 import com.example.todolist.core.model.User
+import com.example.todolist.ui.common.rememberBounceOverscrollEffect
+import com.example.todolist.ui.common.bounceOverscroll
 
 @Composable
 fun OnboardingScreen(
@@ -74,6 +79,10 @@ private fun WelcomeScreen(
     val primaryColor = MaterialTheme.colorScheme.primary
     val secondaryColor = MaterialTheme.colorScheme.secondary
     val tertiaryColor = MaterialTheme.colorScheme.tertiary
+    
+    // Scroll state with bounce
+    val scrollState = rememberScrollState()
+    val bounceState = rememberBounceOverscrollEffect()
 
     Box(
         modifier = modifier
@@ -84,11 +93,6 @@ private fun WelcomeScreen(
                         primaryColor.copy(alpha = 0.15f),
                         secondaryColor.copy(alpha = 0.1f),
                         tertiaryColor.copy(alpha = 0.12f)
-                    ),
-                    start = androidx.compose.ui.geometry.Offset(animatedOffset, animatedOffset),
-                    end = androidx.compose.ui.geometry.Offset(
-                        animatedOffset + 1000f,
-                        animatedOffset + 1000f
                     )
                 )
             )
@@ -96,10 +100,14 @@ private fun WelcomeScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .verticalScroll(scrollState)
+                .bounceOverscroll(bounceState)
                 .padding(32.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.Top
         ) {
+            // Top spacer for better layout
+            Spacer(modifier = Modifier.height(48.dp))
             // Animated App Icon với multiple circles
             AnimatedVisibility(
                 visible = isVisible,
@@ -233,7 +241,7 @@ private fun WelcomeScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.weight(1f))
+            Spacer(modifier = Modifier.height(48.dp))
 
             // Animated Button
             AnimatedVisibility(
@@ -493,11 +501,8 @@ private fun ProfileFormScreen(
                             )
                         )
 
-                        // Gender Dropdown
-                        ExposedDropdownMenuBox(
-                            expanded = expanded,
-                            onExpandedChange = { expanded = it }
-                        ) {
+                        // Gender Dropdown - Simple clickable approach
+                        Box(modifier = Modifier.fillMaxWidth()) {
                             OutlinedTextField(
                                 value = when (gender) {
                                     Gender.MALE -> stringResource(R.string.gender_male)
@@ -506,22 +511,33 @@ private fun ProfileFormScreen(
                                 },
                                 onValueChange = {},
                                 readOnly = true,
+                                enabled = false,
                                 label = { Text(stringResource(R.string.gender)) },
                                 trailingIcon = {
-                                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+                                    Icon(
+                                        imageVector = if (expanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
+                                        contentDescription = null,
+                                        tint = primaryColor
+                                    )
                                 },
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .menuAnchor(),
+                                modifier = Modifier.fillMaxWidth(),
                                 shape = RoundedCornerShape(16.dp),
                                 colors = OutlinedTextFieldDefaults.colors(
-                                    focusedBorderColor = primaryColor,
-                                    focusedLabelColor = primaryColor
+                                    disabledTextColor = MaterialTheme.colorScheme.onSurface,
+                                    disabledBorderColor = primaryColor.copy(alpha = 0.5f),
+                                    disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             )
-                            ExposedDropdownMenu(
+                            // Invisible clickable overlay
+                            Box(
+                                modifier = Modifier
+                                    .matchParentSize()
+                                    .clickable { expanded = !expanded }
+                            )
+                            DropdownMenu(
                                 expanded = expanded,
-                                onDismissRequest = { expanded = false }
+                                onDismissRequest = { expanded = false },
+                                modifier = Modifier.fillMaxWidth(0.9f)
                             ) {
                                 DropdownMenuItem(
                                     text = { Text(stringResource(R.string.gender_male)) },
@@ -556,7 +572,8 @@ private fun ProfileFormScreen(
                                 colors = CardDefaults.cardColors(
                                     containerColor = MaterialTheme.colorScheme.errorContainer
                                 ),
-                                shape = RoundedCornerShape(12.dp)
+                                shape = RoundedCornerShape(20.dp),
+                                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
                             ) {
                                 Text(
                                     text = "⚠️ " + stringResource(R.string.validation_error),

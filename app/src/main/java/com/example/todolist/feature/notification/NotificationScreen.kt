@@ -1,11 +1,11 @@
 package com.example.todolist.feature.notification
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
@@ -160,20 +160,21 @@ fun NotificationItem(
 ) {
     var expanded by remember { mutableStateOf(false) }
 
+    // Use Card's onClick and remove manual .clip to avoid extra overlay/surface covering content
     Card(
+        onClick = { expanded = !expanded },
         modifier = Modifier
-            .fillMaxWidth()
-            .clickable { expanded = !expanded },
+            .fillMaxWidth(),
         colors = CardDefaults.cardColors(
             containerColor = if (notification.isRead) {
                 MaterialTheme.colorScheme.surfaceVariant
             } else {
-                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f)
+                // Use a solid primary container so no translucent white area shows through
+                MaterialTheme.colorScheme.primaryContainer
             }
         ),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = if (notification.isRead) 0.dp else 2.dp
-        )
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        shape = RoundedCornerShape(20.dp)
     ) {
         Column(
             modifier = Modifier.padding(16.dp)
@@ -222,13 +223,14 @@ fun NotificationItem(
                     ) {
                         NotificationTimestamp(notification.scheduledTime)
 
-                        // Status badge
+                        // Status badge (use Box instead of Surface to avoid extra Surface overlay)
                         if (notification.isDelivered && !notification.isRead) {
-                            Surface(
-                                shape = CircleShape,
-                                color = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(6.dp)
-                            ) {}
+                            Box(
+                                modifier = Modifier
+                                    .size(6.dp)
+                                    .clip(CircleShape)
+                                    .background(MaterialTheme.colorScheme.primary)
+                            )
                         }
                     }
                 }
@@ -248,7 +250,10 @@ fun NotificationItem(
             // Action buttons (when expanded)
             if (expanded) {
                 Spacer(modifier = Modifier.height(16.dp))
-                HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f))
+                HorizontalDivider(
+                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f),
+                    thickness = 0.5.dp
+                )
                 Spacer(modifier = Modifier.height(12.dp))
 
                 Row(

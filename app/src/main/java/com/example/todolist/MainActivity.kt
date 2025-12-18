@@ -22,7 +22,7 @@ import kotlinx.coroutines.runBlocking
 
 class MainActivity : ComponentActivity() {
 
-    private var currentLanguage: AppLanguage = AppLanguage.VIETNAMESE
+    private var currentLanguage: AppLanguage = AppLanguage.ENGLISH
 
     // Request permission launcher
     private val requestPermissionLauncher = registerForActivityResult(

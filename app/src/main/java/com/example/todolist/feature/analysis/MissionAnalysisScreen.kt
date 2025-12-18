@@ -65,18 +65,6 @@ fun MissionAnalysisScreen(
     val secondaryColor = MaterialTheme.colorScheme.secondary
     val tertiaryColor = MaterialTheme.colorScheme.tertiary
 
-    // Animated background
-    val infiniteTransition = rememberInfiniteTransition(label = "background")
-    val animatedOffset by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1000f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(25000, easing = LinearEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "offset"
-    )
-
     // pick mission-specific palette from theme (light/dark variants)
     val colorCompleted = if (darkTheme) missionCompletedContainerDark else missionCompletedContainerLight
     val contentOnCompleted = if (darkTheme) onMissionCompletedContainerDark else onMissionCompletedContainerLight
@@ -93,6 +81,7 @@ fun MissionAnalysisScreen(
         (stats.maxOfOrNull { val total = it.completed + it.missed + it.inProgress; maxOf(total, it.completed, it.missed) } ?: 1).coerceAtLeast(1)
     }
 
+    // Static gradient - no animation for better scroll performance
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -102,11 +91,6 @@ fun MissionAnalysisScreen(
                         primaryColor.copy(alpha = 0.06f),
                         secondaryColor.copy(alpha = 0.03f),
                         tertiaryColor.copy(alpha = 0.04f)
-                    ),
-                    start = androidx.compose.ui.geometry.Offset(animatedOffset, animatedOffset),
-                    end = androidx.compose.ui.geometry.Offset(
-                        animatedOffset + 1000f,
-                        animatedOffset + 1000f
                     )
                 )
             )
@@ -171,25 +155,16 @@ fun MissionAnalysisScreen(
                         animationSpec = tween(500, delayMillis = 200)
                     ) + fadeIn(animationSpec = tween(500, delayMillis = 200))
                 ) {
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(16.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-                        ),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 8.dp, vertical = 8.dp),
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp),
-                            horizontalArrangement = Arrangement.SpaceEvenly,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            LegendItem(color = colorTotal, label = stringResource(R.string.legend_total))
-                            LegendItem(color = colorCompleted, label = stringResource(R.string.legend_completed))
-                            LegendItem(color = colorMissed, label = stringResource(R.string.legend_missed))
-                        }
+                        LegendItem(color = colorTotal, label = stringResource(R.string.legend_total))
+                        LegendItem(color = colorCompleted, label = stringResource(R.string.legend_completed))
+                        LegendItem(color = colorMissed, label = stringResource(R.string.legend_missed))
                     }
                 }
 
@@ -357,11 +332,23 @@ fun MissionAnalysisScreen(
 
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceEvenly
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
-                                DetailItem(label = stringResource(R.string.legend_completed), value = viewModel.totalCompleted())
-                                DetailItem(label = stringResource(R.string.legend_missed), value = viewModel.totalMissed())
-                                DetailItem(label = stringResource(R.string.in_progress), value = viewModel.totalInProgress())
+                                DetailItem(
+                                    label = stringResource(R.string.legend_completed), 
+                                    value = viewModel.totalCompleted(),
+                                    modifier = Modifier.weight(1f)
+                                )
+                                DetailItem(
+                                    label = stringResource(R.string.legend_missed), 
+                                    value = viewModel.totalMissed(),
+                                    modifier = Modifier.weight(1f)
+                                )
+                                DetailItem(
+                                    label = stringResource(R.string.in_progress), 
+                                    value = viewModel.totalInProgress(),
+                                    modifier = Modifier.weight(1f)
+                                )
                             }
                         }
                     }

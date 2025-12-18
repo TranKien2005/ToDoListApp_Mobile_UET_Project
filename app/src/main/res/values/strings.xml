@@ -81,6 +81,11 @@
     <string name="description_required">Description is required</string>
     <string name="duration_required">Duration is required</string>
     <string name="must_be_number">Must be a number</string>
+    <string name="repeat_label">Repeat</string>
+    <string name="repeat_none">None</string>
+    <string name="repeat_daily">Daily</string>
+    <string name="repeat_weekly">Weekly</string>
+    <string name="repeat_monthly">Monthly</string>
 
     <!-- Mission Status -->
     <string name="status_done">Done</string>
@@ -90,9 +95,9 @@
     <!-- Filter -->
     <string name="filter_by_status">Filter by Status</string>
     <string name="filter_all">All</string>
-    <string name="filter_done">✓ Done</string>
-    <string name="filter_active">○ Active</string>
-    <string name="filter_missed">✗ Missed</string>
+    <string name="filter_done">Done</string>
+    <string name="filter_active">Active</string>
+    <string name="filter_missed">Missed</string>
 
     <!-- Week Days -->
     <string name="monday">Mon</string>
@@ -120,15 +125,15 @@
     <string name="no_data_available">No data available</string>
     <string name="summary">Summary</string>
     <string name="total_count">Total: %1$d</string>
-    <string name="in_progress">In Progress</string>
+    <string name="in_progress">Active</string>
 
     <!-- Date Navigator -->
     <string name="nav_previous">Previous</string>
     <string name="nav_next">Next</string>
-    <string name="granularity_day">📅 Day</string>
-    <string name="granularity_week">📆 Week</string>
-    <string name="granularity_month">🗓️ Month</string>
-    <string name="granularity_year">📊 Year</string>
+    <string name="granularity_day">Day</string>
+    <string name="granularity_week">Week</string>
+    <string name="granularity_month">Month</string>
+    <string name="granularity_year">Year</string>
 
     <!-- Dialog Strings -->
     <string name="delete_task_title">Delete Task?</string>
