@@ -26,12 +26,15 @@ class AudioRecorder(private val context: Context) {
     fun startRecording(): File? {
         return try {
             // Tạo file tạm để lưu audio
-            audioFile = File(context.cacheDir, "voice_${System.currentTimeMillis()}.wav")
+            // Dùng M4A format vì Groq Whisper hỗ trợ: flac, mp3, mp4, mpeg, mpga, m4a, ogg, opus, wav, webm
+            audioFile = File(context.cacheDir, "voice_${System.currentTimeMillis()}.m4a")
 
             recorder = MediaRecorder().apply {
                 setAudioSource(MediaRecorder.AudioSource.MIC)
-                setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
-                setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
+                setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
+                setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
+                setAudioEncodingBitRate(128000)
+                setAudioSamplingRate(44100)
                 setOutputFile(audioFile?.absolutePath)
 
                 try {

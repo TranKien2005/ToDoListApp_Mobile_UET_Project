@@ -40,6 +40,8 @@ import com.example.todolist.ui.theme.missionCompletedContainerLight
 import com.example.todolist.ui.theme.onMissionCompletedContainerLight
 import com.example.todolist.ui.theme.missionMissedContainerLight
 import com.example.todolist.ui.theme.onMissionMissedContainerLight
+import com.example.todolist.ui.common.rememberBounceOverscrollEffect
+import com.example.todolist.ui.common.bounceOverscroll
 
 @Composable
 fun MissionAnalysisScreen(
@@ -52,6 +54,7 @@ fun MissionAnalysisScreen(
     val ref = uiState.referenceDate
 
     var isVisible by remember { mutableStateOf(false) }
+    val bounceState = rememberBounceOverscrollEffect()
 
     LaunchedEffect(Unit) {
         isVisible = true
@@ -108,7 +111,11 @@ fun MissionAnalysisScreen(
                 )
             )
     ) {
-        LazyColumn(modifier = modifier.padding(16.dp)) {
+        LazyColumn(
+            modifier = modifier
+                .padding(16.dp)
+                .bounceOverscroll(bounceState)
+        ) {
             item {
                 // Animated Header
                 AnimatedVisibility(
@@ -208,7 +215,7 @@ fun MissionAnalysisScreen(
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
                             Text(
-                                text = "Mission Statistics",
+                                text = stringResource(R.string.mission_statistics),
                                 style = MaterialTheme.typography.titleMedium.copy(
                                     fontWeight = FontWeight.Bold
                                 ),
@@ -235,7 +242,7 @@ fun MissionAnalysisScreen(
                                         )
                                         Spacer(modifier = Modifier.height(8.dp))
                                         Text(
-                                            text = "No data available",
+                                            text = stringResource(R.string.no_data_available),
                                             style = MaterialTheme.typography.bodyLarge,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant
                                         )
@@ -326,7 +333,7 @@ fun MissionAnalysisScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    text = "Summary",
+                                    text = stringResource(R.string.summary),
                                     style = MaterialTheme.typography.titleMedium.copy(
                                         fontWeight = FontWeight.Bold
                                     ),
@@ -337,7 +344,7 @@ fun MissionAnalysisScreen(
                                     shape = RoundedCornerShape(8.dp)
                                 ) {
                                     Text(
-                                        text = "Total: ${viewModel.totalMissions()}",
+                                        text = stringResource(R.string.total_count, viewModel.totalMissions()),
                                         modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
                                         style = MaterialTheme.typography.labelLarge,
                                         color = primaryColor,
@@ -352,9 +359,9 @@ fun MissionAnalysisScreen(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceEvenly
                             ) {
-                                DetailItem(label = "Completed", value = viewModel.totalCompleted())
-                                DetailItem(label = "Missed", value = viewModel.totalMissed())
-                                DetailItem(label = "In Progress", value = viewModel.totalInProgress())
+                                DetailItem(label = stringResource(R.string.legend_completed), value = viewModel.totalCompleted())
+                                DetailItem(label = stringResource(R.string.legend_missed), value = viewModel.totalMissed())
+                                DetailItem(label = stringResource(R.string.in_progress), value = viewModel.totalInProgress())
                             }
                         }
                     }

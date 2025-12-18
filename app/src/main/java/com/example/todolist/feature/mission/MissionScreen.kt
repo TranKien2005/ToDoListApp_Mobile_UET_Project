@@ -20,6 +20,8 @@ import com.example.todolist.feature.mission.components.MissionCardItem
 import com.example.todolist.feature.mission.components.DateNavigator
 import com.example.todolist.feature.mission.components.StatusFilterRow
 import com.example.todolist.core.model.Mission
+import com.example.todolist.ui.common.rememberBounceOverscrollEffect
+import com.example.todolist.ui.common.bounceOverscroll
 
 @Composable
 fun MissionScreen(
@@ -40,6 +42,8 @@ fun MissionScreen(
     val primaryColor = MaterialTheme.colorScheme.primary
     val secondaryColor = MaterialTheme.colorScheme.secondary
     val tertiaryColor = MaterialTheme.colorScheme.tertiary
+    
+    val bounceState = rememberBounceOverscrollEffect()
 
     val infiniteTransition = rememberInfiniteTransition(label = "background")
     val animatedOffset by infiniteTransition.animateFloat(
@@ -70,7 +74,11 @@ fun MissionScreen(
                 )
             )
     ) {
-        LazyColumn(modifier = modifier.padding(16.dp)) {
+        LazyColumn(
+            modifier = modifier
+                .padding(16.dp)
+                .bounceOverscroll(bounceState)
+        ) {
             item {
                 AnimatedVisibility(
                     visible = isVisible,

@@ -29,6 +29,8 @@ import com.example.todolist.feature.home.components.TaskCardItem
 import com.example.todolist.feature.home.components.WeekDaysRow
 import com.example.todolist.feature.common.ViewModelProvider
 import com.example.todolist.core.model.Task
+import com.example.todolist.ui.common.rememberBounceOverscrollEffect
+import com.example.todolist.ui.common.bounceOverscroll
 
 
 /**
@@ -55,6 +57,9 @@ fun HomeScreen(
 
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+    
+    // Bounce overscroll effect
+    val bounceState = rememberBounceOverscrollEffect()
 
     val primaryColor = MaterialTheme.colorScheme.primary
     val secondaryColor = MaterialTheme.colorScheme.secondary
@@ -102,6 +107,7 @@ fun HomeScreen(
                     modifier = Modifier
                         .weight(0.45f)
                         .fillMaxHeight()
+                        .bounceOverscroll(bounceState)
                 ) {
                     item {
                         AnimatedVisibility(
@@ -153,6 +159,7 @@ fun HomeScreen(
                     modifier = Modifier
                         .weight(0.55f)
                         .fillMaxHeight()
+                        .bounceOverscroll(rememberBounceOverscrollEffect())
                 ) {
                     item {
                         AnimatedVisibility(
@@ -214,7 +221,11 @@ fun HomeScreen(
             }
         } else {
             // Layout dọc: giữ nguyên như cũ
-            LazyColumn(modifier = modifier.padding(16.dp)) {
+            LazyColumn(
+                modifier = modifier
+                    .padding(16.dp)
+                    .bounceOverscroll(bounceState)
+            ) {
                 item {
                     AnimatedVisibility(
                         visible = isVisible,

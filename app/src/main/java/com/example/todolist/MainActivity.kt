@@ -1,6 +1,7 @@
 package com.example.todolist
 
 import android.Manifest
+import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -10,12 +11,18 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
+import com.example.todolist.core.model.AppLanguage
 import com.example.todolist.di.AppModule
 import com.example.todolist.ui.layout.AppNavHost
 import com.example.todolist.ui.theme.TodolistTheme
+import com.example.todolist.util.LocaleHelper
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 class MainActivity : ComponentActivity() {
+
+    private var currentLanguage: AppLanguage = AppLanguage.VIETNAMESE
 
     // Request permission launcher
     private val requestPermissionLauncher = registerForActivityResult(
@@ -25,6 +32,21 @@ class MainActivity : ComponentActivity() {
             android.util.Log.d("MainActivity", "Notification permission granted")
         } else {
             android.util.Log.e("MainActivity", "Notification permission denied")
+        }
+    }
+
+    override fun attachBaseContext(newBase: Context?) {
+        // Load saved language synchronously
+        val context = newBase ?: return super.attachBaseContext(newBase)
+        try {
+            val appModule = AppModule(context)
+            val language = runBlocking {
+                appModule.domainModule.settingsUseCases.getSettings().first().language
+            }
+            currentLanguage = language
+            super.attachBaseContext(LocaleHelper.applyLocale(context, language))
+        } catch (e: Exception) {
+            super.attachBaseContext(newBase)
         }
     }
 
@@ -38,9 +60,29 @@ class MainActivity : ComponentActivity() {
         // Handle notification click
         handleNotificationClick()
 
+        // Watch for language changes
+        watchLanguageChanges()
+
         setContent {
             TodolistTheme {
                 AppNavHost()
+            }
+        }
+    }
+
+    private fun watchLanguageChanges() {
+        lifecycleScope.launch {
+            try {
+                val container = AppModule(applicationContext)
+                container.domainModule.settingsUseCases.getSettings().collect { settings ->
+                    if (settings.language != currentLanguage) {
+                        currentLanguage = settings.language
+                        // Recreate activity to apply new locale
+                        recreate()
+                    }
+                }
+            } catch (e: Exception) {
+                android.util.Log.e("MainActivity", "Error watching language changes", e)
             }
         }
     }

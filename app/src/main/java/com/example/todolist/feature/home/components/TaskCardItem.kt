@@ -24,6 +24,8 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.Repeat
 import androidx.compose.material.icons.filled.Edit
+import com.example.todolist.ui.common.bounceLightClick
+import com.example.todolist.ui.common.bounceClick
 
 private val TIME_FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
 
@@ -60,7 +62,8 @@ fun TaskCardItem(
         ),
         modifier = modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(20.dp)),
+            .clip(RoundedCornerShape(20.dp))
+            .bounceLightClick(),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         shape = RoundedCornerShape(20.dp)
     ) {
@@ -146,7 +149,9 @@ fun TaskCardItem(
                     ) {
                         IconButton(
                             onClick = { onEdit(task) },
-                            modifier = Modifier.size(32.dp)
+                            modifier = Modifier
+                                .size(32.dp)
+                                .bounceClick()
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Edit,
@@ -158,7 +163,9 @@ fun TaskCardItem(
 
                         IconButton(
                             onClick = { showDeleteDialog = true },
-                            modifier = Modifier.size(32.dp)
+                            modifier = Modifier
+                                .size(32.dp)
+                                .bounceClick()
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Delete,

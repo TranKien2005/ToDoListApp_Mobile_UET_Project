@@ -1,4 +1,4 @@
-package com.example.todolist.data.remote.ai
+package com.example.todolist.data.mapper
 
 import android.util.Log
 import com.example.todolist.core.model.VoiceAction

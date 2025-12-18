@@ -27,20 +27,7 @@ enum class VoiceAction {
     UNKNOWN
 }
 
-/**
- * Parameters for voice commands
- */
-@Serializable
-data class CommandParams(
-    val title: String? = null,
-    val description: String? = null,
-    val date: String? = null,           // Format: dd/MM/yyyy
-    val time: String? = null,           // Format: HH:mm
-    val duration: Int? = null,          // In minutes (for tasks only)
-    val taskId: Int? = null,            // For update/complete/delete operations
-    val missionId: Int? = null,         // For update/complete/delete operations
-    val query: String? = null           // For QUERY action: "tasks_today", "missions_week", etc.
-)
+// NOTE: CommandParams is now defined in ChatMessage.kt - reuse it from there
 
 /**
  * Voice command response from Gemini

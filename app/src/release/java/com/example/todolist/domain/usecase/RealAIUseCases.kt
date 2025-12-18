@@ -1,12 +1,15 @@
 package com.example.todolist.domain.usecase
 
 import android.util.Log
+import com.example.todolist.core.model.AiChatResponse
+import com.example.todolist.core.model.ChatMessage
+import com.example.todolist.core.model.CommandAction
 import com.example.todolist.core.model.Mission
 import com.example.todolist.core.model.MissionStoredStatus
+import com.example.todolist.core.model.PendingCommand
 import com.example.todolist.core.model.RepeatType
 import com.example.todolist.core.model.Task
-import com.example.todolist.core.model.VoiceAction
-import com.example.todolist.core.model.VoiceCommand
+import com.example.todolist.core.model.UserContext
 import com.example.todolist.domain.repository.AiRepository
 import kotlinx.coroutines.flow.first
 import java.time.LocalDate
@@ -15,97 +18,100 @@ import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
 /**
- * Real implementation of ProcessVoiceCommandUseCase
+ * Real implementation của ChatWithAIUseCase
  */
-class RealProcessVoiceCommandUseCase(
+class RealChatWithAIUseCase(
     private val aiRepository: AiRepository
-) : ProcessVoiceCommandUseCase {
+) : ChatWithAIUseCase {
 
     companion object {
-        private const val TAG = "RealProcessVoiceCmd"
+        private const val TAG = "RealChatWithAI"
     }
 
-    override suspend fun invoke(userInput: String): Result<VoiceCommand> {
-        Log.d(TAG, "Processing voice input: $userInput")
-        return aiRepository.processTextCommand(userInput)
+    override suspend fun invoke(
+        message: String,
+        conversationHistory: List<ChatMessage>,
+        userContext: UserContext
+    ): Result<AiChatResponse> {
+        Log.d(TAG, "Chatting with AI: $message")
+        return aiRepository.chat(message, conversationHistory, userContext)
     }
 }
 
 /**
- * Real implementation of ProcessAudioCommandUseCase
+ * Real implementation của ChatWithAudioUseCase
  */
-class RealProcessAudioCommandUseCase(
+class RealChatWithAudioUseCase(
     private val aiRepository: AiRepository
-) : ProcessAudioCommandUseCase {
+) : ChatWithAudioUseCase {
 
     companion object {
-        private const val TAG = "RealProcessAudioCmd"
+        private const val TAG = "RealChatWithAudio"
     }
 
-    override suspend fun invoke(audioBytes: ByteArray, mimeType: String): Result<VoiceCommand> {
-        Log.d(TAG, "Processing audio bytes: ${audioBytes.size} bytes, type: $mimeType")
-        return aiRepository.processAudioCommand(audioBytes, mimeType)
+    override suspend fun invoke(
+        audioBytes: ByteArray,
+        mimeType: String,
+        conversationHistory: List<ChatMessage>,
+        userContext: UserContext
+    ): Result<AiChatResponse> {
+        Log.d(TAG, "Chatting with audio: ${audioBytes.size} bytes")
+        return aiRepository.chatWithAudio(audioBytes, mimeType, conversationHistory, userContext)
     }
 }
 
 /**
- * Real implementation of ExecuteVoiceCommandUseCase
- * Thực thi command và trả về response từ AI (không tự sinh response)
+ * Real implementation của ExecuteCommandUseCase
+ * Thực thi command đã được confirm và trả về message
  */
-class RealExecuteVoiceCommandUseCase(
+class RealExecuteCommandUseCase(
     private val taskUseCases: TaskUseCases,
     private val missionUseCases: MissionUseCases
-) : ExecuteVoiceCommandUseCase {
+) : ExecuteCommandUseCase {
 
     companion object {
-        private const val TAG = "RealExecuteVoiceCmd"
+        private const val TAG = "RealExecuteCommand"
         private val DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy")
         private val TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm")
     }
 
-    override suspend fun invoke(command: VoiceCommand): Result<String> {
+    override suspend fun invoke(command: PendingCommand): Result<String> {
         return try {
-            Log.d(TAG, "Executing command: ${command.action}")
+            val action = command.toCommandAction()
+            Log.d(TAG, "Executing command: $action")
 
-            when (command.action) {
-                // Task operations
-                VoiceAction.CREATE_TASK -> {
+            when (action) {
+                CommandAction.CREATE_TASK -> {
                     createTask(command)
-                    Result.success(command.responseText)
+                    Result.success("Task đã được tạo thành công!")
                 }
-                VoiceAction.DELETE_TASK -> {
+                CommandAction.DELETE_TASK -> {
                     deleteTask(command)
-                    Result.success(command.responseText)
+                    Result.success("Task đã được xóa.")
                 }
-                
-                // Mission operations
-                VoiceAction.CREATE_MISSION -> {
+                CommandAction.UPDATE_TASK -> {
+                    updateTask(command)
+                    Result.success("Task đã được cập nhật.")
+                }
+                CommandAction.CREATE_MISSION -> {
                     createMission(command)
-                    Result.success(command.responseText)
+                    Result.success("Mission đã được tạo thành công!")
                 }
-                VoiceAction.DELETE_MISSION -> {
+                CommandAction.DELETE_MISSION -> {
                     deleteMission(command)
-                    Result.success(command.responseText)
+                    Result.success("Mission đã được xóa.")
                 }
-                VoiceAction.COMPLETE_MISSION -> {
+                CommandAction.UPDATE_MISSION -> {
+                    updateMission(command)
+                    Result.success("Mission đã được cập nhật.")
+                }
+                CommandAction.COMPLETE_MISSION -> {
                     completeMission(command)
-                    Result.success(command.responseText)
+                    Result.success("Mission đã được đánh dấu hoàn thành!")
                 }
-                
-                // Query - trả về response từ AI, app sẽ xử lý thêm nếu cần
-                VoiceAction.QUERY -> {
-                    // Có thể xử lý query ở đây nếu cần
-                    // Hiện tại chỉ trả về response từ AI
-                    Result.success(command.responseText)
+                null -> {
+                    Result.failure(Exception("Unknown command action: ${command.action}"))
                 }
-                
-                // Chat và Unknown - chỉ trả về response từ AI
-                VoiceAction.CHAT, VoiceAction.UNKNOWN -> {
-                    Result.success(command.responseText)
-                }
-                
-                // Các action khác chưa implement
-                else -> Result.success(command.responseText)
             }
         } catch (e: Exception) {
             Log.e(TAG, "Error executing command", e)
@@ -113,7 +119,7 @@ class RealExecuteVoiceCommandUseCase(
         }
     }
 
-    private suspend fun createTask(command: VoiceCommand) {
+    private suspend fun createTask(command: PendingCommand) {
         val params = command.params
         val date = params.date?.let { parseDate(it) } ?: LocalDate.now()
         val time = params.time?.let { parseTime(it) } ?: LocalTime.of(9, 0)
@@ -132,18 +138,50 @@ class RealExecuteVoiceCommandUseCase(
         Log.d(TAG, "Task created: ${task.title}")
     }
 
-    private suspend fun deleteTask(command: VoiceCommand) {
+    private suspend fun deleteTask(command: PendingCommand) {
+        val params = command.params
+        
+        // Ưu tiên dùng taskId nếu có
+        if (params.taskId != null) {
+            taskUseCases.deleteTask(params.taskId)
+            Log.d(TAG, "Task deleted by ID: ${params.taskId}")
+            return
+        }
+        
+        // Tìm theo title
+        val title = params.title ?: throw Exception("Task title or ID is required")
         val tasks = taskUseCases.getTasks().first()
-        val title = command.params.title ?: throw Exception("Title is required")
-
         val task = tasks.find { it.title.contains(title, ignoreCase = true) }
-            ?: throw Exception("Task không tìm thấy: $title")
+            ?: throw Exception("Task not found: $title")
 
         taskUseCases.deleteTask(task.id)
         Log.d(TAG, "Task deleted: ${task.title}")
     }
 
-    private suspend fun createMission(command: VoiceCommand) {
+    private suspend fun updateTask(command: PendingCommand) {
+        val params = command.params
+        val taskId = params.taskId ?: throw Exception("Task ID is required for update")
+        
+        val tasks = taskUseCases.getTasks().first()
+        val existingTask = tasks.find { it.id == taskId }
+            ?: throw Exception("Task not found: $taskId")
+
+        val updatedTask = existingTask.copy(
+            title = params.title ?: existingTask.title,
+            description = params.description ?: existingTask.description,
+            startTime = if (params.date != null || params.time != null) {
+                val date = params.date?.let { parseDate(it) } ?: existingTask.startTime.toLocalDate()
+                val time = params.time?.let { parseTime(it) } ?: existingTask.startTime.toLocalTime()
+                LocalDateTime.of(date, time)
+            } else existingTask.startTime,
+            durationMinutes = params.duration?.toLong() ?: existingTask.durationMinutes
+        )
+
+        taskUseCases.updateTask(updatedTask)
+        Log.d(TAG, "Task updated: ${updatedTask.title}")
+    }
+
+    private suspend fun createMission(command: PendingCommand) {
         val params = command.params
         val date = params.date?.let { parseDate(it) } ?: LocalDate.now().plusDays(7)
         val time = params.time?.let { parseTime(it) } ?: LocalTime.of(23, 59)
@@ -160,23 +198,63 @@ class RealExecuteVoiceCommandUseCase(
         Log.d(TAG, "Mission created: ${mission.title}")
     }
 
-    private suspend fun deleteMission(command: VoiceCommand) {
+    private suspend fun deleteMission(command: PendingCommand) {
+        val params = command.params
+        
+        // Ưu tiên dùng missionId nếu có
+        if (params.missionId != null) {
+            missionUseCases.deleteMission(params.missionId)
+            Log.d(TAG, "Mission deleted by ID: ${params.missionId}")
+            return
+        }
+        
+        // Tìm theo title
+        val title = params.title ?: throw Exception("Mission title or ID is required")
         val missions = missionUseCases.getMissions().first()
-        val title = command.params.title ?: throw Exception("Title is required")
-
         val mission = missions.find { it.title.contains(title, ignoreCase = true) }
-            ?: throw Exception("Mission không tìm thấy: $title")
+            ?: throw Exception("Mission not found: $title")
 
         missionUseCases.deleteMission(mission.id)
         Log.d(TAG, "Mission deleted: ${mission.title}")
     }
 
-    private suspend fun completeMission(command: VoiceCommand) {
+    private suspend fun updateMission(command: PendingCommand) {
+        val params = command.params
+        val missionId = params.missionId ?: throw Exception("Mission ID is required for update")
+        
         val missions = missionUseCases.getMissions().first()
-        val title = command.params.title ?: throw Exception("Title is required")
+        val existingMission = missions.find { it.id == missionId }
+            ?: throw Exception("Mission not found: $missionId")
 
+        val updatedMission = existingMission.copy(
+            title = params.title ?: existingMission.title,
+            description = params.description ?: existingMission.description,
+            deadline = if (params.date != null || params.time != null) {
+                val date = params.date?.let { parseDate(it) } ?: existingMission.deadline.toLocalDate()
+                val time = params.time?.let { parseTime(it) } ?: existingMission.deadline.toLocalTime()
+                LocalDateTime.of(date, time)
+            } else existingMission.deadline
+        )
+
+        missionUseCases.updateMission(updatedMission)
+        Log.d(TAG, "Mission updated: ${updatedMission.title}")
+    }
+
+    private suspend fun completeMission(command: PendingCommand) {
+        val params = command.params
+        
+        // Ưu tiên dùng missionId nếu có
+        if (params.missionId != null) {
+            missionUseCases.setMissionStatus(params.missionId, MissionStoredStatus.COMPLETED)
+            Log.d(TAG, "Mission completed by ID: ${params.missionId}")
+            return
+        }
+        
+        // Tìm theo title
+        val title = params.title ?: throw Exception("Mission title or ID is required")
+        val missions = missionUseCases.getMissions().first()
         val mission = missions.find { it.title.contains(title, ignoreCase = true) }
-            ?: throw Exception("Mission không tìm thấy: $title")
+            ?: throw Exception("Mission not found: $title")
 
         missionUseCases.setMissionStatus(mission.id, MissionStoredStatus.COMPLETED)
         Log.d(TAG, "Mission completed: ${mission.title}")
@@ -202,7 +280,7 @@ class RealExecuteVoiceCommandUseCase(
 }
 
 /**
- * Factory function to create AIUseCases for release builds
+ * Factory function để tạo AIUseCases cho release builds
  */
 fun createAIUseCases(
     aiRepository: AiRepository,
@@ -210,8 +288,8 @@ fun createAIUseCases(
     missionUseCases: MissionUseCases
 ): AIUseCases {
     return AIUseCases(
-        processVoiceCommand = RealProcessVoiceCommandUseCase(aiRepository),
-        processAudioCommand = RealProcessAudioCommandUseCase(aiRepository),
-        executeVoiceCommand = RealExecuteVoiceCommandUseCase(taskUseCases, missionUseCases)
+        chatWithAI = RealChatWithAIUseCase(aiRepository),
+        chatWithAudio = RealChatWithAudioUseCase(aiRepository),
+        executeCommand = RealExecuteCommandUseCase(taskUseCases, missionUseCases)
     )
 }

@@ -2,6 +2,7 @@ package com.example.todolist.feature.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.todolist.core.model.AppLanguage
 import com.example.todolist.core.model.Settings
 import com.example.todolist.domain.usecase.SettingsUseCases
 import kotlinx.coroutines.flow.SharingStarted
@@ -23,6 +24,13 @@ class SettingsViewModel(
     fun updateSettings(settings: Settings) {
         viewModelScope.launch {
             settingsUseCases.updateSettings(settings)
+        }
+    }
+
+    fun updateLanguage(language: AppLanguage) {
+        viewModelScope.launch {
+            val current = settings.value
+            settingsUseCases.updateSettings(current.copy(language = language))
         }
     }
 

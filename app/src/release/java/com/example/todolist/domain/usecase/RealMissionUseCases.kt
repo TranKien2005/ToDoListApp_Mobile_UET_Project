@@ -80,6 +80,15 @@ class RealGetMissionStatsUseCase(
     override operator fun invoke(referenceDate: LocalDate, granularity: StatsGranularity): Flow<List<MissionStatsEntry>> =
         repository.getMissions().map { list ->
             when (granularity) {
+                StatsGranularity.DAY -> {
+                    // Single day - show missions for today only
+                    val missionsIn = list.filter { it.deadline.toLocalDate().isEqual(referenceDate) }
+                    val completed = missionsIn.count { it.status == MissionStatus.COMPLETED }
+                    val missed = missionsIn.count { it.status == MissionStatus.MISSED }
+                    val inProgress = missionsIn.count { it.status == MissionStatus.ACTIVE }
+                    val label = referenceDate.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.getDefault())
+                    listOf(MissionStatsEntry(label, referenceDate, completed, missed, inProgress))
+                }
                 StatsGranularity.DAY_OF_WEEK -> {
                     val weekStart = referenceDate.with(java.time.temporal.TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
                     (0..6).map { i ->
@@ -132,6 +141,23 @@ class RealGetMissionStatsUseCase(
                         val inProgress = missionsIn.count { it.status == MissionStatus.ACTIVE }
                         val label = start.month.getDisplayName(TextStyle.SHORT, Locale.getDefault())
                         MissionStatsEntry(label, start, completed, missed, inProgress)
+                    }
+                }
+                StatsGranularity.YEAR -> {
+                    // Multi-year view - show stats for 5 years
+                    val centerYear = referenceDate.year
+                    (-2..2).map { offset ->
+                        val year = centerYear + offset
+                        val start = LocalDate.of(year, 1, 1)
+                        val end = LocalDate.of(year, 12, 31)
+                        val missionsIn = list.filter { d ->
+                            val ld = d.deadline.toLocalDate()
+                            (ld.isEqual(start) || ld.isAfter(start)) && (ld.isEqual(end) || ld.isBefore(end))
+                        }
+                        val completed = missionsIn.count { it.status == MissionStatus.COMPLETED }
+                        val missed = missionsIn.count { it.status == MissionStatus.MISSED }
+                        val inProgress = missionsIn.count { it.status == MissionStatus.ACTIVE }
+                        MissionStatsEntry(year.toString(), start, completed, missed, inProgress)
                     }
                 }
             }

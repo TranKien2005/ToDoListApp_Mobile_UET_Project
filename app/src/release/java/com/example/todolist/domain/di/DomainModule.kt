@@ -2,7 +2,7 @@ package com.example.todolist.domain.di
 
 import android.content.Context
 import com.example.todolist.data.local.database.AppDatabase
-import com.example.todolist.data.remote.ai.GeminiAiRepositoryImpl
+import com.example.todolist.data.remote.ai.GroqAiRepositoryImpl
 import com.example.todolist.data.repository.RoomUserRepositoryImpl
 import com.example.todolist.data.repository.RoomSettingsRepositoryImpl
 import com.example.todolist.data.repository.RoomTaskRepositoryImpl
@@ -23,7 +23,7 @@ class DomainModule(context: Context) {
     private val taskRepository = RoomTaskRepositoryImpl(database.taskDao())
     private val missionRepository = RoomMissionRepositoryImpl(database.missionDao())
     private val notificationRepository = RoomNotificationRepositoryImpl(database.notificationDao())
-    private val aiRepository = GeminiAiRepositoryImpl(appContext)
+    private val aiRepository = GroqAiRepositoryImpl()
 
     // Notification Scheduler
     private val notificationScheduler = NotificationScheduler(appContext)

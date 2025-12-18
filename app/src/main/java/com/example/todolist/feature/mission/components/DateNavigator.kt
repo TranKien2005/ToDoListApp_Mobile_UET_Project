@@ -22,6 +22,8 @@ import androidx.compose.ui.unit.sp
 import com.example.todolist.domain.usecase.StatsGranularity
 import java.time.LocalDate
 import com.example.todolist.util.formatReferenceTitle
+import com.example.todolist.R
+import androidx.compose.ui.res.stringResource
 
 @Composable
 fun DateNavigator(
@@ -76,7 +78,7 @@ fun DateNavigator(
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Previous",
+                            contentDescription = stringResource(R.string.nav_previous),
                             tint = primaryColor,
                             modifier = Modifier.size(20.dp)
                         )
@@ -100,7 +102,7 @@ fun DateNavigator(
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                            contentDescription = "Next",
+                            contentDescription = stringResource(R.string.nav_next),
                             tint = primaryColor,
                             modifier = Modifier.size(20.dp)
                         )
@@ -111,18 +113,34 @@ fun DateNavigator(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Granularity selector chips
+        // Granularity selector chips - 4 options: Ngày, Tuần, Tháng, Năm
         Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
+            // DAY - single day
+            FilterChip(
+                selected = granularity == StatsGranularity.DAY,
+                onClick = { onSetGranularity(StatsGranularity.DAY) },
+                label = { Text(stringResource(R.string.granularity_day), fontSize = 12.sp) },
+                modifier = Modifier.weight(1f),
+                leadingIcon = if (granularity == StatsGranularity.DAY) {
+                    { Icon(imageVector = Icons.Filled.CalendarToday, contentDescription = null, modifier = Modifier.size(14.dp)) }
+                } else null,
+                colors = FilterChipDefaults.filterChipColors(
+                    selectedContainerColor = primaryColor,
+                    selectedLabelColor = MaterialTheme.colorScheme.onPrimary
+                )
+            )
+
+            // WEEK - DAY_OF_WEEK (days in a week)
             FilterChip(
                 selected = granularity == StatsGranularity.DAY_OF_WEEK,
                 onClick = { onSetGranularity(StatsGranularity.DAY_OF_WEEK) },
-                label = { Text("📅 Day") },
+                label = { Text(stringResource(R.string.granularity_week), fontSize = 12.sp) },
                 modifier = Modifier.weight(1f),
                 leadingIcon = if (granularity == StatsGranularity.DAY_OF_WEEK) {
-                    { Icon(imageVector = Icons.Filled.CalendarToday, contentDescription = null, modifier = Modifier.size(16.dp)) }
+                    { Icon(imageVector = Icons.Filled.ViewWeek, contentDescription = null, modifier = Modifier.size(14.dp)) }
                 } else null,
                 colors = FilterChipDefaults.filterChipColors(
                     selectedContainerColor = primaryColor,
@@ -130,13 +148,14 @@ fun DateNavigator(
                 )
             )
 
+            // MONTH - WEEK_OF_MONTH (weeks in a month)
             FilterChip(
                 selected = granularity == StatsGranularity.WEEK_OF_MONTH,
                 onClick = { onSetGranularity(StatsGranularity.WEEK_OF_MONTH) },
-                label = { Text("📆 Week") },
+                label = { Text(stringResource(R.string.granularity_month), fontSize = 12.sp) },
                 modifier = Modifier.weight(1f),
                 leadingIcon = if (granularity == StatsGranularity.WEEK_OF_MONTH) {
-                    { Icon(imageVector = Icons.Filled.ViewWeek, contentDescription = null, modifier = Modifier.size(16.dp)) }
+                    { Icon(imageVector = Icons.Filled.DateRange, contentDescription = null, modifier = Modifier.size(14.dp)) }
                 } else null,
                 colors = FilterChipDefaults.filterChipColors(
                     selectedContainerColor = primaryColor,
@@ -144,13 +163,14 @@ fun DateNavigator(
                 )
             )
 
+            // YEAR - MONTH_OF_YEAR (months in a year)
             FilterChip(
                 selected = granularity == StatsGranularity.MONTH_OF_YEAR,
                 onClick = { onSetGranularity(StatsGranularity.MONTH_OF_YEAR) },
-                label = { Text("🗓️ Month") },
+                label = { Text(stringResource(R.string.granularity_year), fontSize = 12.sp) },
                 modifier = Modifier.weight(1f),
                 leadingIcon = if (granularity == StatsGranularity.MONTH_OF_YEAR) {
-                    { Icon(imageVector = Icons.Filled.DateRange, contentDescription = null, modifier = Modifier.size(16.dp)) }
+                    { Icon(imageVector = Icons.Filled.DateRange, contentDescription = null, modifier = Modifier.size(14.dp)) }
                 } else null,
                 colors = FilterChipDefaults.filterChipColors(
                     selectedContainerColor = primaryColor,

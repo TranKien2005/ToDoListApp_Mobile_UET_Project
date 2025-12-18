@@ -1,7 +1,6 @@
 package com.example.todolist.feature.voice
 
 import android.Manifest
-import android.app.Activity
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
@@ -20,12 +19,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.todolist.R
+import com.example.todolist.core.model.ChatMessage
+import com.example.todolist.core.model.ChatRole
+import com.example.todolist.core.model.PendingCommand
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
@@ -37,7 +37,6 @@ fun VoiceAssistantScreen(
     onBackClick: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val context = LocalContext.current
 
     // Request microphone permission
     val micPermissionState = rememberPermissionState(Manifest.permission.RECORD_AUDIO)
@@ -50,7 +49,7 @@ fun VoiceAssistantScreen(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Icon(Icons.Default.Mic, contentDescription = null)
+                        Icon(Icons.Default.SmartToy, contentDescription = null)
                         Text(stringResource(R.string.voice_assistant))
                     }
                 },
@@ -100,13 +99,31 @@ fun VoiceAssistantScreen(
                         .fillMaxWidth()
                 )
 
+                // Pending Command Confirmation Card
+                AnimatedVisibility(
+                    visible = uiState.pendingCommand != null,
+                    enter = slideInVertically(initialOffsetY = { it }) + fadeIn(),
+                    exit = slideOutVertically(targetOffsetY = { it }) + fadeOut()
+                ) {
+                    uiState.pendingCommand?.let { command ->
+                        CommandConfirmationCard(
+                            command = command,
+                            onConfirm = { viewModel.confirmPendingCommand() },
+                            onCancel = { viewModel.cancelPendingCommand() },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 8.dp)
+                        )
+                    }
+                }
+
                 // Status and Error Messages
                 StatusSection(
                     uiState = uiState,
                     modifier = Modifier.padding(horizontal = 16.dp)
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
                 // Text Input Row
                 Row(
@@ -123,7 +140,7 @@ fun VoiceAssistantScreen(
                         modifier = Modifier.weight(1f),
                         placeholder = { Text(stringResource(R.string.voice_input_placeholder)) },
                         singleLine = true,
-                        enabled = !uiState.isProcessing && !uiState.isListening,
+                        enabled = !uiState.isProcessing && !uiState.isListening && uiState.pendingCommand == null,
                         shape = RoundedCornerShape(24.dp),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = MaterialTheme.colorScheme.primary,
@@ -148,7 +165,7 @@ fun VoiceAssistantScreen(
                         }
                     )
 
-                    // Voice Button (smaller)
+                    // Voice Button
                     FloatingActionButton(
                         onClick = {
                             when {
@@ -195,9 +212,83 @@ fun VoiceAssistantScreen(
     }
 }
 
+/**
+ * Command Confirmation Card
+ */
+@Composable
+fun CommandConfirmationCard(
+    command: PendingCommand,
+    onConfirm: () -> Unit,
+    onCancel: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier,
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.tertiaryContainer
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Icon(
+                    Icons.Default.Warning,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onTertiaryContainer
+                )
+                Text(
+                    text = "Xác nhận hành động",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onTertiaryContainer
+                )
+            }
+
+            Text(
+                text = command.confirmationMessage,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onTertiaryContainer
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.End)
+            ) {
+                OutlinedButton(
+                    onClick = onCancel,
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        contentColor = MaterialTheme.colorScheme.onTertiaryContainer
+                    )
+                ) {
+                    Icon(Icons.Default.Close, contentDescription = null)
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text("Hủy")
+                }
+
+                Button(
+                    onClick = onConfirm,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary
+                    )
+                ) {
+                    Icon(Icons.Default.Check, contentDescription = null)
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text("Xác nhận")
+                }
+            }
+        }
+    }
+}
+
 @Composable
 fun ConversationHistory(
-    items: List<ConversationItem>,
+    items: List<ChatMessage>,
     modifier: Modifier = Modifier
 ) {
     val listState = rememberLazyListState()
@@ -220,7 +311,7 @@ fun ConversationHistory(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 Icon(
-                    imageVector = Icons.Default.RecordVoiceOver,
+                    imageVector = Icons.Default.SmartToy,
                     contentDescription = null,
                     modifier = Modifier.size(80.dp),
                     tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
@@ -252,15 +343,17 @@ fun ConversationHistory(
 }
 
 @Composable
-fun ConversationBubble(item: ConversationItem) {
+fun ConversationBubble(item: ChatMessage) {
+    val isUser = item.role == ChatRole.USER
+
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = if (item.isUser) Arrangement.End else Arrangement.Start
+        horizontalArrangement = if (isUser) Arrangement.End else Arrangement.Start
     ) {
         Card(
-            modifier = Modifier.widthIn(max = 280.dp),
+            modifier = Modifier.widthIn(max = 300.dp),
             colors = CardDefaults.cardColors(
-                containerColor = if (item.isUser) {
+                containerColor = if (isUser) {
                     MaterialTheme.colorScheme.primaryContainer
                 } else {
                     MaterialTheme.colorScheme.secondaryContainer
@@ -269,17 +362,17 @@ fun ConversationBubble(item: ConversationItem) {
             shape = RoundedCornerShape(
                 topStart = 16.dp,
                 topEnd = 16.dp,
-                bottomStart = if (item.isUser) 16.dp else 4.dp,
-                bottomEnd = if (item.isUser) 4.dp else 16.dp
+                bottomStart = if (isUser) 16.dp else 4.dp,
+                bottomEnd = if (isUser) 4.dp else 16.dp
             )
         ) {
             Column(
                 modifier = Modifier.padding(12.dp)
             ) {
                 Text(
-                    text = item.text,
+                    text = item.content,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = if (item.isUser) {
+                    color = if (isUser) {
                         MaterialTheme.colorScheme.onPrimaryContainer
                     } else {
                         MaterialTheme.colorScheme.onSecondaryContainer

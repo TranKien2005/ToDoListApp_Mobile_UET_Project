@@ -51,9 +51,11 @@ class MissionAnalysisViewModel(
     fun prev() {
         val ref = _referenceDate.value
         val newRef = when (_granularity.value) {
+            StatsGranularity.DAY -> ref.minusDays(1)
             StatsGranularity.DAY_OF_WEEK -> ref.minusWeeks(1)
             StatsGranularity.WEEK_OF_MONTH -> ref.minusMonths(1)
             StatsGranularity.MONTH_OF_YEAR -> ref.minusYears(1)
+            StatsGranularity.YEAR -> ref.minusYears(5)
         }
         _referenceDate.value = newRef
     }
@@ -61,9 +63,11 @@ class MissionAnalysisViewModel(
     fun next() {
         val ref = _referenceDate.value
         val newRef = when (_granularity.value) {
+            StatsGranularity.DAY -> ref.plusDays(1)
             StatsGranularity.DAY_OF_WEEK -> ref.plusWeeks(1)
             StatsGranularity.WEEK_OF_MONTH -> ref.plusMonths(1)
             StatsGranularity.MONTH_OF_YEAR -> ref.plusYears(1)
+            StatsGranularity.YEAR -> ref.plusYears(5)
         }
         _referenceDate.value = newRef
     }

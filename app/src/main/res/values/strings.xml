@@ -116,6 +116,19 @@
     <string name="legend_total">Total</string>
     <string name="legend_completed">Completed</string>
     <string name="legend_missed">Missed</string>
+    <string name="mission_statistics">Mission Statistics</string>
+    <string name="no_data_available">No data available</string>
+    <string name="summary">Summary</string>
+    <string name="total_count">Total: %1$d</string>
+    <string name="in_progress">In Progress</string>
+
+    <!-- Date Navigator -->
+    <string name="nav_previous">Previous</string>
+    <string name="nav_next">Next</string>
+    <string name="granularity_day">📅 Day</string>
+    <string name="granularity_week">📆 Week</string>
+    <string name="granularity_month">🗓️ Month</string>
+    <string name="granularity_year">📊 Year</string>
 
     <!-- Dialog Strings -->
     <string name="delete_task_title">Delete Task?</string>
@@ -151,9 +164,23 @@
     <string name="cd_list">List</string>
     <string name="cd_stats">Stats</string>
     <string name="cd_voice">Voice</string>
+    <string name="cd_ai_assistant">AI Assistant</string>
     <string name="cd_add">Add</string>
     <string name="cd_todolist">TodoList</string>
     <string name="cd_toggle_complete">Toggle Complete</string>
+
+    <!-- AI Assistant -->
+    <string name="ai_assistant">AI Assistant</string>
+    <string name="ai_assistant_hint">Press the button to start chatting</string>
+    <string name="ai_assistant_example">Try: "Create a meeting at 2pm"</string>
+
+    <!-- Settings Sliders -->
+    <string name="task_reminder_time">Task Reminder Time</string>
+    <string name="task_reminder_time_desc">Remind %1$d minutes before task starts</string>
+    <string name="mission_deadline_warning_time">Mission Deadline Warning</string>
+    <string name="mission_deadline_warning_desc">Warn %1$d minutes before deadline</string>
+    <string name="daily_summary_hour">Daily Summary Time</string>
+    <string name="daily_summary_hour_desc">Receive daily summary at %1$d:00</string>
 
 
     <!-- Notification Channel Names -->
@@ -238,4 +265,10 @@
     <string name="validation_error">Please fill in all required fields correctly</string>
     <string name="button_back">Back</string>
     <string name="button_start">Start 🚀</string>
+
+    <!-- Language Settings -->
+    <string name="language_setting">Language</string>
+    <string name="language_setting_desc">Select app language</string>
+    <string name="language_vietnamese">🇻🇳 Tiếng Việt</string>
+    <string name="language_english">🇬🇧 English</string>
 </resources>

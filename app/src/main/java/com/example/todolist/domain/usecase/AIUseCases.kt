@@ -1,49 +1,65 @@
 package com.example.todolist.domain.usecase
 
-import com.example.todolist.core.model.VoiceCommand
+import com.example.todolist.core.model.AiChatResponse
+import com.example.todolist.core.model.ChatMessage
+import com.example.todolist.core.model.PendingCommand
+import com.example.todolist.core.model.UserContext
 
 /**
- * Interface for AI-related use cases
- * - In main: only interface definition
- * - In release: real implementation using GeminiService
- * - In debug: mock implementation for testing without API key
+ * Use case để chat với AI
  */
-interface ProcessVoiceCommandUseCase {
+interface ChatWithAIUseCase {
     /**
-     * Process voice input from user
-     * @param userInput Raw text from speech recognition
-     * @return Result containing parsed VoiceCommand or error
+     * Chat với AI
+     * @param message Tin nhắn từ user
+     * @param conversationHistory Lịch sử hội thoại
+     * @param userContext Context của user (info + tasks + missions)
+     * @return AiChatResponse chứa message và optional pending command
      */
-    suspend operator fun invoke(userInput: String): Result<VoiceCommand>
+    suspend operator fun invoke(
+        message: String,
+        conversationHistory: List<ChatMessage>,
+        userContext: UserContext
+    ): Result<AiChatResponse>
 }
 
 /**
- * Process audio directly with Gemini (better Vietnamese support)
+ * Use case để chat với AI bằng audio
  */
-interface ProcessAudioCommandUseCase {
+interface ChatWithAudioUseCase {
     /**
-     * Process audio bytes directly
+     * Chat với AI bằng audio
      * @param audioBytes Audio data
-     * @param mimeType Audio format (default: audio/wav)
-     * @return Result containing parsed VoiceCommand or error
+     * @param mimeType Audio format
+     * @param conversationHistory Lịch sử hội thoại
+     * @param userContext Context của user
+     * @return AiChatResponse
      */
-    suspend operator fun invoke(audioBytes: ByteArray, mimeType: String = "audio/wav"): Result<VoiceCommand>
+    suspend operator fun invoke(
+        audioBytes: ByteArray,
+        mimeType: String = "audio/mp4",
+        conversationHistory: List<ChatMessage>,
+        userContext: UserContext
+    ): Result<AiChatResponse>
 }
 
 /**
- * Execute voice command (create task, complete mission, etc.)
- * @param command The voice command to execute
- * @return Result containing response message or error
+ * Use case để thực thi command đã được confirm
  */
-interface ExecuteVoiceCommandUseCase {
-    suspend operator fun invoke(command: VoiceCommand): Result<String>
+interface ExecuteCommandUseCase {
+    /**
+     * Thực thi command
+     * @param command Command đã được user confirm
+     * @return Result với message thành công hoặc error
+     */
+    suspend operator fun invoke(command: PendingCommand): Result<String>
 }
 
 /**
- * Aggregator for all AI use cases
+ * Aggregator cho tất cả AI use cases
  */
 data class AIUseCases(
-    val processVoiceCommand: ProcessVoiceCommandUseCase,
-    val processAudioCommand: ProcessAudioCommandUseCase,
-    val executeVoiceCommand: ExecuteVoiceCommandUseCase
+    val chatWithAI: ChatWithAIUseCase,
+    val chatWithAudio: ChatWithAudioUseCase,
+    val executeCommand: ExecuteCommandUseCase
 )

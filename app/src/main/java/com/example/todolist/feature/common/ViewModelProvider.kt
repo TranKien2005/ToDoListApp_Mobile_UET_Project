@@ -68,7 +68,9 @@ object ViewModelProvider {
         val module = getAppModule(context)
         val taskUseCases = module.domainModule.taskUseCases
         val missionUseCases = module.domainModule.missionUseCases
+        val userUseCases = module.domainModule.userUseCases
+        val settingsUseCases = module.domainModule.settingsUseCases
         val aiUseCases = module.domainModule.aiUseCases
-        return com.example.todolist.feature.voice.VoiceAssistantViewModel(taskUseCases, missionUseCases, aiUseCases, context)
+        return com.example.todolist.feature.voice.VoiceAssistantViewModel(taskUseCases, missionUseCases, userUseCases, settingsUseCases, aiUseCases, context)
     }
 }

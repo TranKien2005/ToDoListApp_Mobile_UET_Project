@@ -20,7 +20,7 @@ import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Mic
+import androidx.compose.material.icons.filled.SmartToy
 import com.example.todolist.R
 
 /**
@@ -104,7 +104,7 @@ fun BottomBar(
                             IconButton(onClick = onList) {
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.List,
-                                    contentDescription = "Missions",
+                                    contentDescription = stringResource(R.string.cd_list),
                                     tint = MaterialTheme.colorScheme.primary,
                                     modifier = Modifier.size(smallIconSize)
                                 )
@@ -121,15 +121,15 @@ fun BottomBar(
                             IconButton(onClick = onStats) {
                                 Icon(
                                     imageVector = Icons.Filled.BarChart,
-                                    contentDescription = "Analytics",
+                                    contentDescription = stringResource(R.string.cd_stats),
                                     tint = MaterialTheme.colorScheme.primary,
                                     modifier = Modifier.size(smallIconSize)
                                 )
                             }
                             IconButton(onClick = onVoice) {
                                 Icon(
-                                    imageVector = Icons.Filled.Mic,
-                                    contentDescription = "Voice",
+                                    imageVector = Icons.Filled.SmartToy,
+                                    contentDescription = stringResource(R.string.cd_ai_assistant),
                                     tint = MaterialTheme.colorScheme.primary,
                                     modifier = Modifier.size(smallIconSize)
                                 )
@@ -148,7 +148,7 @@ fun BottomBar(
                         IconButton(onClick = onList) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.List,
-                                contentDescription = "Missions",
+                                contentDescription = stringResource(R.string.cd_list),
                                 tint = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.size(smallIconSize)
                             )
@@ -163,8 +163,8 @@ fun BottomBar(
                         }
                         IconButton(onClick = onVoice) {
                             Icon(
-                                imageVector = Icons.Filled.Mic,
-                                contentDescription = "Voice",
+                                imageVector = Icons.Filled.SmartToy,
+                                contentDescription = stringResource(R.string.cd_ai_assistant),
                                 tint = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.size(smallIconSize)
                             )
@@ -191,7 +191,7 @@ fun BottomBar(
         ) {
             Icon(
                 imageVector = Icons.Filled.Add,
-                contentDescription = "Add",
+                contentDescription = stringResource(R.string.cd_add),
                 modifier = Modifier.size(32.dp)
             )
         }

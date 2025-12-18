@@ -23,7 +23,16 @@ android {
         buildConfigField("String", "TASK_API_KEY", "\"\"")
         buildConfigField("String", "AI_BASE_URL", "\"\"")
         buildConfigField("String", "AI_API_KEY", "\"\"")
-        buildConfigField("String", "GEMINI_API_KEY", "\"AIzaSyBxlkwynx0EzxG55SLjqjtcEo-TuVzEEvg\"")
+        
+        // Load API keys from local.properties (not committed to git)
+        val localProperties = java.util.Properties()
+        val localPropertiesFile = rootProject.file("local.properties")
+        if (localPropertiesFile.exists()) {
+            localProperties.load(localPropertiesFile.inputStream())
+        }
+        
+        buildConfigField("String", "GEMINI_API_KEY", "\"${localProperties.getProperty("GEMINI_API_KEY", "")}\"")
+        buildConfigField("String", "GROQ_API_KEY", "\"${localProperties.getProperty("GROQ_API_KEY", "")}\"")
     }
 
     testOptions {

@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App Name -->
+    <string name="app_name">ToDoList</string>
+
+    <!-- Common -->
+    <string name="ok">OK</string>
+    <string name="cancel">Hủy</string>
+    <string name="delete">Xóa</string>
+    <string name="edit">Sửa</string>
+    <string name="save">Lưu</string>
+    <string name="back">Quay lại</string>
+    <string name="continue_button">Tiếp tục</string>
+    <string name="more">Thêm</string>
+    <string name="less">Ẩn</string>
+    <string name="minutes">phút</string>
+
+    <!-- Home Screen -->
+    <string name="tasks_for_date">Lịch trình ngày %1$d %2$s</string>
+    <string name="no_tasks_for_this_day">Không có lịch trình ngày này</string>
+
+    <!-- Mission Screen -->
+    <string name="missions_title">Nhiệm vụ</string>
+    <string name="no_missions_found">Không có nhiệm vụ nào</string>
+
+    <!-- Settings Screen -->
+    <string name="settings">Cài đặt</string>
+    <string name="user_profile">Hồ sơ người dùng</string>
+    <string name="notification_settings">Cài đặt thông báo</string>
+    <string name="daily_mission_notifications">Thông báo nhiệm vụ hàng ngày</string>
+    <string name="daily_mission_notifications_desc">Thông báo về nhiệm vụ có deadline hôm nay</string>
+    <string name="weekly_mission_notifications">Thông báo nhiệm vụ hàng tuần</string>
+    <string name="weekly_mission_notifications_desc">Thông báo về nhiệm vụ có deadline tuần này</string>
+    <string name="monthly_mission_notifications">Thông báo nhiệm vụ hàng tháng</string>
+    <string name="monthly_mission_notifications_desc">Thông báo về nhiệm vụ có deadline tháng này</string>
+    <string name="overdue_notifications">Thông báo quá hạn</string>
+    <string name="overdue_notifications_desc">Thông báo khi lịch trình/nhiệm vụ quá hạn</string>
+    <string name="full_name">Họ và tên</string>
+    <string name="age">Tuổi</string>
+    <string name="gender">Giới tính</string>
+    <string name="save_profile">Lưu hồ sơ</string>
+
+    <!-- Onboarding Screen -->
+    <string name="todolist">ToDoList</string>
+    <string name="tagline">Sắp xếp cuộc sống, từng bước một</string>
+    <string name="feature_create_tasks">Tạo và quản lý lịch trình dễ dàng</string>
+    <string name="feature_set_goals">Đặt mục tiêu và theo dõi nhiệm vụ</string>
+    <string name="feature_analyze">Phân tích hiệu suất của bạn</string>
+    <string name="feature_reminders">Nhắc nhở và thông báo thông minh</string>
+    <string name="lets_start">Bắt đầu!</string>
+
+    <!-- Notification Screen -->
+    <string name="notifications">Thông báo</string>
+    <string name="mark_all_as_read">Đánh dấu tất cả đã đọc</string>
+    <string name="delete_all">Xóa tất cả</string>
+    <string name="delete_all_confirmation">Bạn có chắc muốn xóa tất cả thông báo?</string>
+    <string name="no_notifications">Không có thông báo</string>
+    <string name="no_notifications_desc">Bạn đã xem hết!</string>
+    <string name="mark_as_read">Đánh dấu đã đọc</string>
+    <string name="delete_notification">Xóa</string>
+
+    <!-- Add/Edit Item Dialog -->
+    <string name="edit_task">Sửa lịch trình</string>
+    <string name="edit_mission">Sửa nhiệm vụ</string>
+    <string name="add_new_task">Thêm lịch trình mới</string>
+    <string name="add_new_mission">Thêm nhiệm vụ mới</string>
+    <string name="update_details">Cập nhật thông tin bên dưới</string>
+    <string name="fill_details">Điền thông tin bên dưới</string>
+    <string name="task_label">Lịch trình</string>
+    <string name="mission_label">Nhiệm vụ</string>
+    <string name="title">Tiêu đề</string>
+    <string name="description">Mô tả</string>
+    <string name="enter_task_title">Nhập tiêu đề lịch trình</string>
+    <string name="enter_mission_title">Nhập tiêu đề nhiệm vụ</string>
+    <string name="add_details">Thêm chi tiết…</string>
+    <string name="date">Ngày</string>
+    <string name="time">Giờ</string>
+    <string name="duration_minutes">Thời lượng (phút)</string>
+    <string name="duration_placeholder">ví dụ: 60</string>
+    <string name="title_required">Tiêu đề là bắt buộc</string>
+    <string name="description_required">Mô tả là bắt buộc</string>
+    <string name="duration_required">Thời lượng là bắt buộc</string>
+    <string name="must_be_number">Phải là số</string>
+
+    <!-- Mission Status -->
+    <string name="status_done">Hoàn thành</string>
+    <string name="status_missed">Bỏ lỡ</string>
+    <string name="status_active">Đang thực hiện</string>
+
+    <!-- Filter -->
+    <string name="filter_by_status">Lọc theo trạng thái</string>
+    <string name="filter_all">Tất cả</string>
+    <string name="filter_done">✓ Hoàn thành</string>
+    <string name="filter_active">○ Đang làm</string>
+    <string name="filter_missed">✗ Bỏ lỡ</string>
+
+    <!-- Week Days -->
+    <string name="monday">T2</string>
+    <string name="tuesday">T3</string>
+    <string name="wednesday">T4</string>
+    <string name="thursday">T5</string>
+    <string name="friday">T6</string>
+    <string name="saturday">T7</string>
+    <string name="sunday">CN</string>
+
+    <!-- Bottom Navigation -->
+    <string name="home">Trang chủ</string>
+    <string name="list">Danh sách</string>
+    <string name="stats">Thống kê</string>
+    <string name="voice">Giọng nói</string>
+    <string name="add">Thêm</string>
+
+    <!-- Mission Analysis -->
+    <string name="mission_analytics">Phân tích nhiệm vụ</string>
+    <string name="track_mission_progress">Theo dõi tiến độ nhiệm vụ theo thời gian</string>
+    <string name="legend_total">Tổng</string>
+    <string name="legend_completed">Hoàn thành</string>
+    <string name="legend_missed">Bỏ lỡ</string>
+    <string name="mission_statistics">Thống kê nhiệm vụ</string>
+    <string name="no_data_available">Không có dữ liệu</string>
+    <string name="summary">Tóm tắt</string>
+    <string name="total_count">Tổng: %1$d</string>
+    <string name="in_progress">Đang thực hiện</string>
+
+    <!-- Date Navigator -->
+    <string name="nav_previous">Trước</string>
+    <string name="nav_next">Sau</string>
+    <string name="granularity_day">📅 Ngày</string>
+    <string name="granularity_week">📆 Tuần</string>
+    <string name="granularity_month">🗓️ Tháng</string>
+    <string name="granularity_year">📊 Năm</string>
+
+    <!-- Dialog Strings -->
+    <string name="delete_task_title">Xóa lịch trình?</string>
+    <string name="delete_task_message">Bạn có chắc muốn xóa \"%1$s\"?\n\nHành động này không thể hoàn tác.</string>
+    <string name="delete_mission_title">Xóa nhiệm vụ?</string>
+    <string name="delete_mission_message">Bạn có chắc muốn xóa \"%1$s\"?\n\nHành động này không thể hoàn tác.</string>
+    <string name="success_title">Thành công!</string>
+    <string name="error_title">Lỗi</string>
+    <string name="warning_title">Cảnh báo</string>
+    <string name="info_title">Thông tin</string>
+
+    <!-- Success Messages -->
+    <string name="task_created_success">Tạo lịch trình thành công!</string>
+    <string name="task_updated_success">Cập nhật lịch trình thành công!</string>
+    <string name="task_deleted_success">Xóa lịch trình thành công!</string>
+    <string name="mission_created_success">Tạo nhiệm vụ thành công!</string>
+    <string name="mission_updated_success">Cập nhật nhiệm vụ thành công!</string>
+    <string name="mission_deleted_success">Xóa nhiệm vụ thành công!</string>
+    <string name="profile_updated_success">Cập nhật hồ sơ thành công!</string>
+    <string name="settings_saved_success">Lưu cài đặt thành công!</string>
+
+    <!-- Error Messages -->
+    <string name="generic_error">Đã xảy ra lỗi. Vui lòng thử lại.</string>
+    <string name="network_error">Lỗi mạng. Vui lòng kiểm tra kết nối.</string>
+    <string name="save_failed">Lưu thất bại. Vui lòng thử lại.</string>
+    <string name="delete_failed">Xóa thất bại. Vui lòng thử lại.</string>
+
+    <!-- Content Descriptions -->
+    <string name="cd_back">Quay lại</string>
+    <string name="cd_delete">Xóa</string>
+    <string name="cd_edit">Sửa</string>
+    <string name="cd_home">Trang chủ</string>
+    <string name="cd_list">Danh sách</string>
+    <string name="cd_stats">Thống kê</string>
+    <string name="cd_voice">Giọng nói</string>
+    <string name="cd_ai_assistant">Trợ lý AI</string>
+    <string name="cd_add">Thêm</string>
+    <string name="cd_todolist">ToDoList</string>
+    <string name="cd_toggle_complete">Chuyển đổi hoàn thành</string>
+
+    <!-- AI Assistant -->
+    <string name="ai_assistant">Trợ lý AI</string>
+    <string name="ai_assistant_hint">Nhấn nút để bắt đầu trò chuyện</string>
+    <string name="ai_assistant_example">Thử: "Tạo lịch họp lúc 2 giờ chiều"</string>
+
+    <!-- Settings Sliders -->
+    <string name="task_reminder_time">Thời gian nhắc nhở lịch trình</string>
+    <string name="task_reminder_time_desc">Nhắc nhở %1$d phút trước khi bắt đầu</string>
+    <string name="mission_deadline_warning_time">Cảnh báo deadline nhiệm vụ</string>
+    <string name="mission_deadline_warning_desc">Cảnh báo %1$d phút trước deadline</string>
+    <string name="daily_summary_hour">Thời gian tóm tắt hàng ngày</string>
+    <string name="daily_summary_hour_desc">Nhận tóm tắt lúc %1$d:00</string>
+
+    <!-- Notification Channel Names -->
+    <string name="channel_task_reminder_name">Nhắc nhở lịch trình</string>
+    <string name="channel_task_reminder_desc">Thông báo cho lịch trình sắp tới</string>
+    <string name="channel_mission_summary_name">Tóm tắt nhiệm vụ</string>
+    <string name="channel_mission_summary_desc">Tóm tắt nhiệm vụ hàng ngày, tuần, tháng</string>
+    <string name="channel_mission_warning_name">Cảnh báo nhiệm vụ</string>
+    <string name="channel_mission_warning_desc">Cảnh báo deadline nhiệm vụ</string>
+    <string name="channel_overdue_name">Thông báo quá hạn</string>
+    <string name="channel_overdue_desc">Thông báo lịch trình và nhiệm vụ quá hạn</string>
+
+    <!-- Task Notification Messages -->
+    <string name="notification_task_reminder_title">Nhắc nhở: %1$s %2$s %3$s</string>
+    <string name="notification_task_reminder_message">%1$s</string>
+
+    <!-- Mission Notification Messages -->
+    <string name="notification_mission_warning_title">%1$s</string>
+    <string name="notification_mission_warning_message">%1$s</string>
+
+    <!-- Mission Summary Notifications -->
+    <string name="notification_daily_summary_title">Báo cáo hôm nay</string>
+    <string name="notification_weekly_summary_title">Báo cáo tuần này</string>
+    <string name="notification_monthly_summary_title">Báo cáo tháng này</string>
+    <string name="notification_summary_and_more">… và %1$d nhiệm vụ khác</string>
+
+    <!-- Mission Overdue Notification -->
+    <string name="notification_mission_overdue_title">%1$s</string>
+    <string name="notification_mission_overdue_message">%1$s</string>
+
+    <!-- Mission Notification Prefixes -->
+    <string name="notification_prefix_warning">Cảnh báo deadline: </string>
+    <string name="notification_prefix_overdue">Quá hạn: </string>
+
+    <!-- Timestamp Formats -->
+    <string name="time_just_now">Vừa xong</string>
+    <string name="time_minutes_ago">%1$d phút trước</string>
+    <string name="time_hours_ago">%1$d giờ trước</string>
+    <string name="time_days_ago">%1$d ngày trước</string>
+
+    <!-- Voice Assistant Screen -->
+    <string name="voice_assistant">Trợ lý giọng nói</string>
+    <string name="voice_assistant_hint">Nhấn nút mic để bắt đầu</string>
+    <string name="voice_assistant_example">Thử: \"Tạo lịch họp lúc 2 giờ chiều\"</string>
+    <string name="voice_input_placeholder">Nhập tin nhắn…</string>
+    <string name="voice_processing">Đang xử lý với AI…</string>
+    <string name="voice_listening">Đang nghe…</string>
+    <string name="voice_speaking">Đang nói…</string>
+    <string name="voice_error_recording">Không thể bắt đầu ghi âm</string>
+    <string name="voice_error_audio">Không thể lấy dữ liệu âm thanh</string>
+    <string name="voice_error_processing">Lỗi xử lý: %1$s</string>
+    <string name="voice_error_execute">Lỗi thực thi: %1$s</string>
+    <string name="voice_error_tts">Lỗi chuyển văn bản thành giọng nói</string>
+    <string name="voice_error_unknown">Xin lỗi, tôi không hiểu yêu cầu của bạn.</string>
+    <string name="voice_error_failed">Đã xảy ra lỗi khi xử lý yêu cầu của bạn.</string>
+    <string name="cd_send">Gửi</string>
+    <string name="cd_voice_input">Nhập giọng nói</string>
+    <string name="cd_stop_listening">Dừng nghe</string>
+    <string name="cd_stop_speaking">Dừng nói</string>
+    <string name="cd_start_voice_input">Bắt đầu nhập giọng nói</string>
+    <string name="cd_clear_conversation">Xóa cuộc trò chuyện</string>
+
+    <!-- Delete Account -->
+    <string name="delete_account">Xóa tài khoản</string>
+    <string name="delete_account_title">Xóa tài khoản?</string>
+    <string name="delete_account_message">Bạn có chắc muốn xóa tài khoản?\n\nĐiều này sẽ xóa vĩnh viễn tất cả dữ liệu của bạn bao gồm lịch trình, nhiệm vụ và cài đặt.\n\nHành động này không thể hoàn tác.</string>
+    <string name="delete_account_confirm">Xóa tất cả</string>
+
+    <!-- Onboarding Profile Form -->
+    <string name="create_your_profile">Tạo hồ sơ của bạn</string>
+    <string name="tell_us_about_yourself">Cho chúng tôi biết về bạn</string>
+    <string name="enter_full_name">Nhập họ và tên</string>
+    <string name="enter_age">Nhập tuổi</string>
+    <string name="gender_male">👨 Nam</string>
+    <string name="gender_female">👩 Nữ</string>
+    <string name="gender_other">🧑 Khác</string>
+    <string name="validation_error">Vui lòng điền đầy đủ thông tin</string>
+    <string name="button_back">Quay lại</string>
+    <string name="button_start">Bắt đầu 🚀</string>
+
+    <!-- Language Settings -->
+    <string name="language_setting">Ngôn ngữ</string>
+    <string name="language_setting_desc">Chọn ngôn ngữ ứng dụng</string>
+    <string name="language_vietnamese">🇻🇳 Tiếng Việt</string>
+    <string name="language_english">🇬🇧 English</string>
+</resources>

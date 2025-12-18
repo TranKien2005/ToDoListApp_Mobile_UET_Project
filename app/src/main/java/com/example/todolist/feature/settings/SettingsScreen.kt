@@ -25,6 +25,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.todolist.R
+import com.example.todolist.core.model.AppLanguage
 import com.example.todolist.core.model.Gender
 import com.example.todolist.core.model.User
 import com.example.todolist.feature.user.UserViewModel
@@ -186,6 +187,22 @@ fun SettingsScreen(
                         onUpdateUser = { updatedUser ->
                             userViewModel.updateUser(updatedUser)
                         }
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Language Settings Section
+                AnimatedVisibility(
+                    visible = isVisible,
+                    enter = slideInVertically(
+                        initialOffsetY = { -it },
+                        animationSpec = tween(600, delayMillis = 150)
+                    ) + fadeIn(animationSpec = tween(600, delayMillis = 150))
+                ) {
+                    LanguageSettingItem(
+                        currentLanguage = settings.language,
+                        onLanguageChange = { viewModel.updateLanguage(it) }
                     )
                 }
 
@@ -447,11 +464,11 @@ fun TaskReminderSlider(
                 .padding(16.dp)
         ) {
             Text(
-                text = "Task Reminder Time",
+                text = stringResource(R.string.task_reminder_time),
                 style = MaterialTheme.typography.titleMedium
             )
             Text(
-                text = "Remind $reminderMinutes minutes before task starts",
+                text = stringResource(R.string.task_reminder_time_desc, reminderMinutes),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -481,11 +498,11 @@ fun MissionDeadlineWarningSlider(
                 .padding(16.dp)
         ) {
             Text(
-                text = "Mission Deadline Warning Time",
+                text = stringResource(R.string.mission_deadline_warning_time),
                 style = MaterialTheme.typography.titleMedium
             )
             Text(
-                text = "Warn $warningMinutes minutes before mission deadline",
+                text = stringResource(R.string.mission_deadline_warning_desc, warningMinutes),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -515,11 +532,11 @@ fun DailySummaryHourSlider(
                 .padding(16.dp)
         ) {
             Text(
-                text = "Daily Summary Hour",
+                text = stringResource(R.string.daily_summary_hour),
                 style = MaterialTheme.typography.titleMedium
             )
             Text(
-                text = "Receive daily summary at $summaryHour:00",
+                text = stringResource(R.string.daily_summary_hour_desc, summaryHour),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -578,6 +595,87 @@ fun SwitchSettingItem(
                 checked = checked,
                 onCheckedChange = onCheckedChange
             )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun LanguageSettingItem(
+    currentLanguage: AppLanguage,
+    onLanguageChange: (AppLanguage) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+    
+    val vietnameseLabel = stringResource(R.string.language_vietnamese)
+    val englishLabel = stringResource(R.string.language_english)
+    
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        shape = RoundedCornerShape(16.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(text = "🌐", fontSize = 20.sp)
+                Column {
+                    Text(
+                        text = stringResource(R.string.language_setting),
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    Text(
+                        text = stringResource(R.string.language_setting_desc),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+            
+            ExposedDropdownMenuBox(
+                expanded = expanded,
+                onExpandedChange = { expanded = !expanded }
+            ) {
+                OutlinedTextField(
+                    value = when (currentLanguage) {
+                        AppLanguage.VIETNAMESE -> vietnameseLabel
+                        AppLanguage.ENGLISH -> englishLabel
+                    },
+                    onValueChange = {},
+                    readOnly = true,
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .menuAnchor(MenuAnchorType.PrimaryNotEditable),
+                    shape = RoundedCornerShape(12.dp)
+                )
+                ExposedDropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false }
+                ) {
+                    DropdownMenuItem(
+                        text = { Text(vietnameseLabel) },
+                        onClick = {
+                            onLanguageChange(AppLanguage.VIETNAMESE)
+                            expanded = false
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = { Text(englishLabel) },
+                        onClick = {
+                            onLanguageChange(AppLanguage.ENGLISH)
+                            expanded = false
+                        }
+                    )
+                }
+            }
         }
     }
 }

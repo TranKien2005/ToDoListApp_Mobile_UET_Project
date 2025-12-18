@@ -2,11 +2,17 @@ package com.example.todolist.data.mapper
 
 import com.example.todolist.data.local.entity.SettingsEntity
 import com.example.todolist.core.model.Settings
+import com.example.todolist.core.model.AppLanguage
 
 object SettingsEntityMapper {
     fun toDomain(entity: SettingsEntity): Settings {
         return Settings(
             id = entity.id,
+            language = try { 
+                AppLanguage.valueOf(entity.language) 
+            } catch (e: Exception) { 
+                AppLanguage.VIETNAMESE 
+            },
             taskReminderMinutes = entity.taskReminderMinutes,
             notifyDailyMissions = entity.notifyDailyMissions,
             notifyWeeklyMissions = entity.notifyWeeklyMissions,
@@ -20,6 +26,7 @@ object SettingsEntityMapper {
     fun fromDomain(settings: Settings): SettingsEntity {
         return SettingsEntity(
             id = settings.id,
+            language = settings.language.name,
             taskReminderMinutes = settings.taskReminderMinutes,
             notifyDailyMissions = settings.notifyDailyMissions,
             notifyWeeklyMissions = settings.notifyWeeklyMissions,
